@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus">
+  <meta name="author" content="">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+ <script type="text/javascript">
+ ( function(_window) {
+    var editor = {};
+    editor.game = new game();
+    editor.uidcounter = function() {
+	    editor.uidcounter.uids = [];
+	    editor.uidcounter.createUid = function() {
+        var abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        var uid = '';
+        while (uid.length < 5 || editor.uidcounter.hasUid(uid)) {
+          for (var i = 0; i < 5; i++) {
+            uid = uid + abc.substring(Math.random() * abc.length, 1);
+          }
+          if (editor.uidcounter.hasUid(uid)) {
+            uid = '';
+          }
+        }
+        return uid;
+      }
+	    editor.uidcounter.deleteUid = function(_uid) {
+        for (var i = 0; i < editor.uidcounter.uids.length; i++) {
+          if (editor.uidcounter.uids[i] == _uid) {
+            editor.uidcounter.uids.splice(i, 1);
+          }
+        }
+      }
+      editor.uidcounter.hasUid = function(_uid) {
+        for (var i = 0; i < editor.uidcounter.uids.length; i++) {
+          if (editor.uidcounter.uids[i] == _uid) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
+    editor.resizeEditor = function() {
+
+    };
+    editor.createGame = function() {
+      editor.game = new game();
+    };
+    editor.importGame = function(_json) {
+      editor.game = new game();
+      editor.game.load(JSON.parse(_json));
+    };
+    editor.exportGame = function() {
+
+    };
+    editor.testGame = function() {
+
+    };
+    editor.showNotes = function() {
+
+    };
+    editor.createNote = function() {
+      var note = new game.note(editor.uidcounter.createUid);
+      editor.game.notes.push(note);
+      editor.game.currentNote = note;
+    };
+    editor.deleteNote = function(_uid) {
+      for (var i = 0; i < editor.game.notes.length; i++) {
+        if (editor.game.notes[i].uid == _uid) {
+          var note = editor.game.notes.splice(i, 1);
+          //delete text from mediamanager
+          editor.game.mediamanager.deteteMedia(note.title);
+          //delete title from mediamanager
+          editor.game.mediamanager.deteteMedia(note.text);
+          //delete connections texts
+          for (var j = 0; j < note.connections.length; j++) {
+            editor.game.mediamanager.deteteMedia(note.connections[j].text);
+          }
+        }
+      }
+    };
+    editor.setNoteTitle = function(_uid, _t) {
+      var note = editor.game.getNote(_uid);
+      if (note.title == null) {
+        note.title = editor.uidcounter.createUid();
+      }
+      editor.game.mediamanager.setMedia(note.title, _t);
+    };
+    editor.setNoteText = function(_uid, _txt) {
+      var note = editor.game.getNote(_uid);
+      if (note.text == null) {
+        note.text = editor.uidcounter.createUid();
+      }
+      editor.game.mediamanager.setMedia(note.text, _t);
+    };
+    editor.setconnectionToNote = function(from_uid, to_uid, _txt) {
+      var note = editor.game.getNote(from_uid);
+      var connection = note.getconnection(to_uid);
+      if (connection == null) {
+        connection = new game.note.connection(editor.uidcounter.createUid());
+        connection.to = to_uid;
+      }
+      if (connection.text == null) {
+        connection.text = editor.uidcounter.createUid();
+      }
+      editor.game.mediamanager.setMedia(connection.text, _txt);
+    };
+    editor.deleteconnectionFromNote = function(from_uid, to_uid) {
+      //delete text from mediamanager
+      //delete connection from note
+      var note = editor.game.getNote(from_uid);
+      for (var i = 0; i < note.connections.length; i++) {
+        if (note.connections[i].to == to_uid) {
+          var connection = note.connections.splice(i, 1);
+          editor.game.mediamanager.deleteMedia(connection.text);
+        }
+      }
+    };
+    _window.editor = editor;
+
+    var game = function() {
+      game.notes = [];
+      game.keyValues = function() {
+        game.keyValues.pairs = [];
+
+        game.keyValues.add = function(_k, _v) {
+          game.keyValues.pairs.push(new game.keyValue(_k, _v));
+        }
+        game.keyValues.has = function(_k) {
+          for (var i = 0; i < game.keyValues.pairs.length; i++) {
+            if (game.keyValues.pairs[i].key == _k) {
+              return true;
+            }
+          }
+          return false;
+        }
+        game.keyValues.set = function(_k, _v) {
+          if (game.keyValues.has(_k)) {
+            game.keyValues.get(_k).value = _v;
+          } else {
+            game.keyValues.add(_k, _v);
+          }
+        }
+        game.keyValues.get = function(_k) {
+          for (var i = 0; i < game.keyValues.pairs.length; i++) {
+            if (game.keyValues.pairs[i].key == _k) {
+              return game.keyValues.pairs[i];
+            }
+          }
+          return null;
+        }
+        game.keyValues.getValue = function(_k) {
+          for (var i = 0; i < game.keyValues.pairs.length; i++) {
+            if (game.keyValues.pairs[i].key == _k) {
+              return game.keyValues.pairs[i].value;//base64.decode()
+            }
+          }
+          return null;
+        }
+      };
+
+      game.ctx = null;
+      game.btx = null;
+      game.backbuffer = null;
+
+      game.program = null;//code to perform
+      game.init = function() {
+
+      };
+      game.stop = function() {
+
+      };
+      game.start = function() {
+
+      };
+      game.pause = function() {
+
+      };
+      game.save = function() {
+
+      };
+      game.load = function() {
+
+      };
+      game.startNoteUid = null;
+      game.currentNoteUid = null;
+      game.update = function() {
+        game.draw();
+        requestAnimationFrame(game.update);
+      };
+      game.draw = function() {
+
+      };
+
+      game.mediamanager = function() {
+        game.mediamanager.currentLanguage = null;
+        game.mediamanager.defaultLanguage = null;
+
+        game.mediamanager.setMedia = function() {
+
+        };
+        game.mediamanager.deleteMedia = function() {
+
+        };
+        game.mediamanager.addLanguage = function() {
+
+        };
+        game.mediamanager.setCurrentLanguage = function() {
+
+        };
+        game.mediamanager.languages = [];
+
+      };
+      game.keyValue = function() {
+        game.keyValue.key = null;
+        game.keyValue.value = null;
+      };
+      game.medialanguage = function(_lan) {
+        game.medialanguage.medias = [];
+        game.medialanguage.language = _lan;
+        game.medialanguage.setMedia = function(_key, _media) {
+
+        };
+        game.medialanguage.addMedia = function(_key, _media) {
+
+        };
+	      game.medialanguage.deleteMedia = function(_key) {
+
+        };
+        game.medialanguage.hasMedia = function(_key) {
+
+        };
+      };
+    };
+
+    _window.game = game;
+    /*
+    game.notes[]
+    game.program //code to perform
+    game.init
+    game.stop
+    game.start
+    game.pause
+    game.save
+    game.load
+    game.startNoteUid
+    game.currentNoteUid
+    game.keyValues ->
+      keyValue pair
+    game.update
+    game.draw
+    game.ctx
+    game.btx
+    game.backbuffer
+
+    game.mediamanager
+
+    game.mediamanager.setMedia
+    game.mediamanager.deleteMedia
+    game.mediamanager.addLanguage
+    game.mediamanager.setCurrentLanguage
+    game.mediamanager.currentLanguage
+    game.mediamanager.defaultLanguage
+    game.mediamanager.languages[] ->
+      game.medialanguage.setMedia
+      game.medialanguage.addMedia
+	    game.medialanguage.deleteMedia
+
+    game.note.title
+    game.note.uid
+    game.note.text
+    game.note.connections[]->
+	    connection.text
+	    connection.refUid*/
+   })(window)
+
+
+ </script>
+ <style type="text/css">
+ </style>
+ </head>
+ <body>
+
+ </body>
+</html>

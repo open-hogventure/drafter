@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus">
+  <meta name="author" content="">
+  <meta name="keywords" content="">
+  <meta name="description" content="">
+ <script type="text/javascript">
+
+  (
+    function(_win) {
+      var editor = {};
+      editor.func = null;
+      editor.width = 0;
+      editor.height = 0;
+      /***/
+      editor.saveCode = function() {
+        var code = getElement('texteditor').value;
+        _win.localStorage.setItem('texteditor-code', code);
+      };
+      /***/
+      editor.loadCode = function() {
+        var code = _win.localStorage.getItem('texteditor-code');
+        getElement('texteditor').value = code;
+      };
+      /***/
+      editor.testCode = function() {
+        var code = _win.localStorage.getItem('texteditor-code');
+        //getElement('texteditor').value = code;
+        //perform the code
+        try {
+          editor.func = new Function('window,document', code);
+          editor.func(window, document);
+        } catch(e) {
+          console.log(e);
+        }
+      };
+      /***/
+      editor.stopTest = function() {
+        if (editor.func != null) {
+          editor.func = null;
+          document.body.removeChild(document.body.childNodes[document.body.childNodes.length-1]);
+        }
+      };
+      editor.toggleEditor = function() {
+        if (getElement('noteeditor').style.display != 'none') {
+          getElement('noteeditor').style.display = 'none';
+          getElement('texteditor').style.display = 'block';
+        } else {
+          getElement('noteeditor').style.display = 'block';
+          getElement('texteditor').style.display = 'none';
+        }
+      };
+      editor.resize = function() {
+        editor.width = window.innerWidth;
+        editor.height = window.innerHeight;
+        var ele = getElement('editor');
+        ele.style.height = (editor.height - 5) + 'px';
+        ele.style.width = (editor.width - 5) + 'px';
+      }
+      /***/
+      _win.createElement = function(_ele) {
+        return document.createElement(_ele);
+      };
+      /***/
+      _win.getElement = function(_id) {
+        return document.getElementById(_id);
+      };
+      /***/
+      _win.editor = editor;
+      _win.onload = function() { editor.resize(); };
+    }
+
+  )(window);
+
+  function Note(_uid) {
+    this.uid = _uid;
+    this.text = null;
+    this.title = null;
+    this.connections = [];
+  }
+  function Connection(_uid) {
+    this.uid = _uid;
+    this.text = null;
+    this.to_uid = null;
+  }
+  var game = {};
+  game.notes = [];
+  game.load = function() {
+    var data = window.localStorage.getItem('game_data');
+    data = JSON.parse(data);
+    for (var i = 0; i < data['notes'].length;i++) {
+      var note = new Note(data['notes'][i]['uid']);
+      note.load(data['notes'][i]);
+      game.notes.push(note);
+    }
+  };
+ </script>
+ <style type="text/css">
+ </style>
+ </head>
+ <body>
+ <div id="editor" style="position: absolute; top: 0; left: 0; margin: 0; padding: 0;">
+  <div id="editorbar" style="position: absolute; top: 0; left: 0; width: 100%; height: 10%; max-height: 10%;">
+  <button onclick="editor.saveCode();" style="float: left;">save code</button>
+  <button onclick="editor.loadCode();" style="float: left;">load code</button>
+  <button onclick="editor.testCode();" style="float: left;">test code</button>
+  <button onclick="editor.stopTest();" style="float: left;">stop test</button>
+  <button onclick="editor.toggleEditor();" style="float: left;">toggle</button>
+  <br style="clear: both;">
+  </div>
+  <textarea id="texteditor" style="position: absolute; top: 9%; left: 0; width: 80%; min-height: 90%; height: 90%; max-height: 90%;">var game_cvs = createElement('canvas');
+game_cvs.style.width = '450px';
+game_cvs.style.height = '300px';
+game_cvs.style.background = '#000';
+game_cvs.style.position = 'absolute';
+game_cvs.style.top = '50px';
+game_cvs.style.left = '0px';
+document.body.appendChild(game_cvs);
+
+function Note(_uid) {
+ this.uid = _uid;
+ this.text = null;
+ this.title = null;
+ this.connections = [];
+}
+function Connection(_uid) {
+ this.uid = _uid;
+ this.text = null;
+ this.to_uid = null;
+}
+var game = {};
+game.notes = [];
+game.load = function() {
+ var data = window.localStorage.getItem('game_data');
+ data = JSON.parse(data);
+ for (var i = 0; i < data['notes'].length;i++) {
+  var note = new Note(data['notes'][i]['uid']);
+  note.load(data['notes'][i]);
+  game.notes.push(note);
+ }
+};
+  </textarea>
+  <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">
+    <div id="note_" style="position: absolute; top: 5px; left: 5px; width: 150px; height: 100px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); ">
+    <input type="text" id="note_title" style="width: 140px; height: 15px; padding: 2px; border: 0; background: transparent;" placeholder="note title" /><textarea id="note_text" style="width: 140px; height: 75px; padding: 2px; border: 0; background: transparent; resize: none;" placeholder="note text"></textarea>
+    </div>
+  </div>
+ </div>
+ </body>
+</html>

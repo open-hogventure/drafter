@@ -6,6 +6,97 @@
   <meta name="author" content="">
   <meta name="keywords" content="">
   <meta name="description" content="">
+<script type="text/javascript" id="game_source">
+/**
+@class Note
+@param _uid
+@since 2014-05-17
+*/
+function Note(_uid) {
+ /***/
+ this.uid = _uid;
+ /***/
+ this.text = null;
+ /***/
+ this.title = null;
+ /***/
+ this.connections = [];
+ /***/
+ this.load = function(data) {
+  this.uid = data['uid'];
+  this.text = data['text'];
+  this.title = data['title'];
+  for (var i = 0; i < data['connections'].length;i++) {
+   var connection = new Note(data['connections'][i]['uid']);
+   connection.load(data['connections'][i]);
+   game.notes.push(connection);
+  }
+ };
+};
+/**
+@class Connection
+@param _uid
+@since 2014-05-17
+*/
+function Connection(_uid) {
+ /***/
+ this.uid = _uid;
+ /***/
+ this.text = null;
+ /***/
+ this.to_uid = null;
+ /***/
+ this.load = function(data) {
+  this.uid = data['uid'];
+  this.text = data['text'];
+  this.to_uid = data['to_uid'];
+ };
+};
+/**
+The main singelton
+@class game
+@since 2014-05-17
+*/
+var game = {
+ /**
+ the major data type array
+ @parameter notes 
+ @since 2014-05-17
+ */
+ notes : [],
+ /**
+ @method load
+ @since 2014-05-17
+ */
+ load : function() {
+  var data = window.localStorage.getItem('game_data');
+  data = JSON.parse(data);
+  if (data == null) {
+   //avoid a cannot read property exception
+   console.log(data);
+   return;
+  }
+  for (var i = 0; i < data['notes'].length;i++) {
+   var note = new Note(data['notes'][i]['uid']);
+   note.load(data['notes'][i]);
+   game.notes.push(note);
+  }
+ },
+ /**
+ @method save
+ @since 2014-05-17
+ */
+ save : function() {
+  var data = JSON.stringify(game);
+  console.log('save data:');
+  console.log(data);
+  console.log(':save data');
+  window.localStorage.setItem('game_data', data);
+ }
+};
+
+
+</script>
  <script type="text/javascript">
 
   (
@@ -14,6 +105,7 @@
       editor.func = null;
       editor.width = 0;
       editor.height = 0;
+      editor.game = game;
       /***/
       editor.saveCode = function() {
         var code = getElement('texteditor').value;
@@ -58,6 +150,9 @@
         var ele = getElement('editor');
         ele.style.height = (editor.height - 5) + 'px';
         ele.style.width = (editor.width - 5) + 'px';
+        var game_source = getElement('game_source').innerHTML;
+        getElement('texteditor').value = getElement('texteditor').value + game_source;
+        editor.game = game;
       }
       /***/
       _win.createElement = function(_ele) {
@@ -73,29 +168,6 @@
     }
 
   )(window);
-
-  function Note(_uid) {
-    this.uid = _uid;
-    this.text = null;
-    this.title = null;
-    this.connections = [];
-  }
-  function Connection(_uid) {
-    this.uid = _uid;
-    this.text = null;
-    this.to_uid = null;
-  }
-  var game = {};
-  game.notes = [];
-  game.load = function() {
-    var data = window.localStorage.getItem('game_data');
-    data = JSON.parse(data);
-    for (var i = 0; i < data['notes'].length;i++) {
-      var note = new Note(data['notes'][i]['uid']);
-      note.load(data['notes'][i]);
-      game.notes.push(note);
-    }
-  };
  </script>
  <style type="text/css">
  </style>
@@ -118,29 +190,6 @@ game_cvs.style.position = 'absolute';
 game_cvs.style.top = '50px';
 game_cvs.style.left = '0px';
 document.body.appendChild(game_cvs);
-
-function Note(_uid) {
- this.uid = _uid;
- this.text = null;
- this.title = null;
- this.connections = [];
-}
-function Connection(_uid) {
- this.uid = _uid;
- this.text = null;
- this.to_uid = null;
-}
-var game = {};
-game.notes = [];
-game.load = function() {
- var data = window.localStorage.getItem('game_data');
- data = JSON.parse(data);
- for (var i = 0; i < data['notes'].length;i++) {
-  var note = new Note(data['notes'][i]['uid']);
-  note.load(data['notes'][i]);
-  game.notes.push(note);
- }
-};
   </textarea>
   <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">
     <div id="note_" style="position: absolute; top: 5px; left: 5px; width: 150px; height: 100px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); ">

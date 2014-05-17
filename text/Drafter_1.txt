@@ -1,0 +1,39 @@
+Creating a twine like game and editor in html and javascript.
+As if i haven't done it thousend times - more or less. More 
+less than less or never. I've done it often enough before.
+
+Once I started with Java, the good old way with applets in HTML 
+pages and Applications. Scripting was a problem, data either.
+So I had have chosen XML - a HTML like data-language anyone
+can adopt to her own way.
+Java was great - Applets in the late 90's, early 2000's super
+hyper advanced. It was way much better than Flash back in this 
+years. Meanwhile now a days it is odd. Realy odd. 
+Even the company that created Java is out of business. The SUN
+was going down.
+
+But the night was short.
+Javascript, V8, HTML5 was rising at the horizon, thanks to 
+Google, Firefox and Linux's KHTML webkit.
+Native web technology for the natives of the web since the early
+1990's.
+
+So I've already made this editor and games with this editor.
+I made games, a lot of games. It is a casuality for me.
+
+I made a lot of versions of the editor in Java and Javascript.
+One you can still find here: http://hogventure.com/draft/
+
+And now again?
+Yes, but there is a reason.
+This is something I want to write about.
+A making of story as you can imagine.
+This is not only may making of story it will be also yours.
+Part of the story will be the code, the comments, the resons why,
+the circumstances, the motivations - I promise.
+I do not know, if I will be able to fullfill the whole promise, 
+but I do try.
+
+I explained my choice of language mixure, Javascript, the script
+language of the web and HTML5, the hyper text markup language.
+

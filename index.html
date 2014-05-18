@@ -130,6 +130,7 @@ var game = {
    console.log(data);
    return;
   }
+  this.notes = [];
   for (var i = 0; i < data['notes'].length;i++) {
    var note = new Note(data['notes'][i]['uid']);
    note.load(data['notes'][i]);
@@ -240,6 +241,10 @@ var game = {
         getElement('texteditor').value = code;
         var data = _win.localStorage.getItem('game_data');
         editor.game.load(data);
+        getElement('noteeditor').innerHTML = '';
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          editor.addNote(editor.game.notes[i]);
+        }
       };
       /**
       @method testGame
@@ -349,9 +354,12 @@ var game = {
       @method addNote
       @since 2014-05-18
       */
-      editor.addNote = function() {
-        var note = new Note(editor.createUid());
-        editor.game.notes.push(note);
+      editor.addNote = function( note ) {
+        if (note == null) {
+          note = new Note(editor.createUid());
+          editor.game.notes.push(note);
+          console.log(note);
+        }
         //add the visual note container to the noteeditor
         var ele = getElement('noteeditor');
         var child = createElement('div');
@@ -363,8 +371,8 @@ var game = {
         if (editor.noteStartX + 150 > editor.width) {
           editor.noteStartX = editor.noteStartX + 150 - editor.width;
         }
-        if (editor.noteStartY + 110 > editor.height) {
-          editor.noteStartY = editor.noteStartY + 110 - editor.height;
+        if (editor.noteStartY + 110 > editor.height * 0.9) {
+          editor.noteStartY = editor.noteStartY + 110 - (editor.height * 0.9);
         }
         child.style.left = editor.noteStartX+'px';
         child.style.top = editor.noteStartY+'px';
@@ -496,6 +504,10 @@ var game = {
  </script>
  <style type="text/css">
 body {margin: 0; padding: 0;}
+#editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
+#editorbar {position: absolute; top: 0; left: 0; width: 100%; height: 10%; max-height: 10%;}
+#texteditor { position: absolute; top: 9%; left: 0; width: 80%; min-height: 90%; height: 90%; max-height: 90%;}
+#noteeditor { position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none; overflow: hidden; }
 .note{position: absolute; top: 5px; left: 5px; width: 150px; height: 100px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); }
 .note_bar {margin: 1px; background: #009; width: 148px; height: 15px; color: white;}
 .note_uid {font-size: 12px; font-family: sans-serif;}
@@ -504,8 +516,8 @@ body {margin: 0; padding: 0;}
  </style>
  </head>
  <body>
- <div id="editor" style="position: absolute; top: 0; left: 0; margin: 0; padding: 0;">
-  <div id="editorbar" style="position: absolute; top: 0; left: 0; width: 100%; height: 10%; max-height: 10%;">
+ <div id="editor">
+  <div id="editorbar">
   <button onclick="editor.saveCodeAndGame();" style="float: left;">save code and game</button>
   <button onclick="editor.loadCodeAndGame();" style="float: left;">load code and game</button>
   <button onclick="editor.testGame();" style="float: left;">test game</button>
@@ -514,7 +526,7 @@ body {margin: 0; padding: 0;}
   <button onclick="editor.addNote();" style="float: left;">add note</button>
   <br style="clear: both;">
   </div>
-  <textarea id="texteditor" style="position: absolute; top: 9%; left: 0; width: 80%; min-height: 90%; height: 90%; max-height: 90%;">var game_cvs = createElement('canvas');
+  <textarea id="texteditor" class="texteditor">var game_cvs = createElement('canvas');
 game_cvs.style.width = '450px';
 game_cvs.style.height = '300px';
 game_cvs.style.background = '#000';
@@ -523,7 +535,7 @@ game_cvs.style.top = '50px';
 game_cvs.style.left = '0px';
 document.body.appendChild(game_cvs);
   </textarea>
-  <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">
+  <div id="noteeditor" class="noteeditor">
     <!--div id="note_" class="note">
     <div id="note_bar" class="note_bar"><span id="note_uid" class="note_uid">n0UID</span></div>
     <input type="text" id="note_title" class="note_title" placeholder="note title" /><textarea id="note_text" class="note_text" placeholder="note text"></textarea>

@@ -147,6 +147,10 @@ var game = {
   console.log(':save data');
   window.localStorage.setItem('game_data', data);
  },
+ /**
+ @class mediamanager
+ @since 2014-05-18
+ */
  mediamanager : {
   defaultLanguage : 'en',
   currentLanguage : 'en',
@@ -279,7 +283,7 @@ var game = {
         var uid = '';
         while (uid.length < 5 || editor.hasUid(uid)) {
           for (var i = 0; i < 5; i++) {
-            uid = uid + abc.substring(Math.floor(Math.random()*abc.length), 1);
+            uid = uid + abc.substr(Math.floor(Math.random()*abc.length), 1);
           }
           if (editor.hasUid(uid)) {
             uid = '';
@@ -312,6 +316,8 @@ var game = {
           }
         }
       }
+      editor.noteStartX = 5;
+      editor.noteStartY = 5;
       /**
       @method addNote
       @since 2014-05-18
@@ -320,6 +326,41 @@ var game = {
         var note = new Note(editor.createUid());
         editor.game.notes.push(note);
         //add the visual note container to the noteeditor
+        var ele = getElement('noteeditor');
+        var child = createElement('div');
+        child.className = 'note';
+        child.setAttribute('id','note_'+note.uid);
+        ele.appendChild(child);
+        editor.noteStartX += 160;
+        editor.noteStartY += 110;
+        if (editor.noteStartX + 150 > editor.width) {
+          editor.noteStartX = editor.noteStartX + 150 - editor.width;
+        }
+        if (editor.noteStartY + 110 > editor.height) {
+          editor.noteStartY = editor.noteStartY + 110 - editor.height;
+        }
+        child.style.left = editor.noteStartX+'px';
+        child.style.top = editor.noteStartY+'px';
+        var child2 = createElement('div');
+        child2.setAttribute('id','note_'+note.uid+'_bar');
+        child2.className = 'note_bar';
+        child.appendChild(child2);
+        var child3 = createElement('span');
+        child3.setAttribute('id','note_'+note.uid+'_uid');
+        child3.className ='note_uid';
+        child3.appendChild(document.createTextNode(note.uid));
+        child2.appendChild(child3);
+        child2 = createElement('input');
+        child2.setAttribute('type','text'); 
+        child2.setAttribute('id','note_'+note.uid+'_title');
+        child2.className ='note_title';
+        child2.setAttribute('placeholder','note title');
+        child.appendChild(child2);        
+        child2 = createElement('textarea');
+        child2.setAttribute('id','note_'+note.uid+'_text');
+        child2.className = 'note_text';
+        child2.setAttribute('placeholder','note text');
+        child.appendChild(child2);
       }
       /**
       @method deleteNote
@@ -352,7 +393,8 @@ var game = {
       editor.mousedown = function(eve) {
         if (!editor.pressed) {    
           var ele = eve.target;
-          var uid = (ele.id.split('_'))[0]+'_';
+          var splits = ele.id.split('_');
+          var uid = splits[0]+'_'+splits[1];
           ele = getElement(uid);
           if (ele == null) {
             //do not know, what todo here right now
@@ -375,7 +417,8 @@ var game = {
       editor.mousemove = function(eve) {
         if (editor.pressed) {
           var ele = eve.target;
-          var uid = (ele.id.split('_'))[0]+'_';
+          var splits = ele.id.split('_');
+          var uid = splits[0]+'_'+splits[1];
           ele = getElement(uid);
           var x = ele.offsetLeft + eve.pageX - editor.ox;
           var y = ele.offsetTop + eve.pageY - editor.oy;
@@ -425,6 +468,12 @@ var game = {
 
  </script>
  <style type="text/css">
+body {margin: 0; padding: 0;}
+.note{position: absolute; top: 5px; left: 5px; width: 150px; height: 100px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); }
+.note_bar {margin: 1px; background: #009; width: 148px; height: 15px; color: white;}
+.note_uid {font-size: 12px; font-family: sans-serif;}
+.note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
+.note_text {width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;}
  </style>
  </head>
  <body>
@@ -448,10 +497,10 @@ game_cvs.style.left = '0px';
 document.body.appendChild(game_cvs);
   </textarea>
   <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">    
-    <div id="note_" style="position: absolute; top: 5px; left: 5px; width: 150px; height: 100px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); ">
-    <div id="note_bar" style="margin: 1px; background: #009; width: 148px; height: 15px; color: white;"><span id="note_bar" style="font-size: 12px; font-family: sans-serif;">n0UID</span></div>
-    <input type="text" id="note_title" style="width: 145px; height: 15px; padding: 2px; border: 0; background: transparent;" placeholder="note title" /><textarea id="note_text" style="width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;" placeholder="note text"></textarea>
-    </div>
+    <!--div id="note_" class="note">
+    <div id="note_bar" class="note_bar"><span id="note_uid" class="note_uid">n0UID</span></div>
+    <input type="text" id="note_title" class="note_title" placeholder="note title" /><textarea id="note_text" class="note_text" placeholder="note text"></textarea>
+    </div-->
   </div>
  </div>
  </body>

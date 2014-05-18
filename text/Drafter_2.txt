@@ -30,3 +30,9 @@ I use GIT and my GITHUB account. And I use browsers: essentially
 the chrome browser in it's latest iteration - canary. Besides
 this one the Firefox and Aurora, IE 11, Opera. A lot of testing
 tools.
+
+Tools are important for (game) development. One of the reasons,
+why I'm writing a tool, anyone can use to edit a tool the story
+game engine. finally I will use both, to write a story-based 
+5 times 5 tile game. a sort of story puzzle.
+

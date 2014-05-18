@@ -114,7 +114,7 @@ The main singleton
 var game = {
  /**
  the major data type array
- @parameter notes 
+ @parameter notes
  @since 2014-05-17
  */
  notes : [],
@@ -159,7 +159,7 @@ var game = {
   setCurrentLanguage : function(_lan) {
    this.currentLanguage = _lan;
    if (!this.hasLanguage(_lan)) {
-    this.addLanguage(_lan);    
+    this.addLanguage(_lan);
    }
   },
   addLanguage : function(_lan) {
@@ -170,7 +170,7 @@ var game = {
    for (var i = 0; i < this.languages.length; i++) {
     if (this.languages[i] == _lan) {
      return true;
-    }  
+    }
    }
    return false;
   },
@@ -178,7 +178,7 @@ var game = {
    for (var i = 0; i < this.mediaLanguages.length; i++) {
     if (this.mediaLanguages[i].language == this.currentLanguage) {
      return this.mediaLanguages[i];
-    }  
+    }
    }
    this.currentLanguage = this.defaultLanguage;
    var language = new MediaLanguage(this.currentLanguage);
@@ -187,7 +187,7 @@ var game = {
    return language;
   },
   setMedia : function(_k, _v) {
-   //type64=true|false would regulate de/encoding or not 
+   //type64=true|false would regulate de/encoding or not
    for (var i = 0; i < this.mediaLanguages.length; i++) {
     this.mediaLanguages[i].setMedia(_k, _v);
    }
@@ -294,7 +294,7 @@ var game = {
         editor.game = game;
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
         //experimental from here
-        
+
       };
       /**
       @parameter uidcounter
@@ -378,11 +378,11 @@ var game = {
         child3.appendChild(document.createTextNode(note.uid));
         child2.appendChild(child3);
         child2 = createElement('input');
-        child2.setAttribute('type','text'); 
+        child2.setAttribute('type','text');
         child2.setAttribute('id','note_'+note.uid+'_title');
         child2.className ='note_title';
         child2.setAttribute('placeholder','note title');
-        child.appendChild(child2);        
+        child.appendChild(child2);
         child2 = createElement('textarea');
         child2.setAttribute('id','note_'+note.uid+'_text');
         child2.className = 'note_text';
@@ -418,7 +418,7 @@ var game = {
       @since 2014-05-18
       */
       editor.mousedown = function(eve) {
-        if (!editor.pressed) {    
+        if (!editor.pressed) {
           var ele = eve.target;
           var splits = ele.id.split('_');
           var uid = splits[0]+'_'+splits[1];
@@ -523,7 +523,7 @@ game_cvs.style.top = '50px';
 game_cvs.style.left = '0px';
 document.body.appendChild(game_cvs);
   </textarea>
-  <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">    
+  <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">
     <!--div id="note_" class="note">
     <div id="note_bar" class="note_bar"><span id="note_uid" class="note_uid">n0UID</span></div>
     <input type="text" id="note_title" class="note_title" placeholder="note title" /><textarea id="note_text" class="note_text" placeholder="note text"></textarea>

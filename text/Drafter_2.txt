@@ -1,8 +1,8 @@
 Once I added drafter.html, which is a initial sketch. It may
-contain code, that might work, but never ment to do so. The
+contain code, that might work, but never meant to do so. The
 editor seams to be fully implemented although it needs to be
 tested and indeed I have to do a lot of makeup. Optical and
-fuctional ones. And more testing.
+functional ones. And more testing.
 
 With game_prototype.js I added a second sketch. This time for the
 game. Here I have to work on the code. Basically the code
@@ -13,7 +13,7 @@ Jet the sun is shining again.
 The idea once had been called self and smalltalk.
 
 Both so called self containing environments, which means that you
-excute the program code that you have written inside the
+execute the program code that you have written inside the
 environment. Those things are IDEs combined with a VM or a
 runtime environment.
 
@@ -26,7 +26,7 @@ for storytelling games.
 
 All this because tools are important.
 My favorite tool is a text-editor called editplus. For versioning
-I use GIT and my GITHUB account. And I use browsers: essantially
+I use GIT and my GITHUB account. And I use browsers: essentially
 the chrome browser in it's latest iteration - canary. Besides
 this one the Firefox and Aurora, IE 11, Opera. A lot of testing
 tools.

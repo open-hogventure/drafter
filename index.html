@@ -6,6 +6,7 @@
   <meta name="author" content="">
   <meta name="keywords" content="">
   <meta name="description" content="">
+<script type="text/javascript" src="js/base64.js"></script>
 <script type="text/javascript" id="game_source">
 /**
 @class Note
@@ -53,6 +54,59 @@ function Connection(_uid) {
  };
 };
 /**
+@class MediaLanguage
+@param _lan
+@since 2014-05-18
+*/
+function MediaLanguage(_lan) {
+ this.language = _lan;
+ this.medias = [];
+ this.setMedia = function(_k, _v) {
+  if (this.hasMedia(_k)) {
+   this.getMedia(_k).value = Base64.encode(_v);
+  } else {
+   this.addMedia(_k, _v);
+  }
+ }
+ this.getMedia = function(_k) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return this.medias[i];
+   }
+  }
+  return null;
+ }
+ this.getMediaValue = function(_k) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return Base64.decode(this.medias[i].value);
+   }
+  }
+  return null;
+ }
+ this.hasMedia = function(_k, _v) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return true;
+   }
+  }
+  return false;
+ }
+ this.deleteMedia = function(_k, _v) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return this.medias.splice(i, 1);
+   }
+  }
+ }
+ this.addMedia = function(_k, _v) {
+  this.medias.push(this.createMedia(_k, _v));
+ }
+ this.createMedia = function(_k, _v) {
+  return { key : _k, value : Base64.encode(_v) };
+ }
+}
+/**
 The main singleton
 @class game
 @since 2014-05-17
@@ -79,7 +133,7 @@ var game = {
   for (var i = 0; i < data['notes'].length;i++) {
    var note = new Note(data['notes'][i]['uid']);
    note.load(data['notes'][i]);
-   game.notes.push(note);
+   this.notes.push(note);
   }
  },
  /**
@@ -92,9 +146,61 @@ var game = {
   console.log(data);
   console.log(':save data');
   window.localStorage.setItem('game_data', data);
+ },
+ mediamanager : {
+  defaultLanguage : 'en',
+  currentLanguage : 'en',
+  languages : [],
+  mediaLanguages : [],
+  setCurrentLanguage : function(_lan) {
+   this.currentLanguage = _lan;
+   if (!this.hasLanguage(_lan)) {
+    this.addLanguage(_lan);    
+   }
+  },
+  addLanguage : function(_lan) {
+   this.mediaLanguages.push( new MediaLanguage(_lan) );
+   this.languages.push(_lan);
+  },
+  hasLanguage : function(_lan) {
+   for (var i = 0; i < this.languages.length; i++) {
+    if (this.languages[i] == _lan) {
+     return true;
+    }  
+   }
+   return false;
+  },
+  getCurrentLanguage : function() {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    if (this.mediaLanguages[i].language == this.currentLanguage) {
+     return this.mediaLanguages[i];
+    }  
+   }
+   this.currentLanguage = this.defaultLanguage;
+   var language = new MediaLanguage(this.currentLanguage);
+   this.mediaLanguages.push( language );
+   this.languages.push(this.currentLanguage);
+   return language;
+  },
+  setMedia : function(_k, _v) {
+   //type64=true|false would regulate de/encoding or not 
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    this.mediaLanguages[i].setMedia(_k, _v);
+   }
+  },
+  deleteMedia : function(_k) {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    this.mediaLanguages[i].deleteMedia(_k);
+   }
+  },
+  getMedia : function(_k) {
+   this.getCurrentLanguage().getMedia(_k);
+  },
+  getMediaValue : function(_k) {
+   this.getCurrentLanguage().getMediaValue(_k);
+  }
  }
 };
-
 
 </script>
  <script type="text/javascript">
@@ -102,9 +208,13 @@ var game = {
   (
     function(_win) {
       var editor = {};
+      /***/
       editor.func = null;
+      /***/
       editor.width = 0;
+      /***/
       editor.height = 0;
+      /***/
       editor.game = game;
       /***/
       editor.saveCode = function() {
@@ -155,11 +265,148 @@ var game = {
         var game_source = getElement('game_source').innerHTML;
         getElement('texteditor').value = getElement('texteditor').value + game_source;
         editor.game = game;
-        //experimental
-        ele = getElement('note_').addEventListener('mousedown', mousedown, false);
-        ele = getElement('note_').addEventListener('mousemove', mousemove, false);
-        ele = getElement('note_').addEventListener('mouseup', mouseup, false);
-        ele = getElement('note_').addEventListener('mouseout', mouseout, false);
+        ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
+        //experimental from here
+        
+      };
+      editor.uidcounter = [];
+      /**
+      @method createUid
+      @since 2014-05-18
+      */
+      editor.createUid = function() {
+        var abc = 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var uid = '';
+        while (uid.length < 5 || editor.hasUid(uid)) {
+          for (var i = 0; i < 5; i++) {
+            uid = uid + abc.substring(Math.floor(Math.random()*abc.length), 1);
+          }
+          if (editor.hasUid(uid)) {
+            uid = '';
+          }
+        }
+        editor.uidcounter.push(uid);
+        return uid;
+      }
+      /**
+      @method hasUid
+      @since 2014-05-18
+      @param _uid
+      */
+      editor.hasUid = function(_uid) {
+        for (var i = 0; i < editor.uidcounter.length; i++) {
+          if (editor.uidcounter[i] == _uid) {
+            return true;
+          }
+        }
+        return false;
+      }
+      /**
+      @method deleteUid
+      @since 2014-05-18
+      */
+      editor.deleteUid = function(_uid) {
+        for (var i = 0; i < editor.uidcounter.length; i++) {
+          if (editor.uidcounter[i] == _uid) {
+            editor.uidcounter.splice(i, 1);
+          }
+        }
+      }
+      /**
+      @method addNote
+      @since 2014-05-18
+      */
+      editor.addNote = function() {
+        var note = new Note(editor.createUid());
+        editor.game.notes.push(note);
+        //add the visual note container to the noteeditor
+      }
+      /**
+      @method deleteNote
+      @since 2014-05-18
+      */
+      editor.deleteNote = function(_uid) {
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          if (editor.game.notes[i].uid == _uid) {
+            editor.game.notes.splice(i, 1);
+            //delete the uid from the uid couter
+            //delete the links' uids
+            //delete the medias from the mediamanager
+          }
+        }
+      }
+      /***/
+      editor.pressed = false;
+      /***/
+      editor.ox = 0;
+      /***/
+      editor.oy = 0;
+      /**
+      attach to 'noteeditor' element
+      if uid begins with note it is a note
+      no loop is needed
+      @method mousedown
+      @param eve
+      @since 2014-05-18
+      */
+      editor.mousedown = function(eve) {
+        if (!editor.pressed) {    
+          var ele = eve.target;
+          var uid = (ele.id.split('_'))[0]+'_';
+          ele = getElement(uid);
+          if (ele == null) {
+            //do not know, what todo here right now
+          } else {
+            ele.addEventListener('mousemove', editor.mousemove, false);
+            ele.addEventListener('mouseup', editor.mouseup, false);
+            ele.addEventListener('mouseout', editor.mouseout, false);
+            editor.ox = eve.pageX;
+            editor.oy = eve.pageY;
+            console.log(ele.id+':'+eve.pageX+','+eve.pageY);
+            editor.pressed = true;
+          }
+        }
+      }
+      /**
+      @method mousemove
+      @param eve
+      @since 2014-05-18
+      */
+      editor.mousemove = function(eve) {
+        if (editor.pressed) {
+          var ele = eve.target;
+          var uid = (ele.id.split('_'))[0]+'_';
+          ele = getElement(uid);
+          var x = ele.offsetLeft + eve.pageX - editor.ox;
+          var y = ele.offsetTop + eve.pageY - editor.oy;
+          ele.style.top = y + 'px';
+          ele.style.left = x + 'px';
+          //console.log(ele.id+':'+eve.pageX+','+eve.pageY+','+ele.offsetLeft+','+ele.offsetTop);
+          editor.ox = eve.pageX;
+          editor.oy = eve.pageY;
+        }
+      }
+      /**
+      @method mouseup
+      @param eve
+      @since 2014-05-18
+      */
+      editor.mouseup = function(eve) {
+        if (editor.pressed) {
+          editor.pressed = false;
+          //remove mouse listeners here?
+        }
+      }
+      /**
+      @method mouseout
+      @param eve
+      @since 2014-05-18
+      */
+      editor.mouseout = function(eve) {
+        if (editor.pressed) {
+          editor.pressed = false;
+          //remove mouse listeners here?
+        }
       }
       /***/
       _win.createElement = function(_ele) {
@@ -176,47 +423,6 @@ var game = {
 
   )(window);
 
-  var pressed = false;
-  var ox = 0;
-  var oy = 0;
-
-  function mousedown(eve) {
-    if (!pressed) {    
-      var ele = eve.target;
-      ox = eve.pageX;
-      oy = eve.pageY;
-      console.log(ele.id+':'+eve.pageX+','+eve.pageY);
-      pressed = true;
-    }
-  }
-
-  function mousemove(eve) {
-    if (pressed) {
-      var ele = eve.target;
-      var uid = (ele.id.split('_'))[0]+'_';
-      ele = getElement(uid);
-      var x = ele.offsetLeft + eve.pageX - ox;
-      var y = ele.offsetTop + eve.pageY - oy;
-      ele.style.top = y + 'px';
-      ele.style.left = x + 'px';
-      console.log(ele.id+':'+eve.pageX+','+eve.pageY+','+ele.offsetLeft+','+ele.offsetTop);
-      ox = eve.pageX;
-      oy = eve.pageY;
-      
-    }
-  }
-
-  function mouseup(eve) {
-    if (pressed) {
-      pressed = false;
-    }
-  }
-
-  function mouseout(eve) {
-    if (pressed) {
-      pressed = false;
-    }
-  }
  </script>
  <style type="text/css">
  </style>

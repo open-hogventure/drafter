@@ -53,7 +53,7 @@ function Connection(_uid) {
  };
 };
 /**
-The main singelton
+The main singleton
 @class game
 @since 2014-05-17
 */
@@ -135,6 +135,7 @@ var game = {
           document.body.removeChild(document.body.childNodes[document.body.childNodes.length-1]);
         }
       };
+      /***/
       editor.toggleEditor = function() {
         if (getElement('noteeditor').style.display != 'none') {
           getElement('noteeditor').style.display = 'none';
@@ -144,6 +145,7 @@ var game = {
           getElement('texteditor').style.display = 'none';
         }
       };
+      /***/
       editor.resize = function() {
         editor.width = window.innerWidth;
         editor.height = window.innerHeight;
@@ -153,6 +155,11 @@ var game = {
         var game_source = getElement('game_source').innerHTML;
         getElement('texteditor').value = getElement('texteditor').value + game_source;
         editor.game = game;
+        //experimental
+        ele = getElement('note_').addEventListener('mousedown', mousedown, false);
+        ele = getElement('note_').addEventListener('mousemove', mousemove, false);
+        ele = getElement('note_').addEventListener('mouseup', mouseup, false);
+        ele = getElement('note_').addEventListener('mouseout', mouseout, false);
       }
       /***/
       _win.createElement = function(_ele) {
@@ -168,6 +175,48 @@ var game = {
     }
 
   )(window);
+
+  var pressed = false;
+  var ox = 0;
+  var oy = 0;
+
+  function mousedown(eve) {
+    if (!pressed) {    
+      var ele = eve.target;
+      ox = eve.pageX;
+      oy = eve.pageY;
+      console.log(ele.id+':'+eve.pageX+','+eve.pageY);
+      pressed = true;
+    }
+  }
+
+  function mousemove(eve) {
+    if (pressed) {
+      var ele = eve.target;
+      var uid = (ele.id.split('_'))[0]+'_';
+      ele = getElement(uid);
+      var x = ele.offsetLeft + eve.pageX - ox;
+      var y = ele.offsetTop + eve.pageY - oy;
+      ele.style.top = y + 'px';
+      ele.style.left = x + 'px';
+      console.log(ele.id+':'+eve.pageX+','+eve.pageY+','+ele.offsetLeft+','+ele.offsetTop);
+      ox = eve.pageX;
+      oy = eve.pageY;
+      
+    }
+  }
+
+  function mouseup(eve) {
+    if (pressed) {
+      pressed = false;
+    }
+  }
+
+  function mouseout(eve) {
+    if (pressed) {
+      pressed = false;
+    }
+  }
  </script>
  <style type="text/css">
  </style>
@@ -180,6 +229,7 @@ var game = {
   <button onclick="editor.testCode();" style="float: left;">test code</button>
   <button onclick="editor.stopTest();" style="float: left;">stop test</button>
   <button onclick="editor.toggleEditor();" style="float: left;">toggle</button>
+  <button onclick="editor.addNote();" style="float: left;">add note</button>
   <br style="clear: both;">
   </div>
   <textarea id="texteditor" style="position: absolute; top: 9%; left: 0; width: 80%; min-height: 90%; height: 90%; max-height: 90%;">var game_cvs = createElement('canvas');
@@ -191,9 +241,10 @@ game_cvs.style.top = '50px';
 game_cvs.style.left = '0px';
 document.body.appendChild(game_cvs);
   </textarea>
-  <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">
+  <div id="noteeditor" style="position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none;">    
     <div id="note_" style="position: absolute; top: 5px; left: 5px; width: 150px; height: 100px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); ">
-    <input type="text" id="note_title" style="width: 140px; height: 15px; padding: 2px; border: 0; background: transparent;" placeholder="note title" /><textarea id="note_text" style="width: 140px; height: 75px; padding: 2px; border: 0; background: transparent; resize: none;" placeholder="note text"></textarea>
+    <div id="note_bar" style="margin: 1px; background: #009; width: 148px; height: 15px; color: white;"><span id="note_bar" style="font-size: 12px; font-family: sans-serif;">n0UID</span></div>
+    <input type="text" id="note_title" style="width: 145px; height: 15px; padding: 2px; border: 0; background: transparent;" placeholder="note title" /><textarea id="note_text" style="width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;" placeholder="note text"></textarea>
     </div>
   </div>
  </div>

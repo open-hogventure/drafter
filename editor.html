@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="malte kosian">
+  <meta name="Author" content="malte kosian">
+  <meta name="Keywords" content="self containing web editor">
+  <meta name="Description" content="A self containing web editor">
+  <title>self containing web editor</title>
+<script type="text/javascript" id="the_source">
+(
+ function(_win) {
+  var editor = {};
+  editor.func = null;
+
+  editor.test = function() {
+   //if (editor.func == null) {
+    var code = getElement('code').value;
+    console.log(code);
+    editor.func = new Function('window, document, editor', code);
+    editor.func(_win, document, editor);
+   //}
+  };
+  _win.createElement = function(id) { document.createElement(id); };
+  _win.getElement = function(id) { return document.getElementById(id); };
+  _win.editor = editor;
+ }
+)(window);
+</script>
+  <!--
+(
+ function(_win) {
+  var editor = {};
+  editor.func = null;
+
+  editor.test = function() {
+   if (editor.func == null) {
+    var code = getElement('code').value;
+    console.log(code);
+    editor.func = new Function('window, document, editor', code);
+    editor.func(_win, document, editor);
+   }
+  };
+  editor.stopTest = function() {
+   console.log('stop test');
+   document.body.removeChild(getElement('stop_test'));
+   editor.func = null;
+  };
+  _win.createElement = function(id) { return document.createElement(id); };
+  _win.getElement = function(id) { return document.getElementById(id); };
+  _win.editor = editor;
+ }
+)(window);
+
+var stopButton = document.createElement('button');
+stopButton.appendChild(document.createTextNode('stop test'));
+stopButton.setAttribute('id', 'stop_test');
+stopButton.setAttribute('onClick', 'editor.stopTest()');
+document.body.appendChild(stopButton);
+
+getElement('the_source').innerHTML = getElement('code').value;
+  -->
+  <style type="text/css">
+   body {margin: 0; padding: 0;}
+   #code {width: 98%; height: 500px; resize: none;}
+  </style>
+ </head>
+ <body>
+  <button id="test" onclick="editor.test();">test</button>
+  <textarea id="code" name="code" placeholder="code belongs here">getElement('code').value = getElement('the_source').innerHTML;
+  </textarea>
+ </body>
+</html>
+

@@ -29,26 +29,30 @@
   }
 
   function closeAddConnectionBox(_id) {
-	var c_note = {uid: _id, connections:[]}; //faking
-	//var c_note = getNote(_id); //the current note
-	//console.log('call ->'+c_note.uid);alert('call ->'+c_note.uid);
-	var value = getElement('boxTo').value;
-	console.log('call ->'+value);
-	c_note.connections.push({uid:_id, from:_id, to:value, text:getElement('boxText').value});//this is fake indeed
-	getElement('addConnectionBox').style.display= 'none';
+    var c_note = {uid: _id, connections:[]}; //faking
+    //var c_note = getNote(_id); //the current note
+    //console.log('call ->'+c_note.uid);alert('call ->'+c_note.uid);
+    var value = getElement('boxTo').value;
+    console.log('call ->'+value);
+    c_note.connections.push({uid:_id, from:_id, to:value, text:getElement('boxText').value});//this is fake indeed
+    getElement('addConnectionBox').style.display= 'none';
   }
 
   function getElement(_id) {
-	return document.getElementById(_id);
+	  return document.getElementById(_id);
   }
   </script>
+  <style>
+  .menu_element{font-weight: bold; color: #333; font-size: 13px; font-family: sans-serif;}
+  .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
+  </style>
  </head>
  <body>
  <div id="connections" onmouseover="getElement('cons_menu').style.display = 'block';"
- onmouseout="getElement('cons_menu').style.display = 'block';">cons:<span id="cons_amount">0</span>
- <div id="cons_menu" style="display: none;">
-	<div onclick="openAddConnectionBox('myId');">O</div>
-	<div onclick="openDeleteConnectionBox('myId');">X</div>
+ onmouseout="getElement('cons_menu').style.display = 'none';" style="width: 50px; border: 1px #999 solid; background: #ccc;">cons:<span id="cons_amount">0</span>
+ <div id="cons_menu" style="display: none; border: 1px #999 solid; background: #ccc; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;">
+	<div id="openAddConnectionBox" onclick="openAddConnectionBox(this.getAttribute('data-from-id'));" data-from-id="myId" class="menu_element">add</div>
+	<div id="openDeleteConnectionBox" onclick="openDeleteConnectionBox(this.getAttribute('data-from-id'));" data-from-id="myId" class="menu_element">delete</div>
 </div></div>
 	<div id="addConnectionBox" style="display: none;">from:<span id="boxFrom"></span><br>text:<input id="boxText" name="boxtext" type="text" placeholder="edit message here"/><select id="boxTo" name="boxTo"></select><button id="addConnectionBoxButton"onclick="closeAddConnectionBox(this.getAttribute('data-from-id'));">done</button></div>
  </body>

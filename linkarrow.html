@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script type="text/javascript">
+  ( function(_win) {
+      editor = {};
+      editor.mousemove = function(eve) {
+        var x = eve.pageX;
+        var y = eve.pageY;
+        //100, 100
+        var dy = y - 100;
+        var dx = x - 100;
+        var theta = Math.atan2(dy, dx);
+        theta *= 180/Math.PI; // rads to degs
+        
+        editor.arrow.style.transform = 'rotate('+theta+'deg)';
+        //try {
+          editor.arrow.style.msTransform = 'rotate('+theta+'deg)';
+        //} catch (e) { }
+        //try {
+          editor.arrow.style.webkitTransform = 'rotate('+theta+'deg)';
+        //} catch (e) { }
+        var c = Math.abs(Math.sqrt(Math.pow(x-100,2)+ Math.pow(y-100,2)) );
+        //editor.arrow.style.width = c+'px';
+        editor.arrow_line.style.width = c+'px';
+        editor.arrow_png.style.left = (c-10)+'px';
+        //console.log(x+','+y+',l:'+c+',t:'+theta);
+      };
+      editor.parent = null;
+      editor.arrow = null;
+      editor.arrow_png = null;
+      editor.arrow_line = null;
+      _win.onload = function() {
+        setTimeout(editor.init, 100);
+      };
+      editor.init = function() {
+        editor.parent = document.getElementById('parent');
+        editor.parent.addEventListener('mousemove', editor.mousemove, true);
+        editor.arrow = document.getElementById('arrow');
+        editor.arrow_png = document.getElementById('arrow_png');
+        editor.arrow_line = document.getElementById('arrow_line');
+      };
+    }
+  )(window);
+    
+  </script>
+ </head>
+ <body style="margin: 0; padding: 0;">
+  <div id="parent" style="position: absolute; top: 0px; left: 0px; width: 99%; height: 99%;">
+   <div id="arrow" style="position: absolute; top: 100px; left: 100px; 
+  transform:rotate(335deg);
+  -ms-transform:rotate(335deg); /* IE 9 */
+  -webkit-transform:rotate(335deg); /* Opera, Chrome, and Safari */
+  ">
+    <img id="arrow_line" src="img/line.png" style="position: absolute; top: 0px; left: 0px; width: 150px; height: 1px;" /><img id="arrow_png" src="img/arrow.png" style="position: absolute; left: 140px; top: -5px;" />
+   </div>
+  </div>
+ </body>
+</html>

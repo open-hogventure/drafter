@@ -517,6 +517,7 @@ var game = {
         con.to_uid = value;
         con.text = getElement('boxText').value;
         c_note.connections.push( con );
+        editor.getNote(value).connections.push( con );
         getElement('con_amount_'+_id).innerHTML = '';
         getElement('con_amount_'+_id).appendChild(
             document.createTextNode(' '+c_note.connections.length));
@@ -543,6 +544,7 @@ var game = {
         theta *= 180/Math.PI;
         var c = Math.abs(Math.sqrt(Math.pow(x-cx,2)+ Math.pow(y-cy,2)) );
         var arrow = createElement('div');
+        arrow.className = 'arrow';
         arrow.setAttribute('id','arrow_'+from_uid+'_'+to_uid);
         arrow.style.position = 'absolute';
         arrow.style.top = cy+'px';
@@ -655,7 +657,7 @@ var game = {
           ele.style.left = x + 'px';
           //console.log(ele.id+':'+eve.pageX+','+eve.pageY+','+ele.offsetLeft+','+ele.offsetTop);
           for (var i = 0; i < cons.length; i++) {
-            editor.updateArrowLine(uid,cons[i].to_uid);//from to
+            editor.updateArrowLine(cons[i].from_uid,cons[i].to_uid);//from to
           }
           editor.ox = eve.pageX;
           editor.oy = eve.pageY;
@@ -705,7 +707,7 @@ body {margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; width: 100%; height: 10%; max-height: 10%;}
 #texteditor { position: absolute; top: 9%; left: 0; width: 80%; min-height: 90%; height: 90%; max-height: 90%;}
 #noteeditor { position: absolute; top: 9%; left: 0; width: 100%; height: 90%; display: none; background: #eee; resize: none; overflow: hidden; }
-.note{position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); }
+.note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); }
 .note_bar {margin: 1px; background: #009; width: 148px; height: 15px; color: white;}
 .note_uid {font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
@@ -717,6 +719,7 @@ body {margin: 0; padding: 0;}
 .menu_element{font-weight: bold; color: #333; font-size: 13px; font-family: sans-serif;}
 .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
+.arrow {z-index: 1;}
  </style>
  </head>
  <body>

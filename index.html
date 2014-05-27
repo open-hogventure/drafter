@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
  <head>
-  <title> new document </title>
+  <title> editor for text games </title>
   <meta name="generator" content="editplus">
   <meta name="author" content="">
   <meta name="keywords" content="">
@@ -211,7 +211,7 @@ var game = {
 };
 
 </script>
- <script type="text/javascript">
+ <script type="text/javascript" id="editor_source">
 
   (
     function(_win) {
@@ -490,6 +490,14 @@ var game = {
         }
         return null;
       };
+      /**
+      @method editNote
+      @since 2014-05-26
+      @param _id
+      */
+      editor.editNote = function(_id) {
+      
+      }
       /**
       @method addTextToNote
       @since 2014-05-26

@@ -65,6 +65,7 @@ function MediaLanguage(_lan) {
  this.language = _lan;
  this.medias = [];
  this.setMedia = function(_k, _v) {
+  //console.log('setMedia'+_k);
   if (this.hasMedia(_k)) {
    this.getMedia(_k).value = Base64.encode(_v);
   } else {
@@ -82,6 +83,7 @@ function MediaLanguage(_lan) {
  this.getMediaValue = function(_k) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
+    //console.log('getMedia->'+Base64.decode(this.medias[i].value));
     return Base64.decode(this.medias[i].value);
    }
   }
@@ -202,10 +204,10 @@ var game = {
    }
   },
   getMedia : function(_k) {
-   this.getCurrentLanguage().getMedia(_k);
+   return this.getCurrentLanguage().getMedia(_k);
   },
   getMediaValue : function(_k) {
-   this.getCurrentLanguage().getMediaValue(_k);
+   return this.getCurrentLanguage().getMediaValue(_k);
   }
  }
 };
@@ -279,12 +281,12 @@ var game = {
       @since 2014-05-17
       */
       editor.toggleEditor = function() {
-        if (getElement('noteeditor').style.display != 'none') {
-          getElement('noteeditor').style.display = 'none';
-          getElement('texteditor').style.display = 'block';
-        } else {
+        if (getElement('noteeditor').style.display != 'block') {
           getElement('noteeditor').style.display = 'block';
           getElement('texteditor').style.display = 'none';
+        } else {
+          getElement('noteeditor').style.display = 'none';
+          getElement('texteditor').style.display = 'block';
         }
       };
       /**
@@ -300,6 +302,7 @@ var game = {
         var game_source = getElement('game_source').innerHTML;
         getElement('texteditor').value = getElement('texteditor').value + game_source;
         editor.game = game;
+        editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
         //experimental from here
 
@@ -417,7 +420,7 @@ var game = {
         child2 = createElement('div');
         child2.appendChild(document.createTextNode('*'));
         child2.className = 'note_menu_button';
-        // 
+        //
         child3 = createElement('div');
         child3.className = 'note_menu';
           child4 = createElement('div');
@@ -445,7 +448,7 @@ var game = {
           child4.appendChild(document.createTextNode('delete connection'));
           child3.appendChild(child4);
         child2.appendChild(child3);
-        child.appendChild(child2);        
+        child.appendChild(child2);
       }
       /**
       @method deleteNote
@@ -455,21 +458,21 @@ var game = {
         for (var i = 0; i < editor.game.notes.length; i++) {
           if (editor.game.notes[i].uid == _uid) {
             var note = editor.game.notes[i];
-            
+
             getElement('noteeditor').removeChild(getElement('note_'+note.uid));
             var cons = note.connections;
-            for (var k = 0; k < cons.length; k++) {              
+            for (var k = 0; k < cons.length; k++) {
               var tcons = null;
               if (cons[k].to_uid == note.uid) {
                 tcons = editor.getNote(cons[k].from_uid).connections;
               } else {
                 tcons = editor.getNote(cons[k].to_uid).connections;
               }
-              for (var j = 0; j < tcons.length; j++) {                
+              for (var j = 0; j < tcons.length; j++) {
                 getElement('noteeditor').removeChild(getElement('arrow_'+tcons[j].from_uid+'_'+tcons[j].to_uid));
                 tcons.splice(j, 1);
-              }  
-            }       
+              }
+            }
             //delete the uid from the uid couter
             //delete the links' uids
             //delete the medias from the mediamanager
@@ -496,24 +499,69 @@ var game = {
       @param _id
       */
       editor.editNote = function(_id) {
-      
+        console.log(_id);
+        var c_note = editor.getNote(_id);
+
+        var child = createElement('div');
+        var child2 = createElement('span');
+        child.appendChild(child2);
+        child2.appendChild(document.createTextNode(c_note.uid));
+        child.appendChild(createElement('br'));
+        child.appendChild(document.createTextNode('title: '));
+        child2 = createElement('input');
+        child2.setAttribute('id', 'input_note_title');
+        child2.setAttribute('name', 'input_note_title');
+        if (c_note.title != null)
+          child2.setAttribute('value', editor.game.mediamanager.getMediaValue(c_note.title));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(document.createTextNode('text: '));
+        child2 = createElement('textarea');
+        child2.setAttribute('id', 'input_note_text');
+        child2.setAttribute('name', 'input_note_text');
+        if (c_note.text != null)
+          child2.setAttribute('value', editor.game.mediamanager.getMediaValue(c_note.text));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('button');
+        child2.setAttribute('onclick', 'editor.addTextAndTitleToNote(\''+c_note.uid+'\');');
+        child2.appendChild(document.createTextNode('done'));
+        child.appendChild(child2);
+        child2 = createElement('button');
+        child2.setAttribute('onclick', 'editor.addTextAndTitleToNote(null);');
+        child2.appendChild(document.createTextNode('X'));
+        child2.className = 'closeBoxButton';
+        child.appendChild(child2);
+        child.setAttribute('id', 'note_input_box');
+        getElement('noteeditor').appendChild(child);
       }
       /**
-      @method addTextToNote
+      @method addTextAndTitleToNote
       @since 2014-05-26
-  
+      @param _id the note uid
       */
-      editor.addTextToNote = function() {
-      
+      editor.addTextAndTitleToNote = function(_id) {
+        console.log('539 -> '+_id);
+        if (_id == null) {
+          getElement('noteeditor').removeChild(getElement('note_input_box'));
+          return;
+        }
+        var c_note = editor.getNote(_id);
+        if (c_note.text == null) {
+          c_note.text = editor.createUid();
+        }
+        editor.game.mediamanager.setMedia(c_note.text, getElement('input_note_text').value);
+        if (c_note.title == null) {
+          c_note.title = editor.createUid();
+        }
+        editor.game.mediamanager.setMedia(c_note.title, getElement('input_note_title').value);
+        console.log('->'+editor.game.mediamanager.getMediaValue(c_note.title) );
+        getElement('note_'+_id+'_title').value = editor.game.mediamanager.getMediaValue(c_note.title);
+        getElement('note_'+_id+'_text').value = editor.game.mediamanager.getMediaValue(c_note.text);
+
+        getElement('noteeditor').removeChild(getElement('note_input_box'));
       }
-      /**
-      @method addTitleToNote
-      @since 2014-05-26
-      
-      */
-      editor.addTitleToNote = function() {
-      
-      }
+
       /**
       @method openAddConnectionBox
       @param _id
@@ -588,7 +636,10 @@ var game = {
         var con = new Connection(editor.createUid());
         con.from_uid = _id;
         con.to_uid = value;
-        con.text = editor.game.mediamanager.setMedia(editor.createUid(), getElement('boxText').value);
+        if (con.text == null) {
+          con.text = editor.createUid();
+        }
+        editor.game.mediamanager.setMedia(con.text, getElement('boxText').value);
         c_note.connections.push( con );
         editor.getNote(value).connections.push( con );
         getElement('con_amount_'+_id).innerHTML = '';
@@ -674,7 +725,7 @@ var game = {
           getElement('noteeditor').removeChild(getElement('deleteConnectionBox'));
         }
         catch (e) {
-        }       
+        }
 	    };
       /**
       @method addArrowLine
@@ -860,11 +911,15 @@ body {margin: 0; padding: 0; background: #eee;}
 #texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ccc;}
 #listnotes {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ccc; overflow: scroll;}
 #noteeditor { position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: none; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ccc; border-top: 1px solid #ccc;}
-.closeBoxButton {position: absolute; color: white; background: #c00; top: 1px; right: 1px; max-width: 8px; font-size: 9px; text-align: left;}
+#note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
+#input_note_title { width: 250px;}
+#input_note_text { width: 250px; min-height: 100px;}
+#note_input_box span{float: left; width: 50px;}
+.closeBoxButton {position: absolute; color: white; background: #c00; top: -1px; right: 1px; width: 24px; max-width: 24px; min-width: 24px; font-size: 10px; font-weight: bold; padding: 0;}
 .note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
 .note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; /*rgba(0,255,0,0.005)*/}
 .note_menu_button {position: absolute; top: 0px; right: 1px; color: white; font-weight: bold; font-size: 25px; }
-.connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5);}
+.connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px;}
 .note_bar {margin: 1px; background: #009; width: 148px; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}

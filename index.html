@@ -214,6 +214,9 @@ var game = {
 
 </script>
  <script type="text/javascript" id="editor_source">
+  window.URL = window.URL || window.webkitURL || null;
+  window.Blob = window.WebKitBlob || window.MozBlob || window.MSBlob || window.Blob || null;
+  window.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
 
   (
     function(_win) {
@@ -794,8 +797,7 @@ var game = {
         arrow.style.transform = 'rotate('+theta+'deg)';
         arrow.style.msTransform = 'rotate('+theta+'deg)';
         arrow.style.webkitTransform = 'rotate('+theta+'deg)';
-
-      }
+      };
       /**
       @method updateArrowLine
       @param from_uid
@@ -830,7 +832,107 @@ var game = {
         arrow_png.style.maxWidth = '10px';
         arrow_png.style.maxHeight = '11px';
 
+      };
+
+      /*
+      @method buildExportBlobUrl
+
+      @param data,
+      @param name
+      @param fileEnding
+
+      @return element
+      */
+      editor.buildExportBlobUrl = function(data, name, fileEnding) {
+        var type = {type: 'text/plain'};
+        var bb = null;
+        if (window.Blob == null) {
+          console.log('no blob');
+          return;
+        }
+        try {
+          bb = new Blob([data], type);
+        } catch (e) {
+          bb = new BlobBuilder();
+          bb.append(data);
+          bb = bb.getBlob("text/plain");
+        };
+        var element = document.createElement('a');
+        element.href = fileEnding == 'json' ? window.URL.createObjectURL( bb ) : data;
+        element.appendChild(document.createTextNode( name ));
+        element.className = 'exportA';
+        element.setAttribute('download', name+'.'+fileEnding);
+        element.setAttribute('title', name+'.'+fileEnding);
+        return element;
       }
+      /**
+      @method exportEditor
+      @since 2014-05-27
+      */
+      editor.exportEditor = function() {
+        var ele = document.body;
+        var child = createElement('div');
+        var child2 = createElement('div');
+        child2.appendChild(document.createTextNode(' download editor.json: '));
+        child.appendChild(child2);
+        var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
+        child2 = editor.buildExportBlobUrl( data, 'editor', 'json'); //
+		    child.appendChild(child2);
+        child.className = 'eximport';
+        child.setAttribute('id','eximport');
+        ele.appendChild(child);
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+      };
+      /**
+      @method importEditor
+      @since 2014-05-27
+      */
+      editor.importEditor = function(eve) {
+        if (eve == null) {
+          //alert('create upload form here');
+          var ele = document.body;
+          var child = createElement('div');
+          child.className = 'eximport';
+          child.setAttribute('id','eximport');
+          child2 = createElement('button');
+          child2.className = 'closeBoxButton';
+          child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
+          child2.appendChild(document.createTextNode('X'));
+          child.appendChild(child2);
+          child.appendChild(document.createTextNode('upload your editor.json file:'));
+          child.appendChild(createElement('br'));
+          child2 = createElement('input');
+          child2.setAttribute('type','file');
+          child2.setAttribute('name','files');
+          child2.setAttribute('id','files');
+          child2.addEventListener('change', editor.importEditor, true);
+          child.appendChild(child2);
+          ele.appendChild(child);
+          return;
+        }
+        var files = eve.target.files; // FileList object
+        for (var i = 0; i < 1; i++) {
+          var f = files[i];
+          var reader = new FileReader();
+          reader.onload = (function(theFile) {
+            return function(e) {
+              //console.log('handleJsonImport->'+theFile.name);
+              console.log(e.target.result);
+              console.log(theFile.name);
+              document.body.removeChild(getElement('eximport'));
+            };
+          })(f);
+          /*if (i == files.length - 1)
+          {
+            reader.onloadend = importProjectJsons;
+          }*/
+          reader.readAsText(f, 'UTF-8');//readAsDataURL(f);//, 'UTF-8');
+        }
+      };
       /***/
       editor.pressed = false;
       /***/
@@ -863,7 +965,7 @@ var game = {
             editor.pressed = true;
           }
         }
-      }
+      };
       /**
       @method mousemove
       @param eve
@@ -887,7 +989,7 @@ var game = {
           editor.ox = eve.pageX;
           editor.oy = eve.pageY;
         }
-      }
+      };
       /**
       @method mouseup
       @param eve
@@ -898,7 +1000,7 @@ var game = {
           editor.pressed = false;
           //remove mouse listeners here?
         }
-      }
+      };
       /**
       @method mouseout
       @param eve
@@ -909,7 +1011,7 @@ var game = {
           editor.pressed = false;
           //remove mouse listeners here?
         }
-      }
+      };
       /***/
       _win.createElement = function(_ele) {
         return document.createElement(_ele);
@@ -943,6 +1045,7 @@ div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
 .note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
 .note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; /*rgba(0,255,0,0.005)*/}
 .note_menu_button {position: absolute; top: 0px; right: 1px; color: white; font-weight: bold; font-size: 25px; }
+.eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
 .connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px;}
 .note_bar {margin: 1px; background: #009; width: 148px; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
@@ -966,6 +1069,8 @@ div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
   <button onclick="editor.stopTest();" style="float: left;">stop test</button>
   <button onclick="editor.toggleEditor();" style="float: left;">toggle</button>
   <button onclick="editor.addNote();" style="float: left;">add note</button>
+  <button onclick="editor.importEditor();" style="float: left;">import</button>
+  <button onclick="editor.exportEditor();" style="float: left;">export</button>
   <br style="clear: both;">
   </div>
   <textarea id="texteditor">var game_cvs = createElement('canvas');

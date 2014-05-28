@@ -21,7 +21,10 @@
 		//scroll.scrollLeft = x;
 		//scroll.scrollTop = y;
 		console.log(x+','+y);
-		getElement('mouse').innerHTML = getElement('mouse').innerHTML +'<span style="position: absolute; left:'+ x+'px; top:'+y+'px; float: left;">'+x+','+y+'</span>';
+		var mouse = getElement('mouse');
+		mouse.innerHTML = mouse.innerHTML +'<span style="position: absolute; left:'+ x+'px; top:'+y+'px; float: left;">'+x+','+y+'</span>';
+		mouse.style.width = ((x+50)>mouse.offsetWidth? (x+50):mouse.offsetWidth)+'px';
+		mouse.style.height = ((y+20)>mouse.offsetHeight ? (y+20): mouse.offsetHeight)+'px';
 		//getElement('output').innerHTML = x+','+y;
 	}
 
@@ -32,7 +35,7 @@
   </script>
  </head>
  <body>
-  <div id="scroll" style="width: 300px; height: 300px; overflow: scroll;"><div id="mouse" style="position: relative; width: 500px; height: 500px;"></div></div>
+  <div id="scroll" style="width: 300px; height: 300px; overflow: auto; border: 1px solid #999;"><div id="mouse" style="position: relative; width: 300px; height: 300px;"></div></div>
   <div id="output"></div>
  </body>
 </html>

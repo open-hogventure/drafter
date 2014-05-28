@@ -112,22 +112,22 @@ function MediaLanguage(_lan) {
  }
 }
 /**
-The main singleton
-@class game
+The Game class
+@class Game
 @since 2014-05-17
 */
-var game = {
+function Game() {
  /**
  the major data type array
  @parameter notes
  @since 2014-05-17
  */
- notes : [],
+ this.notes = [];
  /**
  @method load
  @since 2014-05-17
  */
- load : function() {
+ this.load = function() {
   var data = window.localStorage.getItem('game_data');
   data = JSON.parse(data);
   if (data == null) {
@@ -141,23 +141,23 @@ var game = {
    note.load(data['notes'][i]);
    this.notes.push(note);
   }
- },
+ };
  /**
  @method save
  @since 2014-05-17
  */
- save : function() {
+ this.save = function() {
   var data = JSON.stringify(game);
   console.log('save data:');
   console.log(data);
   console.log(':save data');
   window.localStorage.setItem('game_data', data);
- },
+ };
  /**
  @class mediamanager
  @since 2014-05-18
  */
- mediamanager : {
+ this.mediamanager = {
   defaultLanguage : 'en',
   currentLanguage : 'en',
   languages : [],
@@ -210,7 +210,12 @@ var game = {
    return this.getCurrentLanguage().getMediaValue(_k);
   }
  }
-};
+}
+/**
+@property game
+@since 2014-05-28
+*/
+var game = new Game();
 
 </script>
  <script type="text/javascript" id="editor_source">
@@ -228,7 +233,7 @@ var game = {
       /***/
       editor.height = 0;
       /***/
-      editor.game = game;
+      editor.game = new Game();
       /**
       You should store a game data before you test the code whit the game
       @method saveCodeAndGame
@@ -284,11 +289,11 @@ var game = {
       @since 2014-05-17
       */
       editor.toggleEditor = function() {
-        if (getElement('noteeditor').style.display != 'block') {
-          getElement('noteeditor').style.display = 'block';
+        if (getElement('noteeditor_box').style.display != 'block') {
+          getElement('noteeditor_box').style.display = 'block';
           getElement('texteditor').style.display = 'none';
         } else {
-          getElement('noteeditor').style.display = 'none';
+          getElement('noteeditor_box').style.display = 'none';
           getElement('texteditor').style.display = 'block';
         }
       };
@@ -299,12 +304,19 @@ var game = {
       editor.resize = function() {
         editor.width = window.innerWidth;
         editor.height = window.innerHeight;
+      }
+      /**
+      @method init
+      @since 2014-05-28
+      */
+      editor.init = function() {
+        editor.resize();
         var ele = getElement('editor');
         ele.style.height = (editor.height - 5) + 'px';
         ele.style.width = (editor.width - 5) + 'px';
         var game_source = getElement('game_source').innerHTML;
         getElement('texteditor').value = getElement('texteditor').value + game_source;
-        editor.game = game;
+        editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
         //experimental from here
@@ -949,6 +961,8 @@ var game = {
       */
       editor.mousedown = function(eve) {
         if (!editor.pressed) {
+          editor.noteeditor_box = getElement('noteeditor_box');
+          editor.noteeditor = getElement('noteeditor');
           var ele = eve.target;
           var splits = ele.id.split('_');
           var uid = splits[0]+'_'+splits[1];
@@ -959,10 +973,12 @@ var game = {
             ele.addEventListener('mousemove', editor.mousemove, false);
             ele.addEventListener('mouseup', editor.mouseup, false);
             ele.addEventListener('mouseout', editor.mouseout, false);
-            editor.ox = eve.pageX;
-            editor.oy = eve.pageY;
+            editor.ox = eve.pageX;// - editor.noteeditor_box.scrollLeft;
+            editor.oy = eve.pageY;// - editor.noteeditor_box.scrollTop;
             console.log(ele.id+':'+eve.pageX+','+eve.pageY);
             editor.pressed = true;
+            //noteeditor.style.width = editor.ox + 'px';
+            //noteeditor.style.height = editor.oy + 'px';
           }
         }
       };
@@ -998,7 +1014,13 @@ var game = {
       editor.mouseup = function(eve) {
         if (editor.pressed) {
           editor.pressed = false;
+          /*var x = eve.pageX - editor.noteeditor_box.scrollLeft;
+          var y = eve.pageY - editor.noteeditor_box.scrollTop;
           //remove mouse listeners here?
+          editor.noteeditor.style.width = ((x+160) > editor.noteeditor.offsetWidth ?
+                                          (x+170) : editor.noteeditor.offsetWidth) + 'px';
+          editor.noteeditor.style.height = ((y+110) > editor.noteeditor.offsetHeight ?
+                                          (y+120) : editor.noteeditor.offsetHeight) + 'px';*/
         }
       };
       /**
@@ -1012,6 +1034,19 @@ var game = {
           //remove mouse listeners here?
         }
       };
+      /**
+      shows the help
+      @method help
+      @since 2014-05-28
+      */
+      editor.help = function() {
+        var help = getElement('help');
+        if (help.style.display != 'block') {
+          help.style.display = 'block';
+        } else {
+          help.style.display = 'none';
+        }
+      };
       /***/
       _win.createElement = function(_ele) {
         return document.createElement(_ele);
@@ -1022,7 +1057,7 @@ var game = {
       };
       /***/
       _win.editor = editor;
-      _win.onload = function() { editor.resize(); };
+      _win.onload = function() { setTimeout(editor.init, 100); };
     }
 
   )(window);
@@ -1035,7 +1070,8 @@ div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
 #editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 25px; height: auto; max-height: 10%;}
 #texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ccc;}
 #notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ccc; overflow: scroll; font-size: 13px;}
-#noteeditor { position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: none; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ccc; border-top: 1px solid #ccc;}
+#noteeditor {position: relative; width: 100%; min-height: 100%;}
+#noteeditor_box {position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: none; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ccc; border-top: 1px solid #ccc; overflow: auto;}
 .notelistBox {border: 1px solid #ccc; margin: 2px; background: #ccc; width: 95%;}
 #note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ccc; padding: 0; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
 #input_note_title { width: 250px; margin: 0;}
@@ -1058,6 +1094,9 @@ div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
 .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
+#help {position: absolute; top: 5px; left: 5px; width: auto; max-height: 98%; border: 1px solid #ccc; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
+#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding-left: 5px;}
+#help h2 {color: #33c; margin: 0 0 5px 0;}
  </style>
  </head>
  <body>
@@ -1071,6 +1110,7 @@ div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
   <button onclick="editor.addNote();" style="float: left;">add note</button>
   <button onclick="editor.importEditor();" style="float: left;">import</button>
   <button onclick="editor.exportEditor();" style="float: left;">export</button>
+  <button onclick="editor.help();" style="float: left;">help</button>
   <br style="clear: both;">
   </div>
   <textarea id="texteditor">var game_cvs = createElement('canvas');
@@ -1083,21 +1123,38 @@ game_cvs.style.left = '0px';
 document.body.appendChild(game_cvs);
   </textarea>
   <div id="notelist"></div>
-  <div id="noteeditor">
-    <!--div id="note_" class="note">
-    <div id="note_bar" class="note_bar"><span id="note_uid" class="note_uid">n0UID</span></div>
-    <input type="text" id="note_title" class="note_title" placeholder="note title" /><textarea id="note_text" class="note_text" placeholder="note text"></textarea>
-    </div-->
+  <div id="noteeditor_box">
+   <div id="noteeditor">
+      <!--div id="note_" class="note">
+      <div id="note_bar" class="note_bar"><span id="note_uid" class="note_uid">n0UID</span></div>
+      <input type="text" id="note_title" class="note_title" placeholder="note title" /><textarea id="note_text" class="note_text" placeholder="note text"></textarea>
+      </div-->
 
-   <!---->
-    <!--div id="addConnectionBox" style="position: absolute; top: 0; left: 0; display: none;">from:<span id="boxFrom"></span><br>text:<input id="boxText" name="boxtext" type="text" placeholder="edit message here"/>
-    <select id="boxTo" name="boxTo"></select><button id="addConnectionBoxButton"
-    onclick="editor.closeAddConnectionBox(this.getAttribute('data-from-id'));">done</button>
-    </div-->
-   <!---->
+     <!---->
+      <!--div id="addConnectionBox" style="position: absolute; top: 0; left: 0; display: none;">from:<span id="boxFrom"></span><br>text:<input id="boxText" name="boxtext" type="text" placeholder="edit message here"/>
+      <select id="boxTo" name="boxTo"></select><button id="addConnectionBoxButton"
+      onclick="editor.closeAddConnectionBox(this.getAttribute('data-from-id'));">done</button>
+      </div-->
+     <!---->
+   </div>
   </div>
  </div>
+<div id="help">
+ <h1>toggle button</h1>
 
+ <h2>Toggle between the two editor modes</h2>
+ source script editor to do the programming,<br>
+ note editor for the game creation.<br>
+
+ <h1>add note button</h1>
+ <h2>creates a new note</h2>
+ creates a new note, <br>
+ adds it to the editor.game.notes array,<br>
+ shows it on the noteeditor screen <br>
+ and the note ist on the right of the script editor<br>
+<!--end-->
+ <br>
+</div>
 
  </body>
 </html>

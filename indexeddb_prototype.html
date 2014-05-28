@@ -22,13 +22,13 @@
 			// A versionchange transaction is started automatically.
 			e.target.transaction.onerror = storage.indexedDB.onerror;
 
-			if(db.objectStoreNames.contains("gamejson")) {
+			if(db.objectStoreNames.contains("GAMEEDITOR")) {
 				//db.deleteObjectStore("game");
-				db.deleteObjectStore("gamejson");				
+				db.deleteObjectStore("GAMEEDITOR");
 			}
 
-			var store = db.createObjectStore("gamejson",
-			{keyPath: "unique"});//timeStamp;
+			var store = db.createObjectStore("GAMEEDITOR",
+			{keyPath: "key"});//timeStamp;
 		};
 
 		request.onsuccess = function(e) {
@@ -39,15 +39,15 @@
 		request.onerror = storage.indexedDB.onerror;
 	};
 
-	storage.indexedDB.addItem = function(gameJson, key) {
-		
+	storage.indexedDB.addItem = function(gamejson, key) {
+
 
 		var db = storage.indexedDB.db;
-		var trans = db.transaction(["gamejson"], "readwrite");
-		var store = trans.objectStore("gamejson");
+		var trans = db.transaction(["GAMEEDITOR"], "readwrite");
+		var store = trans.objectStore("GAMEEDITOR");
 		var request = store.put({
-			text: gameJson,
-			unique: key //new Date().getTime()
+			value: gamejson,
+			key: key //new Date().getTime()
 		});
 
 		request.onsuccess = function(e) {
@@ -67,8 +67,8 @@
 	  //games.innerHTML = "";
 
 	  var db = storage.indexedDB.db;
-	  var trans = db.transaction(["gamejson"], "readwrite");
-	  var store = trans.objectStore("gamejson");
+	  var trans = db.transaction(["GAMEEDITOR"], "readwrite");
+	  var store = trans.objectStore("GAMEEDITOR");
 
 	  // Get everything in the store;
 	  var keyRange = IDBKeyRange.lowerBound(0);
@@ -92,15 +92,15 @@
 	  //games.innerHTML = "";
 
 	  var db = storage.indexedDB.db;
-	  var trans = db.transaction(["gamejson"], "readwrite");
-	  var store = trans.objectStore("gamejson");
+	  var trans = db.transaction(["GAMEEDITOR"], "readwrite");
+	  var store = trans.objectStore("GAMEEDITOR");
 
 	  // Get everything in the store;
 	  var keyRange = IDBKeyRange.lowerBound(0);
 	  var cursorRequest = store.openCursor(keyRange);
-		
+
 	  cursorRequest.onsuccess = function(e) {
-		
+
 		var result = e.target.result;
 		if(!!result == false)
 		  return;
@@ -115,8 +115,8 @@
 
 	storage.indexedDB.deleteItem = function(key) {
 	  var db = storage.indexedDB.db;
-	  var trans = db.transaction(["gamejson"], "readwrite");
-	  var store = trans.objectStore("gamejson");
+	  var trans = db.transaction(["GAMEEDITOR"], "readwrite");
+	  var store = trans.objectStore("GAMEEDITOR");
 
 	  var request = store.delete(key);
 
@@ -137,6 +137,6 @@
 </script>
  </head>
  <body>
-  <input id="test" type="text" /><button onclick="storage.indexedDB.addItem(document.getElementById('test').value, 'gamejson');">save</button>
+  <input id="test" type="text" /><button onclick="storage.indexedDB.addItem(document.getElementById('test').value, 'GAMEEDITOR');">save</button>
  </body>
 </html>

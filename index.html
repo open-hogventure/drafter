@@ -28,9 +28,9 @@ function Note(_uid) {
   this.text = data['text'];
   this.title = data['title'];
   for (var i = 0; i < data['connections'].length;i++) {
-   var connection = new Note(data['connections'][i]['uid']);
+   var connection = new Connection(data['connections'][i]['uid']);
    connection.load(data['connections'][i]);
-   game.notes.push(connection);
+   this.connections.push(connection);
   }
  };
 };
@@ -53,7 +53,7 @@ function Connection(_uid) {
   this.uid = data['uid'];
   this.text = data['text'];
   this.to_uid = data['to_uid'];
-  this.from_uid = data['form_uid'];
+  this.from_uid = data['from_uid'];
  };
 };
 /**
@@ -127,13 +127,15 @@ function Game() {
  @method load
  @since 2014-05-17
  */
- this.load = function() {
-  var data = window.localStorage.getItem('game_data');
-  data = JSON.parse(data);
+ this.load = function(data) {
   if (data == null) {
-   //avoid a cannot read property exception
-   console.log(data);
-   return;
+    data = window.localStorage.getItem('game_data');
+    data = JSON.parse(data);
+    if (data == null) {
+     //avoid a cannot read property exception
+     //console.log(data);
+     return;
+    }
   }
   this.notes = [];
   for (var i = 0; i < data['notes'].length;i++) {
@@ -255,8 +257,15 @@ var game = new Game();
         var data = _win.localStorage.getItem('game_data');
         editor.game.load(data);
         getElement('noteeditor').innerHTML = '';
+        getElement('notelist').innerHTML = '';
         for (var i = 0; i < editor.game.notes.length; i++) {
           editor.addNote(editor.game.notes[i]);
+        }
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          var cons = editor.game.notes[i].connections;
+          for (var j = 0; j < cons.length; j++) {
+            editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
+          }
         }
       };
       /**
@@ -413,7 +422,7 @@ var game = new Game();
         child2.appendChild(document.createTextNode('connects: '));
         child3 = createElement('span');
         child3.setAttribute('id','con_amount_'+note.uid);
-        child3.appendChild(document.createTextNode(' 0'));
+        child3.appendChild(document.createTextNode(' '+note.connections.length));
         child2.appendChild(child3);
         child.appendChild(child2);
         //
@@ -783,6 +792,10 @@ var game = new Game();
         var theta = Math.atan2(dy, dx);
         theta *= 180/Math.PI;
         var c = Math.abs(Math.sqrt(Math.pow(x-cx,2)+ Math.pow(y-cy,2)) );
+        if (getElement('arrow_'+from_uid+'_'+to_uid) != null) {
+          editor.updateArrowLine(from_uid, to_uid);
+          return;
+        }
         var arrow = createElement('div');
         arrow.className = 'arrow';
         arrow.setAttribute('id','arrow_'+from_uid+'_'+to_uid);
@@ -887,6 +900,9 @@ var game = new Game();
         var child2 = createElement('div');
         child2.appendChild(document.createTextNode(' download editor.json: '));
         child.appendChild(child2);
+        editor.code = getElement('texteditor').value;
+        editor.noteeditor_box = null;
+        editor.noteeditor = null;
         var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
         child2 = editor.buildExportBlobUrl( data, 'editor', 'json'); //
 		    child.appendChild(child2);
@@ -954,6 +970,25 @@ var game = new Game();
       editor.load = function(result) {
         var json = JSON.parse(result);
         console.log(json);
+        editor.game = new Game();
+        editor.game.load(json['game']);
+        //editor.func = json['func'];
+        editor.uidcounter = json['uidcounter'];
+        //noteStartX,noteStartY,ox,oy,width,height,pressed
+        getElement('noteeditor').innerHTML = '';
+        getElement('notelist').innerHTML = '';
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          editor.addNote(editor.game.notes[i]);
+        }
+        getElement('noteeditor_box').style.display = 'block';
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          var cons = editor.game.notes[i].connections;
+          console.log(cons);
+          for (var j = 0; j < cons.length; j++) {
+            editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
+            //editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
+          }
+        }
       }
       /***/
       editor.pressed = false;
@@ -1077,7 +1112,7 @@ var game = new Game();
  </script>
  <style type="text/css">
 body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
-div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
+div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 25px; height: auto; max-height: 10%;}
 #texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ccc;}
@@ -1106,7 +1141,7 @@ div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
 .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
-#help {position: absolute; top: 5px; left: 5px; min-width: 370px; width: auto; max-height: 98%; border: 1px solid #ccc; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
+#help {z-index: 100; position: absolute; top: 5px; left: 5px; min-width: 370px; width: auto; max-height: 98%; border: 1px solid #ccc; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
 #help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px;}
 #help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px;}
 #help div div {display: none;}

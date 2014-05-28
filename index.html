@@ -934,6 +934,7 @@ var game = new Game();
             return function(e) {
               //console.log('handleJsonImport->'+theFile.name);
               console.log(e.target.result);
+              editor.load(e.target.result);
               console.log(theFile.name);
               document.body.removeChild(getElement('eximport'));
             };
@@ -945,6 +946,15 @@ var game = new Game();
           reader.readAsText(f, 'UTF-8');//readAsDataURL(f);//, 'UTF-8');
         }
       };
+      /**
+      @method load
+      @since 2014-05-28
+      @param result
+      */
+      editor.load = function(result) {
+        var json = JSON.parse(result);
+        console.log(json);
+      }
       /***/
       editor.pressed = false;
       /***/
@@ -1096,9 +1106,11 @@ div, span, input, textarea {font-family: sans-serif; font-size: 13px;}
 .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
-#help {position: absolute; top: 5px; left: 5px; width: auto; max-height: 98%; border: 1px solid #ccc; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
-#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding-left: 5px;}
-#help h2 {color: #33c; margin: 0 0 5px 0;}
+#help {position: absolute; top: 5px; left: 5px; min-width: 370px; width: auto; max-height: 98%; border: 1px solid #ccc; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
+#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px;}
+#help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px;}
+#help div div {display: none;}
+#help div:hover div {display: block;}
  </style>
  </head>
  <body>
@@ -1142,18 +1154,32 @@ document.body.appendChild(game_cvs);
   </div>
  </div>
 <div id="help">
+<div>
+ <h1>What is the 'Drafter' good for?</h1>
+  <div>
+ <h2>'Drafter' is a 'Twine' like story editor</h2>
+ With 'Drafter' you can create interactive story games.<br>
+ Interactive story games are text based (mini?) adventures.<br>
+ Also you may use this tool for game prototyping.<br>
+ 'Drafter' is HTML5 and javascript based. <br>
+ You can edit and program the game-engine.<br>
+  </div>
+</div><div>
  <h1>toggle button</h1>
-
+  <div>
  <h2>Toggle between the two editor modes</h2>
  source script editor to do the programming,<br>
  note editor for the game creation.<br>
-
+  </div>
+</div><div>
  <h1>add note button</h1>
+  <div>
  <h2>creates a new note</h2>
  creates a new note, <br>
  adds it to the editor.game.notes array,<br>
  shows it on the noteeditor screen <br>
  and the note ist on the right of the script editor<br>
+  </div>
 <!--end-->
  <br>
 </div>

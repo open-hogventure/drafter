@@ -24,14 +24,15 @@ function Note(_uid) {
  this.connections = [];
  /***/
  this.load = function(data) {
+   console.log(data);
   this.uid = data['uid'];
-  this.text = data['text'];
-  this.title = data['title'];
   for (var i = 0; i < data['connections'].length;i++) {
    var connection = new Connection(data['connections'][i]['uid']);
    connection.load(data['connections'][i]);
    this.connections.push(connection);
   }
+  this.text = data['text'];
+  this.title = data['title'];
  };
 };
 /**
@@ -64,6 +65,18 @@ function Connection(_uid) {
 function MediaLanguage(_lan) {
  this.language = _lan;
  this.medias = [];
+ /**
+ @method load
+ @param data
+ @since 2014-05-29
+ */
+ this.load = function(data) {
+  this.language = data['language'];
+  this.medias = [];
+  for (var i = 0; i < data['medias'].length; i++) {
+   this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});
+  }
+ };
  this.setMedia = function(_k, _v) {
   //console.log('setMedia'+_k);
   if (this.hasMedia(_k)) {
@@ -71,7 +84,7 @@ function MediaLanguage(_lan) {
   } else {
    this.addMedia(_k, _v);
   }
- }
+ };
  this.getMedia = function(_k) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -79,7 +92,7 @@ function MediaLanguage(_lan) {
    }
   }
   return null;
- }
+ };
  this.getMediaValue = function(_k) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -88,7 +101,7 @@ function MediaLanguage(_lan) {
    }
   }
   return null;
- }
+ };
  this.hasMedia = function(_k, _v) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -96,21 +109,21 @@ function MediaLanguage(_lan) {
    }
   }
   return false;
- }
+ };
  this.deleteMedia = function(_k, _v) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
     return this.medias.splice(i, 1);
    }
   }
- }
+ };
  this.addMedia = function(_k, _v) {
   this.medias.push(this.createMedia(_k, _v));
- }
+ };
  this.createMedia = function(_k, _v) {
   return { key : _k, value : Base64.encode(_v) };
- }
-}
+ };
+};
 /**
 The Game class
 @class Game
@@ -138,17 +151,20 @@ function Game() {
     data = JSON.parse(data);
     if (data == null) {
      //avoid a cannot read property exception
-     //console.log(data);
+     //
      return;
     }
   }
+  console.log('');
+  console.log(data);
+  this.mediamanager.load(data['mediamanager']);
+  this.startNote = data['startNote'];
   this.notes = [];
   for (var i = 0; i < data['notes'].length;i++) {
    var note = new Note(data['notes'][i]['uid']);
    note.load(data['notes'][i]);
    this.notes.push(note);
-  }
-  this.startNote = data['startNote'];
+  }  
  };
  /**
  @method save
@@ -216,6 +232,22 @@ function Game() {
   },
   getMediaValue : function(_k) {
    return this.getCurrentLanguage().getMediaValue(_k);
+  },
+  /**
+  @method load
+  @param data
+  @since 2014-05-29
+  */
+  load : function(data) {
+   this.defaultLanguage = 'en',
+   this.currentLanguage = data['currentLanguage'];
+   this.languages = data['languages'];
+   this.mediaLanguages = [];
+   for (var i = 0; i < data['mediaLanguages'].length; i++) {
+    var lan = new MediaLanguage(data['mediaLanguages'][i]['uid']);
+    lan.load(data['mediaLanguages'][i]);
+    this.mediaLanguages.push(lan);
+   }
   }
  }
 }
@@ -251,6 +283,7 @@ var game = new Game();
         var code = getElement('texteditor').value;
         _win.localStorage.setItem('texteditor-code', code);
         var data = JSON.stringify(editor.game);
+        //console.log(data);
         _win.localStorage.setItem('game_data', data);
       };
       /**
@@ -261,7 +294,10 @@ var game = new Game();
         var code = _win.localStorage.getItem('texteditor-code');
         getElement('texteditor').value = code;
         var data = _win.localStorage.getItem('game_data');
-        editor.game.load(data);
+        //console.log(data);
+        editor.game = new Game();
+        editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
+        editor.game.load(JSON.parse(data));
         getElement('noteeditor').innerHTML = '';
         getElement('notelist').innerHTML = '';
         for (var i = 0; i < editor.game.notes.length; i++) {
@@ -430,6 +466,13 @@ var game = new Game();
         child3.setAttribute('id','con_amount_'+note.uid);
         child3.appendChild(document.createTextNode(' '+note.connections.length));
         child2.appendChild(child3);
+        if (note.uid == editor.game.startNote) {
+          child3 = createElement('span');
+          child3.className = 'con_start';
+          child3.setAttribute('id', 'con_start_'+note.uid);
+          child3.appendChild(createTextNode('start'));
+          child2.appendChild(child3);
+        }
         child.appendChild(child2);
         //
         child2 = createElement('input');
@@ -437,11 +480,17 @@ var game = new Game();
         child2.setAttribute('id','note_'+note.uid+'_title');
         child2.className ='note_title';
         child2.setAttribute('placeholder','note title');
+        if (note.title != null) {
+          child2.value = editor.game.mediamanager.getMediaValue(note.title);
+        }        
         child.appendChild(child2);
         child2 = createElement('textarea');
         child2.setAttribute('id','note_'+note.uid+'_text');
         child2.className = 'note_text';
         child2.setAttribute('placeholder','note text');
+        if (note.text != null) {
+          child2.value = editor.game.mediamanager.getMediaValue(note.text);
+        } 
         child.appendChild(child2);
         child2 = createElement('div');
         child2.setAttribute('id','note_'+note.uid+'_overlay');
@@ -498,12 +547,13 @@ var game = new Game();
         child.appendChild(child2);
         child.appendChild(createElement('br'));
         child2 = createElement('span');
-        child2.appendChild(document.createTextNode(editor.game.mediamanager.getMediaValue(note.title) ) );
+        if (note.title != null) {
+          child2.appendChild(document.createTextNode(editor.game.mediamanager.getMediaValue(note.title) ) );
+        }      
         child2.setAttribute('id', 'notelistElement_'+note.uid);
         child.setAttribute('id', 'notelistBox_'+note.uid);
         child.appendChild(child2);
         child.appendChild(createElement('br'));
-
       }
       /**
       @method setStartNote
@@ -594,7 +644,7 @@ var game = new Game();
         child2.setAttribute('id', 'input_note_title');
         child2.setAttribute('name', 'input_note_title');
         if (c_note.title != null)
-          child2.setAttribute('value', editor.game.mediamanager.getMediaValue(c_note.title));
+          child2.value = editor.game.mediamanager.getMediaValue(c_note.title);
         child.appendChild(child2);
         child.appendChild(createElement('br'));
         child.appendChild(document.createTextNode('text: '));
@@ -602,7 +652,7 @@ var game = new Game();
         child2.setAttribute('id', 'input_note_text');
         child2.setAttribute('name', 'input_note_text');
         if (c_note.text != null)
-          child2.setAttribute('value', editor.game.mediamanager.getMediaValue(c_note.text));
+          child2.value = editor.game.mediamanager.getMediaValue(c_note.text);
         child.appendChild(child2);
         child.appendChild(createElement('br'));
         child2 = createElement('button');
@@ -1015,6 +1065,7 @@ var game = new Game();
         var json = JSON.parse(result);
         console.log(json);
         editor.game = new Game();
+        editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         editor.game.load(json['game']);
         //editor.func = json['func'];
         editor.uidcounter = json['uidcounter'];
@@ -1163,34 +1214,34 @@ body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 25px; height: auto; max-height: 10%;}
-#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ccc; resize: none;}
-#notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ccc; overflow: scroll; font-size: 13px;}
+#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; resize: none;}
+#notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
 #noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; }
-#noteeditor_box {position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ccc; border-top: 1px solid #ccc; overflow: auto;}
-.notelistBox {border: 1px solid #ccc; margin: 2px; background: #ccc; width: 95%;}
-#note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ccc; padding: 0; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
+#noteeditor_box {position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ddd; border-top: 1px solid #ddd; overflow: auto;}
+.notelistBox {border: 1px solid #ddd; margin: 2px; background: #ddd; width: 95%;}
+#note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; padding: 0; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
 #input_note_title { width: 250px; margin: 0;}
 #input_note_text { width: 250px; min-height: 100px; margin: 0;}
 #note_input_box span{float: left; width: 50px; margin: 0;}
 .closeBoxButton {position: absolute; color: white; background: #c00; top: -1px; right: 1px; width: 24px; max-width: 24px; min-width: 24px; font-size: 10px; font-weight: bold; padding: 0;}
-.note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
+.note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
 .note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; /*rgba(0,255,0,0.005)*/}
 .note_menu_button {position: absolute; top: 0px; right: 1px; color: white; font-weight: bold; font-size: 25px; }
-.eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
-.connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ccc; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px;}
+.eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
+.connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px;}
 .note_bar {margin: 1px; background: #009; width: 148px; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
 .note_text {width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;}
-.connection{width: 150px; background: #ccc; font-size: 13px; font-family: sans-serif;}
-.note_menu{position: absolute; right: 0px; top: 0px; width: auto; max-width: 150px; display: none; text-align: right; border: 1px #999 solid; background: #ccc; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;}
+.connection{width: 150px; background: #ddd; font-size: 13px; font-family: sans-serif;}
+.note_menu{position: absolute; right: 0px; top: 0px; width: auto; max-width: 150px; display: none; text-align: right; border: 1px #999 solid; background: #ddd; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;}
 .note_menu_button:hover .note_menu{display: block;}
 .menu_element{font-weight: bold; color: #333; font-size: 13px; font-family: sans-serif; white-space: pre;}
 .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
-#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; border: 1px solid #ccc; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
+#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; border: 1px solid #ddd; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
 #help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px;}
 #help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px;}
 #help div div {display: none;}
@@ -1260,6 +1311,16 @@ document.body.appendChild(game_cvs);
  use the 'toggle' button.<br>
   </div>
 </div><div>
+<h1>Where to start?</h1>
+  <div>
+ <h2>First you should create a mini story.</h2>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+  </div>
+</div><div>
  <h1>the note editor</h1>
  <div>
  <h2>With the 'add note' button you insert a new note to the game.</h2>
@@ -1278,8 +1339,18 @@ document.body.appendChild(game_cvs);
  <a href="https://stackoverflow.com/questions/tagged/javascript" target="_blank">stackoverflow</a> - for mostly any kind of questions in programming.<br>
  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference" target="_blank">mozilla</a> javascript reference.<br>
  <a href="http://www.html5rocks.com/" target="_blank">html5rocks</a> - good tutorials for HTML5, CSS and javascript.<br>
+ <a href="http://www.w3schools.com/js/DEFAULT.asp">w3schools</a> - JavaScript Tutorial, try it yourself examples in every chapter.<br>
  Tip: search engines are your friend.<br>
  </div>
+</div><div>
+<h1>What is a note?</h1>
+  <div>
+ <h2>A note is single text.</h2>
+ It is like a tweet in twitter.<br>
+ But it has connections (links) to other notes.<br>
+ A note has a title, a text and connections. <br> 
+ A  note is named 'Passage' in 'twine' - a connection, too.<br>
+  </div>
 </div><div>
  <h1>toggle button</h1>
   <div>
@@ -1295,6 +1366,16 @@ document.body.appendChild(game_cvs);
  adds it to the editor.game.notes array,<br>
  shows it on the noteeditor screen <br>
  and the note ist on the right of the script editor<br>
+  </div>
+  </div><div>
+<h1>Choice between save/load and ex-&import</h1>
+  <div>
+ <h2>What should you use?</h2>
+ save and load are storing in the browser.<br>
+ These options use the localStorage or the indexedDB.<br>
+ <br>
+ With ex- and import you store the game-data to the<br>
+ computer's files system. Or you import some data from there.<br>
   </div>
 <!--end-->
 <button onclick="getElement('help').style.display = 'none';" class="closeBoxButton" style="top: 1px;">X</button>

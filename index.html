@@ -124,6 +124,11 @@ function Game() {
  */
  this.notes = [];
  /**
+ @parameter startNote
+ @since 2014-05-29
+ */
+ this.startNote = null;
+ /**
  @method load
  @since 2014-05-17
  */
@@ -143,6 +148,7 @@ function Game() {
    note.load(data['notes'][i]);
    this.notes.push(note);
   }
+  this.startNote = data['startNote'];
  };
  /**
  @method save
@@ -417,7 +423,7 @@ var game = new Game();
         child2.appendChild(child3);
         //
         child2 = createElement('div');
-        child2.setAttribute('con_menu','con_menu_'+note.uid);
+        child2.setAttribute('id','con_menu_'+note.uid);
         child2.className = 'connection';
         child2.appendChild(document.createTextNode('connects: '));
         child3 = createElement('span');
@@ -441,6 +447,8 @@ var game = new Game();
         child2.setAttribute('id','note_'+note.uid+'_overlay');
         child2.className = 'note_overlay';
         child.appendChild(child2);
+        //THE MENU -> make this a editor method
+        //add to notelist too    
         child2 = createElement('div');
         child2.appendChild(document.createTextNode('*'));
         child2.className = 'note_menu_button';
@@ -461,6 +469,12 @@ var game = new Game();
           //
           child4 = createElement('div');
           child4.className = 'menu_element';
+          child4.setAttribute('onclick','editor.setStartNote(\''+note.uid+'\');');
+          child4.appendChild(document.createTextNode('set start note'));
+          child3.appendChild(child4);
+          //
+          child4 = createElement('div');
+          child4.className = 'menu_element';
           child4.setAttribute('onclick','editor.openAddConnectionBox(\''+note.uid+'\');');
           child4.appendChild(document.createTextNode('add connection'));
           child3.appendChild(child4);
@@ -472,6 +486,7 @@ var game = new Game();
           child4.appendChild(document.createTextNode('delete connection'));
           child3.appendChild(child4);
         child2.appendChild(child3);
+        //THE MENU END
         child.appendChild(child2);
 
         ele = getElement('notelist');
@@ -491,8 +506,32 @@ var game = new Game();
 
       }
       /**
+      @method setStartNote
+      @since 2014-05-29
+      @param _uid
+      */
+      editor.setStartNote = function(_uid) {
+        console.log('setStartNote = '+_uid);
+        if (editor.game.startNote != null) {
+          //remove startNote visualation
+          getElement('con_menu_'+editor.game.startNote).removeChild(
+                      getElement('con_start_'+editor.game.startNote) );
+        }
+        editor.game.startNote = _uid;
+        //visualize startNote
+        var ele = getElement('con_menu_'+_uid);
+        console.log(ele);
+        console.log('setStartNote = con_menu_'+_uid);
+        var child = createElement('span');
+        child.className = 'con_start';
+        child.setAttribute('id', 'con_start_'+_uid);
+        child.appendChild(createTextNode('start'));
+        ele.appendChild(child);
+      }
+      /**
       @method deleteNote
       @since 2014-05-18
+      @param _uid
       */
       editor.deleteNote = function(_uid) {
         for (var i = 0; i < editor.game.notes.length; i++) {
@@ -576,7 +615,7 @@ var game = new Game();
         child2.className = 'closeBoxButton';
         child.appendChild(child2);
         child.setAttribute('id', 'note_input_box');
-        getElement('noteeditor').appendChild(child);
+        getElement('editor').appendChild(child);//from noteeditor to editor
       }
       /**
       @method addTextAndTitleToNote
@@ -586,7 +625,7 @@ var game = new Game();
       editor.addTextAndTitleToNote = function(_id) {
         console.log('539 -> '+_id);
         if (_id == null) {
-          getElement('noteeditor').removeChild(getElement('note_input_box'));
+          getElement('editor').removeChild(getElement('note_input_box'));
           return;
         }
         var c_note = editor.getNote(_id);
@@ -605,7 +644,7 @@ var game = new Game();
                                                        editor.game.mediamanager.getMediaValue(c_note.title) ) );
         getElement('note_'+_id+'_text').value = editor.game.mediamanager.getMediaValue(c_note.text);
 
-        getElement('noteeditor').removeChild(getElement('note_input_box'));
+        getElement('editor').removeChild(getElement('note_input_box'));
       }
 
       /**
@@ -648,7 +687,7 @@ var game = new Game();
         child2.appendChild(document.createTextNode('X'));
         child.appendChild(child2);
 
-        getElement('noteeditor').appendChild(child);
+        getElement('editor').appendChild(child);
 	      getElement('addConnectionBox').style.display= 'block';
 	      getElement('boxFrom').innerHTML = _id;
 
@@ -671,7 +710,7 @@ var game = new Game();
       */
       editor.closeAddConnectionBox = function(_id) {
         if (_id == null) {
-          getElement('noteeditor').removeChild(getElement('addConnectionBox'));
+          getElement('editor').removeChild(getElement('addConnectionBox'));
           return;
         }
         //alert('editor.closeAddConnectionBox');
@@ -691,11 +730,11 @@ var game = new Game();
         getElement('con_amount_'+_id).innerHTML = '';
         getElement('con_amount_'+_id).appendChild(
             document.createTextNode(' '+c_note.connections.length));
-        getElement('noteeditor').removeChild(getElement('addConnectionBox'));
+        getElement('editor').removeChild(getElement('addConnectionBox'));
         editor.addArrowLine(_id, value);
       };
       /**
-      @method openAddConnectionBox
+      @method openDeleteConnectionBox
       @param _id
       @since 2014-05-23
       */
@@ -703,7 +742,7 @@ var game = new Game();
         var child = createElement('div');
         child.setAttribute('id', 'deleteConnectionBox');
         child.className = 'connectionBox';
-        getElement('noteeditor').appendChild(child);
+        getElement('editor').appendChild(child);
         child.appendChild(document.createTextNode('from: '+_id));
         child.appendChild(createElement('br'));
 
@@ -738,13 +777,13 @@ var game = new Game();
         child.appendChild(child2);
 	    };
       /**
-      @method openAddConnectionBox
+      @method closeDeleteConnectionBox
       @param _id
       @since 2014-05-23
       */
       editor.closeDeleteConnectionBox = function (_id) {
         if (_id == null) {
-          getElement('noteeditor').removeChild(getElement('deleteConnectionBox'));
+          getElement('editor').removeChild(getElement('deleteConnectionBox'));
           return;
         }
         var c_note = editor.getNote(_id);
@@ -768,7 +807,7 @@ var game = new Game();
           }
         }
         try {
-          getElement('noteeditor').removeChild(getElement('deleteConnectionBox'));
+          getElement('editor').removeChild(getElement('deleteConnectionBox'));
         }
         catch (e) {
         }
@@ -1104,6 +1143,10 @@ var game = new Game();
         return document.createElement(_ele);
       };
       /***/
+      _win.createTextNode = function(_txt) {
+        return document.createTextNode(_txt);
+      };
+      /***/
       _win.getElement = function(_id) {
         return document.getElementById(_id);
       };
@@ -1120,7 +1163,7 @@ body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 25px; height: auto; max-height: 10%;}
-#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ccc;}
+#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ccc; resize: none;}
 #notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ccc; overflow: scroll; font-size: 13px;}
 #noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; }
 #noteeditor_box {position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ccc; border-top: 1px solid #ccc; overflow: auto;}
@@ -1146,6 +1189,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
+.con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
 #help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; border: 1px solid #ccc; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
 #help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px;}
 #help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px;}

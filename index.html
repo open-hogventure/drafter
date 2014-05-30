@@ -1057,6 +1057,31 @@ var game = new Game();
         }
       };
       /**
+      @method buildGame
+      @since 2014-05-27
+      */
+      editor.buildGame = function() {
+        var ele = document.body;
+        var child = createElement('div');
+        var child2 = createElement('div');
+        child2.appendChild(document.createTextNode(' download myDrafterGame.html: '));
+        child.appendChild(child2);
+        editor.code = getElement('texteditor').value;
+        editor.noteeditor_box = null;
+        editor.noteeditor = null;
+        var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
+        child2 = editor.buildExportBlobUrl( data, 'myDrafterGame', 'html'); //
+		    child.appendChild(child2);
+        child.className = 'eximport';
+        child.setAttribute('id','eximport');
+        ele.appendChild(child);
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+      };
+      /**
       @method load
       @since 2014-05-28
       @param result
@@ -1241,7 +1266,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
-#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; border: 1px solid #ddd; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px;}
+#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; border: 1px solid #ddd; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto;}
 #help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px;}
 #help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px;}
 #help div div {display: none;}
@@ -1259,10 +1284,11 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   <button onclick="editor.addNote();" style="float: left;">add note</button>
   <button onclick="editor.importEditor();" style="float: left;">import</button>
   <button onclick="editor.exportEditor();" style="float: left;">export</button>
+  <button onclick="editor.buildGame();" style="float: left;">build</button>
   <button onclick="editor.help();" style="float: left;">help</button>
   <br style="clear: both;">
   </div>
-  <textarea id="texteditor">var game_cvs = createElement('canvas');
+  <textarea id="texteditor"><!--var game_cvs = createElement('canvas');
 game_cvs.style.width = '450px';
 game_cvs.style.height = '300px';
 game_cvs.style.background = '#000';
@@ -1270,7 +1296,7 @@ game_cvs.style.position = 'absolute';
 game_cvs.style.top = '50px';
 game_cvs.style.left = '0px';
 document.body.appendChild(game_cvs);
-  </textarea>
+--></textarea>
   <div id="notelist"></div>
   <div id="noteeditor_box">
    <div id="noteeditor">
@@ -1318,6 +1344,21 @@ document.body.appendChild(game_cvs);
     <br>
     <br>
     <br>
+    <br>
+  </div>
+</div><div>
+<h1>The tutorial example.</h1>
+  <div>
+ <h2>Now let's start and write a super simple mini story.</h2>
+  This story should have a start, an end and some credits.<br>
+  It will look like this in the note editor:<br>
+    <img src="img/Screenshot note.png" width="370" style="width: 370px;"/><br>
+    <br>
+  The script editor will show this:<br>
+    <img src="img/Screenshot script.png" width="370" style="width: 370px;"/><br>
+    <br>
+  And that's how a test run looks like:<br>
+    <img src="img/Screenshot game.png" width="370" style="width: 370px;"/><br>
     <br>
   </div>
 </div><div>
@@ -1376,6 +1417,18 @@ document.body.appendChild(game_cvs);
  <br>
  With ex- and import you store the game-data to the<br>
  computer's files system. Or you import some data from there.<br>
+ <br>
+ If you want to pubilish you game, use the 'build'-button.<br>
+  </div>
+  </div><div>
+<h1>The build button</h1>
+  <div>
+ <h2>Building the final bersion of your game.</h2>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
   </div>
 <!--end-->
 <button onclick="getElement('help').style.display = 'none';" class="closeBoxButton" style="top: 1px;">X</button>

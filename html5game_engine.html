@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>The HTML5 div based game-engine</title>
+  <script type="text/javascript" id="game_source">
+/**
+@class Note
+@param _uid
+@since 2014-05-17
+*/
+function Note(_uid) {
+ /***/
+ this.uid = _uid;
+ /***/
+ this.text = null;
+ /***/
+ this.title = null;
+ /***/
+ this.connections = [];
+ /***/
+ this.load = function(data) {
+   console.log(data);
+  this.uid = data['uid'];
+  for (var i = 0; i < data['connections'].length;i++) {
+   var connection = new Connection(data['connections'][i]['uid']);
+   connection.load(data['connections'][i]);
+   this.connections.push(connection);
+  }
+  this.text = data['text'];
+  this.title = data['title'];
+ };
+};
+/**
+@class Connection
+@param _uid
+@since 2014-05-17
+*/
+function Connection(_uid) {
+ /***/
+ this.uid = _uid;
+ /***/
+ this.text = null;
+ /***/
+ this.to_uid = null;
+ /***/
+ this.from_uid = null;
+ /***/
+ this.load = function(data) {
+  this.uid = data['uid'];
+  this.text = data['text'];
+  this.to_uid = data['to_uid'];
+  this.from_uid = data['from_uid'];
+ };
+};
+/**
+@class MediaLanguage
+@param _lan
+@since 2014-05-18
+*/
+function MediaLanguage(_lan) {
+ this.language = _lan;
+ this.medias = [];
+ /**
+ @method load
+ @param data
+ @since 2014-05-29
+ */
+ this.load = function(data) {
+  this.language = data['language'];
+  this.medias = [];
+  for (var i = 0; i < data['medias'].length; i++) {
+   this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});
+  }
+ };
+ this.setMedia = function(_k, _v) {
+  //console.log('setMedia'+_k);
+  if (this.hasMedia(_k)) {
+   this.getMedia(_k).value = Base64.encode(_v);
+  } else {
+   this.addMedia(_k, _v);
+  }
+ };
+ this.getMedia = function(_k) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return this.medias[i];
+   }
+  }
+  return null;
+ };
+ this.getMediaValue = function(_k) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    //console.log('getMedia->'+Base64.decode(this.medias[i].value));
+    return Base64.decode(this.medias[i].value);
+   }
+  }
+  return null;
+ };
+ this.hasMedia = function(_k, _v) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return true;
+   }
+  }
+  return false;
+ };
+ this.deleteMedia = function(_k, _v) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return this.medias.splice(i, 1);
+   }
+  }
+ };
+ this.addMedia = function(_k, _v) {
+  this.medias.push(this.createMedia(_k, _v));
+ };
+ this.createMedia = function(_k, _v) {
+  return { key : _k, value : Base64.encode(_v) };
+ };
+};
+/**
+The Game class
+@class Game
+@since 2014-05-17
+*/
+function Game() {
+ /**
+ the major data type array
+ @parameter notes
+ @since 2014-05-17
+ */
+ this.notes = [];
+ /**
+ @parameter startNote
+ @since 2014-05-29
+ */
+ this.startNote = null;
+ /**
+ @method load
+ @since 2014-05-17
+ */
+ this.load = function(data) {
+  if (data == null) {
+    data = window.localStorage.getItem('game_data');
+    data = JSON.parse(data);
+    if (data == null) {
+     //avoid a cannot read property exception
+     //
+     return;
+    }
+  }
+  console.log('');
+  console.log(data);
+  this.mediamanager.load(data['mediamanager']);
+  this.startNote = data['startNote'];
+  this.notes = [];
+  for (var i = 0; i < data['notes'].length;i++) {
+   var note = new Note(data['notes'][i]['uid']);
+   note.load(data['notes'][i]);
+   this.notes.push(note);
+  }  
+ };
+ /**
+ @method save
+ @since 2014-05-17
+ */
+ this.save = function() {
+  var data = JSON.stringify(game);
+  console.log('save data:');
+  console.log(data);
+  console.log(':save data');
+  window.localStorage.setItem('game_data', data);
+ };
+ /**
+ @class mediamanager
+ @since 2014-05-18
+ */
+ this.mediamanager = {
+  defaultLanguage : 'en',
+  currentLanguage : 'en',
+  languages : [],
+  mediaLanguages : [],
+  setCurrentLanguage : function(_lan) {
+   this.currentLanguage = _lan;
+   if (!this.hasLanguage(_lan)) {
+    this.addLanguage(_lan);
+   }
+  },
+  addLanguage : function(_lan) {
+   this.mediaLanguages.push( new MediaLanguage(_lan) );
+   this.languages.push(_lan);
+  },
+  hasLanguage : function(_lan) {
+   for (var i = 0; i < this.languages.length; i++) {
+    if (this.languages[i] == _lan) {
+     return true;
+    }
+   }
+   return false;
+  },
+  getCurrentLanguage : function() {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    if (this.mediaLanguages[i].language == this.currentLanguage) {
+     return this.mediaLanguages[i];
+    }
+   }
+   this.currentLanguage = this.defaultLanguage;
+   var language = new MediaLanguage(this.currentLanguage);
+   this.mediaLanguages.push( language );
+   this.languages.push(this.currentLanguage);
+   return language;
+  },
+  setMedia : function(_k, _v) {
+   //type64=true|false would regulate de/encoding or not
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    this.mediaLanguages[i].setMedia(_k, _v);
+   }
+  },
+  deleteMedia : function(_k) {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    this.mediaLanguages[i].deleteMedia(_k);
+   }
+  },
+  getMedia : function(_k) {
+   return this.getCurrentLanguage().getMedia(_k);
+  },
+  getMediaValue : function(_k) {
+   return this.getCurrentLanguage().getMediaValue(_k);
+  },
+  /**
+  @method load
+  @param data
+  @since 2014-05-29
+  */
+  load : function(data) {
+   this.defaultLanguage = 'en',
+   this.currentLanguage = data['currentLanguage'];
+   this.languages = data['languages'];
+   this.mediaLanguages = [];
+   for (var i = 0; i < data['mediaLanguages'].length; i++) {
+    var lan = new MediaLanguage(data['mediaLanguages'][i]['uid']);
+    lan.load(data['mediaLanguages'][i]);
+    this.mediaLanguages.push(lan);
+   }
+  }
+ }
+}
+
+</script>
+  <script type="text/javascript">
+   /**
+   we need the game data, 
+   but may also need the code part
+   for a self-implemented game class 
+   and game engine
+
+   @attribute json
+   @since 2014-05-30
+   */
+   var json = {"func":null,"width":1210,"height":631,"game":{"notes":[{"uid":"4WC6G","text":"C2Qnh","title":"K8mmT","connections":[{"uid":"PZLsS","text":"ZgASD","to_uid":"4WC6G","from_uid":"uEwSm"},{"uid":"MBvcr","text":"KJ5rI","to_uid":"4WC6G","from_uid":"Eloec"},{"uid":"lgaK0","text":"NqFNd","to_uid":"Eloec","from_uid":"4WC6G"}]},{"uid":"uEwSm","text":"jfuWQ","title":"ZAsGx","connections":[{"uid":"PZLsS","text":"ZgASD","to_uid":"4WC6G","from_uid":"uEwSm"},{"uid":"YEj0j","text":"MYPor","to_uid":"uEwSm","from_uid":"Eloec"},{"uid":"z2RJv","text":"nQ1tI","to_uid":"Eloec","from_uid":"uEwSm"}]},{"uid":"Eloec","text":"32nsf","title":"w1xyb","connections":[{"uid":"YEj0j","text":"MYPor","to_uid":"uEwSm","from_uid":"Eloec"},{"uid":"MBvcr","text":"KJ5rI","to_uid":"4WC6G","from_uid":"Eloec"},{"uid":"lgaK0","text":"NqFNd","to_uid":"Eloec","from_uid":"4WC6G"},{"uid":"z2RJv","text":"nQ1tI","to_uid":"Eloec","from_uid":"uEwSm"}]}],"startNote":"uEwSm","mediamanager":{"defaultLanguage":"en","currentLanguage":"en","languages":["en","en"],"mediaLanguages":[{"language":"en","medias":[{"key":"ZgASD","value":"R28gdG8gdGhlIGVuZA=="},{"key":"32nsf","value":"ZWRpdG9yLCBnYW1lIGFuZCBnYW1lIGVuZ2luZSBtYWRlIGJ5IE1hbHRlIEtvc2lhbg=="},{"key":"w1xyb","value":"Q3JlZGl0cw=="},{"key":"MYPor","value":"VG8gdGhlIHN0YXJ0IG9mIHRoZSBzdG9yeQ=="},{"key":"KJ5rI","value":"QmFjayB0byB0aGUgZW5k"},{"key":"jfuWQ","value":"SGVyZSB0aGUgc3Rvcnkgc3RhcnRzLgpJdCBpcyBhIHZlcnkgc2hvcnQgc3RvcnkuCkhvdyBpdCB3aWxsIGVuZCBpcyBhbGwgeW91ciBjaG9pY2Uu"},{"key":"ZAsGx","value":"VGhpcyBpcyB0aGUgc3RhcnQgbm90ZQ=="},{"key":"C2Qnh","value":"QW5kIG5vdyB0aGUgZW5kIGlzIG5lYXIgbXkgZnJpZW5kLgpWZXJ5IG5lYXIuLi4KRmFtb3VzIGxhc3Qgd29yZHMu"},{"key":"K8mmT","value":"VGhlIGVuZCBpcyBuZWFyLg=="},{"key":"NqFNd","value":"Y3JlZGl0cw=="},{"key":"ejMFA","value":""},{"key":"nQ1tI","value":"Y3JlZGl0cw=="}]},{"language":"en","medias":[{"key":"C2Qnh","value":"QW5kIG5vdyB0aGUgZW5kIGlzIG5lYXIgbXkgZnJpZW5kLgpWZXJ5IG5lYXIuLi4KRmFtb3VzIGxhc3Qgd29yZHMu"},{"key":"K8mmT","value":"VGhlIGVuZCBpcyBuZWFyLg=="},{"key":"NqFNd","value":"Y3JlZGl0cw=="},{"key":"ejMFA","value":""},{"key":"nQ1tI","value":"Y3JlZGl0cw=="},{"key":"jfuWQ","value":"SGVyZSB0aGUgc3Rvcnkgc3RhcnRzLgpJdCBpcyBhIHZlcnkgc2hvcnQgc3RvcnkuCkhvdyBpdCB3aWxsIGVuZCBpcyBhbGwgeW91ciBjaG9pY2Uu"},{"key":"ZAsGx","value":"VGhpcyBpcyB0aGUgc3RhcnQgbm90ZQ=="}]}]}},"uidcounter":["4WC6G","uEwSm","PZLsS","ZgASD","Eloec","32nsf","w1xyb","YEj0j","MYPor","MBvcr","KJ5rI","jfuWQ","ZAsGx","C2Qnh","K8mmT","lgaK0","NqFNd","9KfSq","ejMFA","z2RJv","nQ1tI"],"noteStartX":485,"noteStartY":335,"pressed":false,"ox":167,"oy":323,"noteeditor_box":null,"noteeditor":null,"code":"var game_cvs = createElement('canvas');\ngame_cvs.style.width = '450px';\ngame_cvs.style.height = '300px';\ngame_cvs.style.background = '#000';\ngame_cvs.style.position = 'absolute';\ngame_cvs.style.top = '50px';\ngame_cvs.style.left = '0px';\ndocument.body.appendChild(game_cvs);\n  \n/**\n@class Note\n@param _uid\n@since 2014-05-17\n*/\nfunction Note(_uid) {\n /***/\n this.uid = _uid;\n /***/\n this.text = null;\n /***/\n this.title = null;\n /***/\n this.connections = [];\n /***/\n this.load = function(data) {\n   console.log(data);\n  this.uid = data['uid'];\n  for (var i = 0; i < data['connections'].length;i++) {\n   var connection = new Connection(data['connections'][i]['uid']);\n   connection.load(data['connections'][i]);\n   this.connections.push(connection);\n  }\n  this.text = data['text'];\n  this.title = data['title'];\n };\n};\n/**\n@class Connection\n@param _uid\n@since 2014-05-17\n*/\nfunction Connection(_uid) {\n /***/\n this.uid = _uid;\n /***/\n this.text = null;\n /***/\n this.to_uid = null;\n /***/\n this.from_uid = null;\n /***/\n this.load = function(data) {\n  this.uid = data['uid'];\n  this.text = data['text'];\n  this.to_uid = data['to_uid'];\n  this.from_uid = data['from_uid'];\n };\n};\n/**\n@class MediaLanguage\n@param _lan\n@since 2014-05-18\n*/\nfunction MediaLanguage(_lan) {\n this.language = _lan;\n this.medias = [];\n /**\n @method load\n @param data\n @since 2014-05-29\n */\n this.load = function(data) {\n  this.language = data['language'];\n  this.medias = [];\n  for (var i = 0; i < data['medias'].length; i++) {\n   this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});\n  }\n };\n this.setMedia = function(_k, _v) {\n  //console.log('setMedia'+_k);\n  if (this.hasMedia(_k)) {\n   this.getMedia(_k).value = Base64.encode(_v);\n  } else {\n   this.addMedia(_k, _v);\n  }\n };\n this.getMedia = function(_k) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    return this.medias[i];\n   }\n  }\n  return null;\n };\n this.getMediaValue = function(_k) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    //console.log('getMedia->'+Base64.decode(this.medias[i].value));\n    return Base64.decode(this.medias[i].value);\n   }\n  }\n  return null;\n };\n this.hasMedia = function(_k, _v) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    return true;\n   }\n  }\n  return false;\n };\n this.deleteMedia = function(_k, _v) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    return this.medias.splice(i, 1);\n   }\n  }\n };\n this.addMedia = function(_k, _v) {\n  this.medias.push(this.createMedia(_k, _v));\n };\n this.createMedia = function(_k, _v) {\n  return { key : _k, value : Base64.encode(_v) };\n };\n};\n/**\nThe Game class\n@class Game\n@since 2014-05-17\n*/\nfunction Game() {\n /**\n the major data type array\n @parameter notes\n @since 2014-05-17\n */\n this.notes = [];\n /**\n @parameter startNote\n @since 2014-05-29\n */\n this.startNote = null;\n /**\n @method load\n @since 2014-05-17\n */\n this.load = function(data) {\n  if (data == null) {\n    data = window.localStorage.getItem('game_data');\n    data = JSON.parse(data);\n    if (data == null) {\n     //avoid a cannot read property exception\n     //console.log(data);\n     return;\n    }\n  }\n  this.notes = [];\n  for (var i = 0; i < data['notes'].length;i++) {\n   var note = new Note(data['notes'][i]['uid']);\n   note.load(data['notes'][i]);\n   this.notes.push(note);\n  }\n  this.startNote = data['startNote'];\n  this.mediamanager.load(data['mediamanager']);\n };\n /**\n @method save\n @since 2014-05-17\n */\n this.save = function() {\n  var data = JSON.stringify(game);\n  console.log('save data:');\n  console.log(data);\n  console.log(':save data');\n  window.localStorage.setItem('game_data', data);\n };\n /**\n @class mediamanager\n @since 2014-05-18\n */\n this.mediamanager = {\n  defaultLanguage : 'en',\n  currentLanguage : 'en',\n  languages : [],\n  mediaLanguages : [],\n  setCurrentLanguage : function(_lan) {\n   this.currentLanguage = _lan;\n   if (!this.hasLanguage(_lan)) {\n    this.addLanguage(_lan);\n   }\n  },\n  addLanguage : function(_lan) {\n   this.mediaLanguages.push( new MediaLanguage(_lan) );\n   this.languages.push(_lan);\n  },\n  hasLanguage : function(_lan) {\n   for (var i = 0; i < this.languages.length; i++) {\n    if (this.languages[i] == _lan) {\n     return true;\n    }\n   }\n   return false;\n  },\n  getCurrentLanguage : function() {\n   for (var i = 0; i < this.mediaLanguages.length; i++) {\n    if (this.mediaLanguages[i].language == this.currentLanguage) {\n     return this.mediaLanguages[i];\n    }\n   }\n   this.currentLanguage = this.defaultLanguage;\n   var language = new MediaLanguage(this.currentLanguage);\n   this.mediaLanguages.push( language );\n   this.languages.push(this.currentLanguage);\n   return language;\n  },\n  setMedia : function(_k, _v) {\n   //type64=true|false would regulate de/encoding or not\n   for (var i = 0; i < this.mediaLanguages.length; i++) {\n    this.mediaLanguages[i].setMedia(_k, _v);\n   }\n  },\n  deleteMedia : function(_k) {\n   for (var i = 0; i < this.mediaLanguages.length; i++) {\n    this.mediaLanguages[i].deleteMedia(_k);\n   }\n  },\n  getMedia : function(_k) {\n   return this.getCurrentLanguage().getMedia(_k);\n  },\n  getMediaValue : function(_k) {\n   return this.getCurrentLanguage().getMediaValue(_k);\n  },\n  /**\n  @method load\n  @param data\n  @since 2014-05-29\n  */\n  load : function(data) {\n   this.defaultLanguage = 'en',\n   this.currentLanguage = data['currentLangauge'];\n   this.languages = data['languages'];\n   this.mediaLanguages = [];\n   for (var i = 0; i < data['mediaLanguages'].length; i++) {\n    var lan = new MediaLanguage(data['mediaLanguages'][i]['uid']);\n    lan.load(data['mediaLanguages'][i]);\n    this.mediaLanguages.push(lan);\n   }\n  }\n }\n}\n/**\n@property game\n@since 2014-05-28\n*/\n"};
+  </script>
+  <script type="text/javascript" src="js/base64.js"></script>
+  <script type="text/javascript" id="html5div_game_engine">
+   (function(_win) { 
+     /**
+     @class gameEngine
+     @since 2014-05-30
+     */
+     var gameEngine = {};
+     /**
+     @property game
+     @since 2014-05-30
+     */
+     gameEngine.game = null;
+     /**
+     @method init
+     @since 2014-05-30
+     */
+     gameEngine.init = function() {
+      gameEngine.game = new Game();
+      console.log(gameEngine.game);
+      gameEngine.game.mediamanager.addLanguage(gameEngine.game.mediamanager.defaultLanguage);
+      gameEngine.game.load(json['game']);
+      var child = document.createElement('div');
+      child.setAttribute('id', 'gameMainView');
+      document.body.appendChild(child);
+      if (gameEngine.game.startNote == null) {
+        alert('Can\'t start the game. game.startNote is not defined!');
+        return;
+      }
+      gameEngine.renderNote(gameEngine.game.startNote);
+     };
+     /**
+     @method renderNote
+     @since 2014-05-30
+     @param uid
+     */
+     gameEngine.renderNote = function (uid) {
+      var note = gameEngine.getNote(uid);
+      var ele = document.getElementById('gameMainView');
+      ele.innerHTML = '';
+      var child = document.createElement('h1');
+      child.appendChild(document.createTextNode(
+                        gameEngine.game.mediamanager.getMediaValue(note.title)));
+      ele.appendChild(child);
+      //ele.appendChild(document.createElement('br'));
+      ele.appendChild(document.createElement('br'));
+      var text = gameEngine.game.mediamanager.getMediaValue(note.text);
+      texts = text.split(/\n/);
+      for (var i = 0; i < texts.length; i++) {
+        ele.appendChild(document.createTextNode(texts[i]));
+        ele.appendChild(document.createElement('br'));
+      }
+      ele.appendChild(document.createElement('br'));
+      //connections
+      var cons = note.connections;
+      for (var i = 0; i < cons.length; i++) {
+       if (cons[i].from_uid == note.uid) {      
+        var con_text = gameEngine.game.mediamanager.getMediaValue(cons[i].text);
+        child = document.createElement('span');
+        child.style.cssFloat = 'right';
+        child.style.cursor = 'pointer';
+        child.style.color = '#00c';
+        child.style.textDecoration = 'underline';
+        child.setAttribute('onclick','gameEngine.renderNote(\''+cons[i].to_uid+'\');');
+        child.appendChild(document.createTextNode(con_text));
+        ele.appendChild(child);
+        ele.appendChild(document.createElement('br'));
+       }
+      }
+     };
+     /**
+     @method getNote
+     @since 2014-05-30
+     @param uid
+     @return {Note} the corresponding Note
+     */
+     gameEngine.getNote = function (uid) {
+      for (var i = 0; i < gameEngine.game.notes.length; i++) {
+        if (gameEngine.game.notes[i].uid == uid) {
+          return gameEngine.game.notes[i];
+        }
+      }
+      return null;
+     };
+     /**
+     making the gameEngine public global available
+     */
+     _win.gameEngine = gameEngine;
+   })(window);
+
+   window.onload = function() {setTimeout(gameEngine.init, 100);};
+  </script>
+ </head>
+ <body>
+ </body>
+</html>

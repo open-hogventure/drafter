@@ -165,7 +165,7 @@ function Game() {
    var note = new Note(data['notes'][i]['uid']);
    note.load(data['notes'][i]);
    this.notes.push(note);
-  }  
+  }
  };
  /**
  @method save
@@ -264,7 +264,7 @@ function Game() {
  @class gameEngine
  @since 2014-05-30
 */
-var gameEngine = { 
+var gameEngine = {
  /**
  @property game
  @since 2014-05-30
@@ -313,7 +313,7 @@ var gameEngine = {
   //connections
   var cons = note.connections;
   for (var i = 0; i < cons.length; i++) {
-   if (cons[i].from_uid == note.uid) {      
+   if (cons[i].from_uid == note.uid) {
     var con_text = this.game.mediamanager.getMediaValue(cons[i].text);
     child = document.createElement('span');
     child.style.cssFloat = 'right';
@@ -342,7 +342,7 @@ var gameEngine = {
   return null;
  }
 };
-  
+
 window.gameEngine = gameEngine;
 gameEngine.init();
 </script>
@@ -353,12 +353,12 @@ gameEngine.init();
 *  http://www.webtoolkit.info/
 *
 **/
- 
+
 var Base64 = {
- 
+
 	// private property
 	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
- 
+
 	// public method for encoding
 	encode : function (data) {
 		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -366,36 +366,36 @@ var Base64 = {
         ac = 0,
         enc = "",
         tmp_arr = [];
- 
+
 		if (!data) {
 			return data;
 		}
-	 
+
 		data = this._utf8_encode(data + '');
-	 
+
 		do { // pack three octets into four hexets
 			o1 = data.charCodeAt(i++);
 			o2 = data.charCodeAt(i++);
 			o3 = data.charCodeAt(i++);
-	 
+
 			bits = o1 << 16 | o2 << 8 | o3;
-	 
+
 			h1 = bits >> 18 & 0x3f;
 			h2 = bits >> 12 & 0x3f;
 			h3 = bits >> 6 & 0x3f;
 			h4 = bits & 0x3f;
-	 
+
 			// use hexets to index into b64, and append result to encoded string
 			tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
 		} while (i < data.length);
-	 
+
 		enc = tmp_arr.join('');
-		
+
 		var r = data.length % 3;
-		
+
 		return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
 	},
- 
+
 	// public method for decoding
 	decode : function (data) {
 		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -403,25 +403,25 @@ var Base64 = {
 			ac = 0,
 			dec = "",
 			tmp_arr = [];
-	 
+
 		if (!data) {
 			return data;
 		}
-	 
+
 		data += '';
-	 
+
 		do { // unpack four hexets into three octets using index points in b64
 			h1 = b64.indexOf(data.charAt(i++));
 			h2 = b64.indexOf(data.charAt(i++));
 			h3 = b64.indexOf(data.charAt(i++));
 			h4 = b64.indexOf(data.charAt(i++));
-	 
+
 			bits = h1 << 18 | h2 << 12 | h3 << 6 | h4;
-	 
+
 			o1 = bits >> 16 & 0xff;
 			o2 = bits >> 8 & 0xff;
 			o3 = bits & 0xff;
-	 
+
 			if (h3 == 64) {
 				tmp_arr[ac++] = String.fromCharCode(o1);
 			} else if (h4 == 64) {
@@ -430,29 +430,29 @@ var Base64 = {
 				tmp_arr[ac++] = String.fromCharCode(o1, o2, o3);
 			}
 		} while (i < data.length);
-	 
+
 		dec = tmp_arr.join('');
 		dec = this._utf8_decode(dec);
-	 
-		return dec; 
+
+		return dec;
 	},
- 
+
 	// private method for UTF-8 encoding
 	_utf8_encode : function (argString) {
 		if (argString === null || typeof argString === "undefined") {
 			return "";
 		}
- 
+
 		var string = (argString + ''); // .replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 		var utftext = "",
 			start, end, stringl = 0;
-	 
+
 		start = end = 0;
 		stringl = string.length;
 		for (var n = 0; n < stringl; n++) {
 			var c1 = string.charCodeAt(n);
 			var enc = null;
-	 
+
 			if (c1 < 128) {
 				end++;
 			} else if (c1 > 127 && c1 < 2048) {
@@ -468,14 +468,14 @@ var Base64 = {
 				start = end = n + 1;
 			}
 		}
-	 
+
 		if (end > start) {
 			utftext += string.slice(start, stringl);
 		}
-	 
+
 		return utftext;
 	},
- 
+
 	// private method for UTF-8 decoding
 	_utf8_decode : function (str_data) {
 		var tmp_arr = [],
@@ -484,9 +484,9 @@ var Base64 = {
         c1 = 0,
         c2 = 0,
         c3 = 0;
- 
+
 		str_data += '';
-	 
+
 		while (i < str_data.length) {
 			c1 = str_data.charCodeAt(i);
 			if (c1 < 128) {
@@ -503,10 +503,10 @@ var Base64 = {
 				i += 3;
 			}
 		}
-	 
+
 		return tmp_arr.join('');
 	}
- 
+
 }
 </script>
 <script type="text/javascript" id="editor_source">
@@ -571,13 +571,18 @@ var Base64 = {
           code = _win.localStorage.getItem('texteditor-code');
         }
         catch (e) {
-        }*/        
+        }*/
         if (code == null) {
           code = getElement('texteditor').value;
-        }        
+        }
         //perform the code
         try {
-          editor.func = new Function('window,document', 'var json ='+JSON.stringify(editor)+';\n \n'+code);
+          editor.func = null;
+          var cache = [];
+          console.log('testGame->');
+          var edi = {game: editor.game, code: getElement('texteditor').value};
+          cache = null;
+          editor.func = new Function('window,document', 'var json ='+JSON.stringify(edi)+';\n \n'+code);
           editor.func(window, document);
         } catch(e) {
           console.log(e);
@@ -589,8 +594,8 @@ var Base64 = {
       */
       editor.stopTest = function() {
         if (editor.func != null) {
-          editor.func = null;
           document.body.removeChild(document.body.childNodes[document.body.childNodes.length-1]);
+          editor.func = null;
         }
       };
       /**
@@ -625,7 +630,7 @@ var Base64 = {
         ele.style.width = (editor.width - 5) + 'px';
         var game_source = getElement('game_source').innerHTML;
         //getElement('texteditor').value
-        getElement('texteditor').value = game_source+' \n\n'+ 
+        getElement('texteditor').value = game_source+' \n\n'+
                                 getElement('base64_source').innerHTML +' \n\n'+
                                 getElement('html5div_game_engine').innerHTML;
         editor.game = new Game();
@@ -743,7 +748,7 @@ var Base64 = {
         child2.setAttribute('placeholder','note title');
         if (note.title != null) {
           child2.value = editor.game.mediamanager.getMediaValue(note.title);
-        }        
+        }
         child.appendChild(child2);
         child2 = createElement('textarea');
         child2.setAttribute('id','note_'+note.uid+'_text');
@@ -751,14 +756,14 @@ var Base64 = {
         child2.setAttribute('placeholder','note text');
         if (note.text != null) {
           child2.value = editor.game.mediamanager.getMediaValue(note.text);
-        } 
+        }
         child.appendChild(child2);
         child2 = createElement('div');
         child2.setAttribute('id','note_'+note.uid+'_overlay');
         child2.className = 'note_overlay';
         child.appendChild(child2);
         //THE MENU -> make this a editor method
-        //add to notelist too    
+        //add to notelist too
         child2 = editor.createNoteMenu(note);
         //THE MENU END
         child.appendChild(child2);
@@ -779,13 +784,13 @@ var Base64 = {
         child3.setAttribute('id','list_con_amount_'+note.uid);
         child3.appendChild(document.createTextNode(' '+note.connections.length));
         child2.appendChild(child3);
-        child.appendChild(child2);      
+        child.appendChild(child2);
         //child.appendChild(createElement('br'));
         //missing connections here?
         child2 = createElement('span');
         if (note.title != null) {
           child2.appendChild(document.createTextNode(editor.game.mediamanager.getMediaValue(note.title) ) );
-        }      
+        }
         child2.setAttribute('id', 'notelistElement_'+note.uid);
         child.setAttribute('id', 'notelistBox_'+note.uid);
         child.appendChild(child2);
@@ -1345,7 +1350,7 @@ var Base64 = {
         var ele = document.body;
 
         var code = getElement('texteditor').value;
-              
+
         //perform the code
         var head = '<doctype html>\n<html>\n<head>\n\n<title>my drafter game</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
         '<meta name="author" content="you author">'+
@@ -1353,7 +1358,7 @@ var Base64 = {
         '<meta name="description" content="Drafter, hogventure.com\'s twine like game and story editor in javascript">'+
         '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
         var data = '<s'+'cript type="text/javasc'+'ript">\nvar json ='+JSON.stringify(editor)+';\n \n'+code+'\n</'+'script>\n';
-        var body = '</head>\n<body>\n</body>\n</html>\n';  
+        var body = '</head>\n<body>\n</body>\n</html>\n';
 
         var child = createElement('div');
         var child2 = createElement('div');
@@ -1363,7 +1368,7 @@ var Base64 = {
         editor.noteeditor_box = null;
         editor.noteeditor = null;
         //var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
-        child2 = editor.buildExportBlobUrl( head+data+body, 'myDrafterGame', 'html'); 
+        child2 = editor.buildExportBlobUrl( head+data+body, 'myDrafterGame', 'html');
 		    child.appendChild(child2);
         child.className = 'eximport';
         child.setAttribute('id','eximport');
@@ -1686,7 +1691,7 @@ document.body.appendChild(game_cvs);
  <h2>A note is single text.</h2>
  It is like a tweet in twitter.<br>
  But it has connections (links) to other notes.<br>
- A note has a title, a text and connections. <br> 
+ A note has a title, a text and connections. <br>
  A  note is named 'Passage' in 'twine' - a connection, too.<br>
   </div>
 </div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">

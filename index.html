@@ -2,11 +2,12 @@
 <html>
  <head>
   <title> editor for text games </title>
-  <meta name="generator" content="editplus">
-  <meta name="author" content="">
-  <meta name="keywords" content="">
-  <meta name="description" content="">
-<script type="text/javascript" src="js/base64.js"></script>
+  <meta name="generator" content="hogventure.com drafter">
+  <meta name="author" content="malte kosian">
+  <meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">
+  <meta name="description" content="Drafter, hogventure.com's twine like game and story editor in javascript">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--s cript type="text/javascript" src="js/base64.js"></s cript-->
 <script type="text/javascript" id="game_source">
 /**
 @class Note
@@ -255,10 +256,260 @@ function Game() {
 @property game
 @since 2014-05-28
 */
-var game = new Game();
+//var game = new Game();
 
 </script>
- <script type="text/javascript" id="editor_source">
+<script type="text/text" id="html5div_game_engine">
+ /**
+ @class gameEngine
+ @since 2014-05-30
+*/
+var gameEngine = { 
+ /**
+ @property game
+ @since 2014-05-30
+ */
+ game : null,
+ /**
+ @method init
+ @since 2014-05-30
+ */
+ init : function() {
+  this.game = new Game();
+  this.game.mediamanager.addLanguage(gameEngine.game.mediamanager.defaultLanguage);
+  this.game.load(json['game']);
+  var child = document.createElement('div');
+  child.setAttribute('id', 'gameMainView');
+  document.body.appendChild(child);
+  if (this.game.startNote == null) {
+    alert('Can\'t start the game. game.startNote is not defined!');
+    return;
+  }
+  console.log(this.game.notes.length);
+  this.renderNote(this.game.startNote);
+ },
+ /**
+ @method renderNote
+ @since 2014-05-30
+ @param uid
+ */
+ renderNote : function (uid) {
+  var note = this.getNote(uid);
+  var ele = document.getElementById('gameMainView');
+  ele.innerHTML = '';
+  var child = document.createElement('h1');
+  child.appendChild(document.createTextNode(
+                    this.game.mediamanager.getMediaValue(note.title)));
+  ele.appendChild(child);
+  //ele.appendChild(document.createElement('br'));
+  ele.appendChild(document.createElement('br'));
+  var text = this.game.mediamanager.getMediaValue(note.text);
+  texts = text.split(/\n/);
+  for (var i = 0; i < texts.length; i++) {
+    ele.appendChild(document.createTextNode(texts[i]));
+    ele.appendChild(document.createElement('br'));
+  }
+  ele.appendChild(document.createElement('br'));
+  //connections
+  var cons = note.connections;
+  for (var i = 0; i < cons.length; i++) {
+   if (cons[i].from_uid == note.uid) {      
+    var con_text = this.game.mediamanager.getMediaValue(cons[i].text);
+    child = document.createElement('span');
+    child.style.cssFloat = 'right';
+    child.style.cursor = 'pointer';
+    child.style.color = '#00c';
+    child.style.textDecoration = 'underline';
+    child.setAttribute('onclick','gameEngine.renderNote(\''+cons[i].to_uid+'\');');
+    child.appendChild(document.createTextNode(con_text));
+    ele.appendChild(child);
+    ele.appendChild(document.createElement('br'));
+   }
+  }
+ },
+ /**
+ @method getNote
+ @since 2014-05-30
+ @param uid
+ @return {Note} the corresponding Note
+ */
+ getNote : function (uid) {
+  for (var i = 0; i < this.game.notes.length; i++) {
+    if (this.game.notes[i].uid == uid) {
+      return this.game.notes[i];
+    }
+  }
+  return null;
+ }
+};
+  
+window.gameEngine = gameEngine;
+gameEngine.init();
+</script>
+<script type="text/javascript" id="base64_source">
+/**
+* @class Base64
+*  Base64 encode / decode
+*  http://www.webtoolkit.info/
+*
+**/
+ 
+var Base64 = {
+ 
+	// private property
+	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+ 
+	// public method for encoding
+	encode : function (data) {
+		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+		var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+        ac = 0,
+        enc = "",
+        tmp_arr = [];
+ 
+		if (!data) {
+			return data;
+		}
+	 
+		data = this._utf8_encode(data + '');
+	 
+		do { // pack three octets into four hexets
+			o1 = data.charCodeAt(i++);
+			o2 = data.charCodeAt(i++);
+			o3 = data.charCodeAt(i++);
+	 
+			bits = o1 << 16 | o2 << 8 | o3;
+	 
+			h1 = bits >> 18 & 0x3f;
+			h2 = bits >> 12 & 0x3f;
+			h3 = bits >> 6 & 0x3f;
+			h4 = bits & 0x3f;
+	 
+			// use hexets to index into b64, and append result to encoded string
+			tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
+		} while (i < data.length);
+	 
+		enc = tmp_arr.join('');
+		
+		var r = data.length % 3;
+		
+		return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
+	},
+ 
+	// public method for decoding
+	decode : function (data) {
+		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+		var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+			ac = 0,
+			dec = "",
+			tmp_arr = [];
+	 
+		if (!data) {
+			return data;
+		}
+	 
+		data += '';
+	 
+		do { // unpack four hexets into three octets using index points in b64
+			h1 = b64.indexOf(data.charAt(i++));
+			h2 = b64.indexOf(data.charAt(i++));
+			h3 = b64.indexOf(data.charAt(i++));
+			h4 = b64.indexOf(data.charAt(i++));
+	 
+			bits = h1 << 18 | h2 << 12 | h3 << 6 | h4;
+	 
+			o1 = bits >> 16 & 0xff;
+			o2 = bits >> 8 & 0xff;
+			o3 = bits & 0xff;
+	 
+			if (h3 == 64) {
+				tmp_arr[ac++] = String.fromCharCode(o1);
+			} else if (h4 == 64) {
+				tmp_arr[ac++] = String.fromCharCode(o1, o2);
+			} else {
+				tmp_arr[ac++] = String.fromCharCode(o1, o2, o3);
+			}
+		} while (i < data.length);
+	 
+		dec = tmp_arr.join('');
+		dec = this._utf8_decode(dec);
+	 
+		return dec; 
+	},
+ 
+	// private method for UTF-8 encoding
+	_utf8_encode : function (argString) {
+		if (argString === null || typeof argString === "undefined") {
+			return "";
+		}
+ 
+		var string = (argString + ''); // .replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+		var utftext = "",
+			start, end, stringl = 0;
+	 
+		start = end = 0;
+		stringl = string.length;
+		for (var n = 0; n < stringl; n++) {
+			var c1 = string.charCodeAt(n);
+			var enc = null;
+	 
+			if (c1 < 128) {
+				end++;
+			} else if (c1 > 127 && c1 < 2048) {
+				enc = String.fromCharCode((c1 >> 6) | 192) + String.fromCharCode((c1 & 63) | 128);
+			} else {
+				enc = String.fromCharCode((c1 >> 12) | 224) + String.fromCharCode(((c1 >> 6) & 63) | 128) + String.fromCharCode((c1 & 63) | 128);
+			}
+			if (enc !== null) {
+				if (end > start) {
+					utftext += string.slice(start, end);
+				}
+				utftext += enc;
+				start = end = n + 1;
+			}
+		}
+	 
+		if (end > start) {
+			utftext += string.slice(start, stringl);
+		}
+	 
+		return utftext;
+	},
+ 
+	// private method for UTF-8 decoding
+	_utf8_decode : function (str_data) {
+		var tmp_arr = [],
+        i = 0,
+        ac = 0,
+        c1 = 0,
+        c2 = 0,
+        c3 = 0;
+ 
+		str_data += '';
+	 
+		while (i < str_data.length) {
+			c1 = str_data.charCodeAt(i);
+			if (c1 < 128) {
+				tmp_arr[ac++] = String.fromCharCode(c1);
+				i++;
+			} else if (c1 > 191 && c1 < 224) {
+				c2 = str_data.charCodeAt(i + 1);
+				tmp_arr[ac++] = String.fromCharCode(((c1 & 31) << 6) | (c2 & 63));
+				i += 2;
+			} else {
+				c2 = str_data.charCodeAt(i + 1);
+				c3 = str_data.charCodeAt(i + 2);
+				tmp_arr[ac++] = String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+				i += 3;
+			}
+		}
+	 
+		return tmp_arr.join('');
+	}
+ 
+}
+</script>
+<script type="text/javascript" id="editor_source">
   window.URL = window.URL || window.webkitURL || null;
   window.Blob = window.WebKitBlob || window.MozBlob || window.MSBlob || window.Blob || null;
   window.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
@@ -315,11 +566,18 @@ var game = new Game();
       @since 2014-05-17
       */
       editor.testGame = function() {
-        var code = _win.localStorage.getItem('texteditor-code');
-        //getElement('texteditor').value = code;
+        var code = null;
+        /*try {
+          code = _win.localStorage.getItem('texteditor-code');
+        }
+        catch (e) {
+        }*/        
+        if (code == null) {
+          code = getElement('texteditor').value;
+        }        
         //perform the code
         try {
-          editor.func = new Function('window,document', code);
+          editor.func = new Function('window,document', 'var json ='+JSON.stringify(editor)+';\n \n'+code);
           editor.func(window, document);
         } catch(e) {
           console.log(e);
@@ -366,7 +624,10 @@ var game = new Game();
         ele.style.height = (editor.height - 5) + 'px';
         ele.style.width = (editor.width - 5) + 'px';
         var game_source = getElement('game_source').innerHTML;
-        getElement('texteditor').value = getElement('texteditor').value + game_source;
+        //getElement('texteditor').value
+        getElement('texteditor').value = game_source+' \n\n'+ 
+                                getElement('base64_source').innerHTML +' \n\n'+
+                                getElement('html5div_game_engine').innerHTML;
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
@@ -498,13 +759,51 @@ var game = new Game();
         child.appendChild(child2);
         //THE MENU -> make this a editor method
         //add to notelist too    
+        child2 = editor.createNoteMenu(note);
+        //THE MENU END
+        child.appendChild(child2);
+
+        ele = getElement('notelist');
+        child = createElement('div');
+        child.className = 'notelistBox';
+        ele.appendChild(child);
         child2 = createElement('div');
+        child2.className = 'note_bar';
+        child2.appendChild(document.createTextNode(note.uid));
+        child2.appendChild(editor.createNoteMenu(note));
+        child.appendChild(child2);
+        child2 = createElement('div');
+        child2.className = 'connections';
+        child2.appendChild(document.createTextNode('connects: '));
+        child3 = createElement('span');
+        child3.setAttribute('id','list_con_amount_'+note.uid);
+        child3.appendChild(document.createTextNode(' '+note.connections.length));
+        child2.appendChild(child3);
+        child.appendChild(child2);      
+        //child.appendChild(createElement('br'));
+        //missing connections here?
+        child2 = createElement('span');
+        if (note.title != null) {
+          child2.appendChild(document.createTextNode(editor.game.mediamanager.getMediaValue(note.title) ) );
+        }      
+        child2.setAttribute('id', 'notelistElement_'+note.uid);
+        child.setAttribute('id', 'notelistBox_'+note.uid);
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+      }
+      /**
+      @method createNoteMenu
+      @since 2014-05-30
+      @param note
+      */
+      editor.createNoteMenu = function(note) {
+        var child2 = createElement('div');
         child2.appendChild(document.createTextNode('*'));
         child2.className = 'note_menu_button';
         //
-        child3 = createElement('div');
+        var child3 = createElement('div');
         child3.className = 'note_menu';
-          child4 = createElement('div');
+          var child4 = createElement('div');
           child4.className = 'menu_element';
           child4.setAttribute('onclick','editor.editNote(\''+note.uid+'\');');
           child4.appendChild(document.createTextNode('edit note'));
@@ -535,25 +834,7 @@ var game = new Game();
           child4.appendChild(document.createTextNode('delete connection'));
           child3.appendChild(child4);
         child2.appendChild(child3);
-        //THE MENU END
-        child.appendChild(child2);
-
-        ele = getElement('notelist');
-        child = createElement('div');
-        child.className = 'notelistBox';
-        ele.appendChild(child);
-        child2 = createElement('span');
-        child2.appendChild(document.createTextNode(note.uid));
-        child.appendChild(child2);
-        child.appendChild(createElement('br'));
-        child2 = createElement('span');
-        if (note.title != null) {
-          child2.appendChild(document.createTextNode(editor.game.mediamanager.getMediaValue(note.title) ) );
-        }      
-        child2.setAttribute('id', 'notelistElement_'+note.uid);
-        child.setAttribute('id', 'notelistBox_'+note.uid);
-        child.appendChild(child2);
-        child.appendChild(createElement('br'));
+        return child2;
       }
       /**
       @method setStartNote
@@ -976,7 +1257,7 @@ var game = new Game();
         if (window.navigator.msSaveBlob) {
           element = window.navigator.msSaveBlob(bb, name+'.'+fileEnding);
         } else {
-          element.href = fileEnding == 'json' ? window.URL.createObjectURL( bb ) : data;
+          element.href = window.URL.createObjectURL( bb );
           element.appendChild(document.createTextNode( name ));
           element.className = 'exportA';
           element.setAttribute('download', name+'.'+fileEnding);
@@ -1058,10 +1339,22 @@ var game = new Game();
       };
       /**
       @method buildGame
-      @since 2014-05-27
+      @since 2014-05-29
       */
       editor.buildGame = function() {
         var ele = document.body;
+
+        var code = getElement('texteditor').value;
+              
+        //perform the code
+        var head = '<doctype html>\n<html>\n<head>\n\n<title>my drafter game</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
+        '<meta name="author" content="you author">'+
+        '<meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">'+
+        '<meta name="description" content="Drafter, hogventure.com\'s twine like game and story editor in javascript">'+
+        '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+        var data = '<s'+'cript type="text/javasc'+'ript">\nvar json ='+JSON.stringify(editor)+';\n \n'+code+'\n</'+'script>\n';
+        var body = '</head>\n<body>\n</body>\n</html>\n';  
+
         var child = createElement('div');
         var child2 = createElement('div');
         child2.appendChild(document.createTextNode(' download myDrafterGame.html: '));
@@ -1069,8 +1362,8 @@ var game = new Game();
         editor.code = getElement('texteditor').value;
         editor.noteeditor_box = null;
         editor.noteeditor = null;
-        var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
-        child2 = editor.buildExportBlobUrl( data, 'myDrafterGame', 'html'); //
+        //var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
+        child2 = editor.buildExportBlobUrl( head+data+body, 'myDrafterGame', 'html'); 
 		    child.appendChild(child2);
         child.className = 'eximport';
         child.setAttribute('id','eximport');
@@ -1109,6 +1402,8 @@ var game = new Game();
             //editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
+        getElement('texteditor').value = '';
+        getElement('texteditor').value = json['code'];
       }
       /***/
       editor.pressed = false;
@@ -1243,6 +1538,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 #notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
 #noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; }
 #noteeditor_box {position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ddd; border-top: 1px solid #ddd; overflow: auto;}
+#gameMainView {z-index: 250; position: absolute; top: 10%; left: 1%; width: 98%; height: 89%; display: block; background: #fff; resize: none; overflow: hidden; border: 1px solid #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: auto;}
 .notelistBox {border: 1px solid #ddd; margin: 2px; background: #ddd; width: 95%;}
 #note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; padding: 0; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
 #input_note_title { width: 250px; margin: 0;}
@@ -1254,12 +1550,12 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .note_menu_button {position: absolute; top: 0px; right: 1px; color: white; font-weight: bold; font-size: 25px; }
 .eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
 .connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px;}
-.note_bar {margin: 1px; background: #009; width: 148px; height: 15px; color: white;}
+.note_bar {position: relative; margin: 1px; background: #009; width: 98%; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
 .note_text {width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;}
 .connection{width: 150px; background: #ddd; font-size: 13px; font-family: sans-serif;}
-.note_menu{position: absolute; right: 0px; top: 0px; width: auto; max-width: 150px; display: none; text-align: right; border: 1px #999 solid; background: #ddd; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;}
+.note_menu{z-index: 15; position: absolute; right: 0px; top: 0px; width: auto; max-width: 150px; display: none; text-align: right; border: 1px #999 solid; background: #ddd; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;}
 .note_menu_button:hover .note_menu{display: block;}
 .menu_element{font-weight: bold; color: #333; font-size: 13px; font-family: sans-serif; white-space: pre;}
 .menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
@@ -1267,10 +1563,11 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
 #help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; border: 1px solid #ddd; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto;}
-#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px;}
-#help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px;}
+#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px; width: 335px;}
+#help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px; width: 335px;}
 #help div div {display: none;}
 #help div:hover div {display: block;}
+#help .divHelp div {display: block;}
  </style>
  </head>
  <body>
@@ -1315,7 +1612,7 @@ document.body.appendChild(game_cvs);
   </div>
  </div>
 <div id="help">
-<div style="margin-top: 20px;">
+<div style="margin-top: 20px;" onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
  <h1>What is the 'Drafter' good for?</h1>
   <div>
  <h2>'Drafter' is a 'Twine' like story editor</h2>
@@ -1326,7 +1623,7 @@ document.body.appendChild(game_cvs);
  Because of this 'Drafter' is fully progammable.<br>
  You can edit and program the editor and the game-engine.<br>
   </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
 <h1>How to use the editor</h1>
   <div>
  <h2>'Drafter' is a two ways editor</h2>
@@ -1336,7 +1633,7 @@ document.body.appendChild(game_cvs);
  If you want to use the script editor,<br>
  use the 'toggle' button.<br>
   </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
 <h1>Where to start?</h1>
   <div>
  <h2>First you should create a mini story.</h2>
@@ -1346,22 +1643,22 @@ document.body.appendChild(game_cvs);
     <br>
     <br>
   </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
 <h1>The tutorial example.</h1>
   <div>
  <h2>Now let's start and write a super simple mini story.</h2>
   This story should have a start, an end and some credits.<br>
   It will look like this in the note editor:<br>
-    <img src="img/Screenshot note.png" width="370" style="width: 370px;"/><br>
+    <img src="img/Screenshot note.png" style="width: 345px;"/><br>
     <br>
   The script editor will show this:<br>
-    <img src="img/Screenshot script.png" width="370" style="width: 370px;"/><br>
+    <img src="img/Screenshot script.png" style="width: 345px;"/><br>
     <br>
   And that's how a test run looks like:<br>
-    <img src="img/Screenshot game.png" width="370" style="width: 370px;"/><br>
+    <img src="img/Screenshot game.png" style="width: 345px;"/><br>
     <br>
   </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
  <h1>the note editor</h1>
  <div>
  <h2>With the 'add note' button you insert a new note to the game.</h2>
@@ -1371,7 +1668,7 @@ document.body.appendChild(game_cvs);
  right corner). Choose the option 'edit note'.<br>
  The note box opens in the upper left corner.<br>
  </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
  <h1>the script editor</h1>
  <div>
  <h2>Here you can change the code of the game engine.</h2>
@@ -1383,7 +1680,7 @@ document.body.appendChild(game_cvs);
  <a href="http://www.w3schools.com/js/DEFAULT.asp">w3schools</a> - JavaScript Tutorial, try it yourself examples in every chapter.<br>
  Tip: search engines are your friend.<br>
  </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
 <h1>What is a note?</h1>
   <div>
  <h2>A note is single text.</h2>
@@ -1392,14 +1689,14 @@ document.body.appendChild(game_cvs);
  A note has a title, a text and connections. <br> 
  A  note is named 'Passage' in 'twine' - a connection, too.<br>
   </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
  <h1>toggle button</h1>
   <div>
  <h2>Toggle between the two editor modes</h2>
  source script editor to do the programming,<br>
  note editor for the game creation.<br>
   </div>
-</div><div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
  <h1>add note button</h1>
   <div>
  <h2>creates a new note</h2>
@@ -1408,8 +1705,8 @@ document.body.appendChild(game_cvs);
  shows it on the noteeditor screen <br>
  and the note ist on the right of the script editor<br>
   </div>
-  </div><div>
-<h1>Choice between save/load and ex-&import</h1>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>Choice between save/load and ex-&import</h1>
   <div>
  <h2>What should you use?</h2>
  save and load are storing in the browser.<br>
@@ -1420,15 +1717,15 @@ document.body.appendChild(game_cvs);
  <br>
  If you want to pubilish you game, use the 'build'-button.<br>
   </div>
-  </div><div>
-<h1>The build button</h1>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The build button</h1>
   <div>
- <h2>Building the final bersion of your game.</h2>
- <br>
- <br>
- <br>
- <br>
- <br>
+ <h2>Building the final version of your game.</h2>
+ If you tested you game and code carefully, click the<br>
+ 'build'-button to download the final version of your<br>
+ game.<br>
+ It is a single webpage file with all data and source<br>
+ will you need to publish the game in the internet.<br>
   </div>
 <!--end-->
 <button onclick="getElement('help').style.display = 'none';" class="closeBoxButton" style="top: 1px;">X</button>

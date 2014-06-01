@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+<!--manifest="manifest.appcache"-->
  <head>
   <title> editor for text games </title>
   <meta name="generator" content="hogventure.com drafter">
@@ -90,12 +91,12 @@ function MediaLanguage(_lan) {
    this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});
   }
  };
- this.setMedia = function(_k, _v) {
+ this.setMedia = function(_k, _v, _t64) {
   //console.log('setMedia'+_k);
   if (this.hasMedia(_k)) {
-   this.getMedia(_k).value = Base64.encode(_v);
+   this.getMedia(_k).value = _t64 ? Base64.encode(_v): _v;
   } else {
-   this.addMedia(_k, _v);
+   this.addMedia(_k, _v, _t64);
   }
  };
  this.getMedia = function(_k) {
@@ -130,11 +131,12 @@ function MediaLanguage(_lan) {
    }
   }
  };
- this.addMedia = function(_k, _v) {
-  this.medias.push(this.createMedia(_k, _v));
+ this.addMedia = function(_k, _v, _t64) {
+  this.medias.push(this.createMedia(_k, _v, _t64));
  };
- this.createMedia = function(_k, _v) {
-  return { key : _k, value : Base64.encode(_v) };
+ this.createMedia = function(_k, _v, _t64) {
+  _v = _t64 ? Base64.encode(_v): _v;
+  return { key : _k, value : _v };
  };
 };
 /**
@@ -229,10 +231,23 @@ function Game() {
    this.languages.push(this.currentLanguage);
    return language;
   },
+  /**
+  use getMedia too get the decoded media value
+  */
   setMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
    for (var i = 0; i < this.mediaLanguages.length; i++) {
-    this.mediaLanguages[i].setMedia(_k, _v);
+    this.mediaLanguages[i].setMedia(_k, _v, true);
+   }
+  },
+  /**
+  the media will not be base64 encoded
+  use getMedia too get the media
+  */
+  setPureMedia : function(_k, _v) {
+   //type64=true|false would regulate de/encoding or not
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    this.mediaLanguages[i].setMedia(_k, _v, false);
    }
   },
   deleteMedia : function(_k) {
@@ -1589,6 +1604,16 @@ var Base64 = {
         return document.getElementById(_id);
       };
       /***/
+      _win.install = function() {
+        try {
+         var request = window.navigator.mozApps.install(
+                        'http://hogventure.com/draft/manifest.webapp');
+        }
+        catch (e) {
+         alert('Please use the firefox browser for this feature. Automatic installation failed: '+e.message);
+        }
+      }
+      /***/
       _win.editor = editor;
       _win.onload = function() { setTimeout(editor.init, 100); };
     }
@@ -1659,6 +1684,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   <button onclick="editor.buildGame();" style="float: left;">build</button>
   <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
   <button onclick="editor.help();" style="float: left;">help</button>
+  <button onclick="install();" style="float: left;">install</button>
   <br style="clear: both;">
   </div>
   <textarea id="texteditor"><!--var game_cvs = createElement('canvas');
@@ -1713,18 +1739,75 @@ document.body.appendChild(game_cvs);
 <h1>Where to start?</h1>
   <div>
  <h2>First you should create a mini story.</h2>
+  First you should create a mini story with the<br>
+  visual note editor. Try the tutorial example or<br>
+  create your own story. Keep it simple.  <br>
     <br>
-    <br>
-    <br>
-    <br>
-    <br>
+  If you want to script, take a look the game engine<br>
+  source in the script editor. You should know some<br>
+  javascript or learn it.<br>
   </div>
 </div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
 <h1>The tutorial example.</h1>
   <div>
  <h2>Now let's start and write a super simple mini story.</h2>
   This story should have a start, an end and some credits.<br>
-  It will look like this in the note editor:<br>
+  <br>
+  First add a note.<br>
+  Open the notes menu - '*' in the upper right.<br>
+  Choose 'edit note' option.<br>
+  The edit note box opens.<br>
+  Add the title: <br><i>This is the start note</i><br>
+  and the text: <br><i>Here the story starts.<br>
+  It is a very short story.<br>
+  How it will end is all your choice.</i><br>
+  <br>
+  So you add and edit your frist note to the story.<br>
+  You may save now the code and the game.<br>
+  If you would close or reload the browser,<br>
+  you can restore your current work.<br>
+  But let's add a second note instead.<br>
+  Title: <br><i>The end is near.</i><br>
+  Text: <br><i>And now the end is near my friend.<br>
+  Very near...<br>
+  Famous last words.</i><br>
+  Here is the third one.<br><br>
+  Title: <br><i>Credits</i><br>
+  Text: <br><i>Editor, game and game engine made by<br>
+  Malte Kosian<br>
+  You can contact me @maltekosian<br>
+  via twitter, facebook, google or at linkedin<br>
+  &copy; 2014-05-31</i><br>
+  <br>Now you should save.<br>
+  Notes needs connections.<br>
+  To add a connection choose the 'add connection'<br>
+  from a note's menu.<br>
+  The connection box opens.<br>
+  A connection has a text. The text is shown as <br>
+  a choosable option like a html link.<br>
+  This story game needs following connctions:<br>
+  From start to end with the text:<br>
+  <i>Go to the end</i><br>
+  From start to credits with the text:<br>
+  <i>Credits</i><br>
+  From credits to start with the text:<br>
+  <i>Back to the start</i><br>
+  From credits to end with the text:<br>
+  <i>Forward to the end</i><br>
+  From end to credits with the text:<br>
+  <i>Credits</i><br>
+  <br>Save the game again.<br>
+  Also export the story to store it on your harddrive.<br>
+  Run a test by pushing the 'test game' button.<br>
+  You can stop the test run with the 'stop test' button.<br>
+  <br>
+  That's it.<br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+<h1>How the editor look like:</h1>
+  <div>
+ <h2>The views of the finished tutorial example in editor.</h2>
+  The tutorial example will look like this in the note editor:<br>
     <img src="img/Screenshot note.png" style="width: 345px;"/><br>
     <br>
   The script editor will show this:<br>
@@ -1806,6 +1889,18 @@ document.body.appendChild(game_cvs);
 <!--end-->
 <button onclick="getElement('help').style.display = 'none';" class="closeBoxButton" style="top: 1px;">X</button>
 </div>
+<script type="text/javascript">
 
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-12182652-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
  </body>
 </html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script type="text/javascript">
+    var note = {uid:'note',ex:100,ey:100};
+    var offZoom = false;
+
+    function zoom() {
+      var ele = getElement('note');
+      if (offZoom) {
+        ele.style.left = note.ex+'px';
+        ele.style.top = note.ey+'px';
+        ele.style.width = '150px';
+        ele.style.height = '110px';
+        ele.style.fontSize = '100%';
+      } else {
+        ele.style.left = (note.ex/2)+'px';
+        ele.style.top = (note.ey/2)+'px';
+        ele.style.width = '75px';
+        ele.style.height = '55px';
+        ele.style.overflow = 'hidden';
+        ele.style.fontSize = '50%';
+      }
+      offZoom = !offZoom;
+    }
+
+    function getElement(_id) {
+      return document.getElementById(_id);
+    }
+  </script>
+ </head>
+ <body style="margin: 0; padding: 0; width: 100%; height: 100%;">
+  <button onclick='zoom();'>zoom</button>
+  <div style="position: relative; width: 99%; min-height: 500px; height: 95%; border: 1px #ccc solid;">
+   <div id="note" style="position: absolute; top: 100px; left: 100px; background: #ddd; width: 150px; height: 110px;">hahaha</div>
+  </div>
+ </body>
+</html>

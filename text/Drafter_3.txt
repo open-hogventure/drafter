@@ -1,0 +1,66 @@
+It's now 14 days ago, when I started with a complete rewrite 
+of my tool drafter. Drafter was and is a html5, javascript 
+based tool for writing story based games. A mixture between 
+twine and articy draft. The first versions had been written 
+in java continuously public available since 2004. It changed 
+it's name and some features. With the previous version of 
+drafter you were able to work cooperative after you logged 
+in via internet, import images, sounds and script javascript 
+based plugins for specific notes. But no one used all these 
+great features of drafter.
+If anyone used drafter, they only created some notes.
+(In twine notes are named passages.)
+
+This last version is stripping off features. It seems like 
+twine. 
+The difference is small. Twine's HTML5 version may look 
+better, but you can not change the game-engine with enhanced 
+features or the editor like changing the look and feel of 
+the resulting game, importing, editing images, composing 
+music or whatever you like. With twine you can change each 
+passage with plugin, in drafter you could change everything.
+
+But why I did this?
+Why it took just some spare time of 14 days?
+
+Last question is easy to answer. I have a lot of experience, 
+indeed, especially in the topic of game tools programming 
+for stories. The tool is simple and simple to use. It 
+follows the KISS paradigm.
+
+The first question is complicated.
+What did you want to know?
+Why I did the rewrite or why made it similar but not the 
+same like twine?
+
+The rewrite happened, because I accepted the challenge.
+I was asked about drafter at the 2014 GDC. What happened to 
+the tool? 
+Later I joined following twitter conversation:
+<img src="http://hogventure.com/draft/img/Challange01.jpg" 
+/>
+What to say? Challenge accepted, <a 
+href="http://hogventure.com/draft/">challenge 
+accomplished</a>!
+
+These are the features of the current version of 'drafter':
+- save and load to the browser's local storage
+- add, edit and delete notes
+- add and delete connections to/from notes
+- visualization of notes and connections
+- toggle between note- and script editor
+- test game and stop the test
+- zoom note editor overview
+- ex- and import to/from your local hard-drive
+- build the complete game as a HTML-file
+- help complete with a mini tutorial
+- install 'drafter' to your computer with the Firefox  
+  browser
+I build a Windows8 version, which I may publish to windows 
+store later. Also I may build a google webstore version, if
+you really want.
+
+But to be honest the story of how and why I made the tool is 
+not finished.
+
+Why the story has to be continued...

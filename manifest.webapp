@@ -1,0 +1,37 @@
+{
+    "version": "0.1",
+    "name": "Draft",
+    "description": "The new version of hogventure's game-draft manager",
+    "launch_path": "/draft/index.html",
+    "icons": {
+        "24": "/draft/img/icon_logo24.png",
+        "48": "/draft/img/icon_logo48.png",
+        "128": "/draft/img/icon_logo128.png"
+    },
+    "developer": {
+        "name": "Malte Kosian",
+        "url": "http://hogventure.com/draft/"
+    },
+    "installs_allowed_from": ["*"],
+    "locales": {
+	"en": {
+	    "description": "Die simplyfied version of the Hogventure game-draft-managers",
+            "developer": {
+                "url": "http://hogventure.com/draft/"
+            }
+	},
+        "de": {
+            "description": "Die vereinfachte Version des Hogventure Spiele-Draft-Managers",
+            "developer": {
+                "url": "http://hogventure.com/draft/"
+            }
+        }
+    },
+    "default_locale": "en",
+    "orientation": ["portrait"],
+    "permissions": {
+        "systemXHR": {
+		"description": "Required for notifications, login, loading and saving online"
+	}
+    }
+}

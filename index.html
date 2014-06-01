@@ -733,7 +733,7 @@ var Base64 = {
         }
         for (var i = 0; i < editor.game.notes.length; i++) {
           var cons = editor.game.notes[i].connections;
-          console.log(cons);
+          //console.log(cons);
           for (var j = 0; j < cons.length; j++) {
             //editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
             editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
@@ -1219,7 +1219,7 @@ var Base64 = {
         var c_ele = getElement('note_'+from_uid);
         var cx = c_ele.offsetLeft + c_ele.clientWidth;
         var cy = c_ele.offsetTop + c_ele.clientHeight;
-        console.log(c_ele);
+        //console.log(c_ele);
         var ele = getElement('note_'+to_uid);
         var x = ele.offsetLeft;
         var y = ele.offsetTop;

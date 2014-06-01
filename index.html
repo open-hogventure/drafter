@@ -20,6 +20,10 @@ function Note(_uid) {
  /***/
  this.text = null;
  /***/
+ this.ex = 0;
+ /***/
+ this.ey = 0;
+ /***/
  this.title = null;
  /***/
  this.connections = [];
@@ -34,7 +38,15 @@ function Note(_uid) {
   }
   this.text = data['text'];
   this.title = data['title'];
+  this.ex = data['ex'];
+  this.ey = data['ey'];
  };
+ /**
+ */
+ this.setEditorPos = function(x,y) {
+  this.ex = x;
+  this.ey = y;
+ }
 };
 /**
 @class Connection
@@ -686,8 +698,51 @@ var Base64 = {
           }
         }
       }
+      /***/
       editor.noteStartX = 5;
+      /***/
       editor.noteStartY = 5;
+      /***/
+      editor.offZoom = false;
+      /***/
+      editor.zoom = function() {
+        editor.offZoom = !editor.offZoom;
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          var note = editor.game.notes[i];
+          var ele = getElement('note_'+note.uid);
+          if (editor.offZoom) {
+            ele.style.left = (note.ex/2)+'px';
+            ele.style.top = (note.ey/2)+'px';
+            ele.style.width = '75px';
+            ele.style.height = '55px';
+            ele.style.minHeight = '55px';
+            ele.style.maxHeight = '55px';
+            //ele.style.overflow = 'auto';
+            //ele.style.fontSize = '50%';  
+          } else {         
+            ele.style.left = note.ex+'px';
+            ele.style.top = note.ey+'px';
+            ele.style.width = '150px';
+            //ele.style.height = '110px';
+            ele.style.minHeight = '100px';
+            ele.style.height = 'auto';
+            ele.style.maxHeight = '150px';
+            ele.style.fontSize = '100%';
+            ele.style.overflow = 'hidden';
+          }
+        }
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          var cons = editor.game.notes[i].connections;
+          console.log(cons);
+          for (var j = 0; j < cons.length; j++) {
+            //editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
+            editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
+          }
+        }
+        //make the arrows smaller or bigger
+        getElement('noteeditor').className = editor.offZoom ? 'offZoom': '';
+        getElement('zoom').innerHTML = editor.offZoom ? '+': '-';
+      }
       /**
       @method addNote
       @since 2014-05-18
@@ -704,16 +759,22 @@ var Base64 = {
         child.className = 'note';
         child.setAttribute('id','note_'+note.uid);
         ele.appendChild(child);
-        editor.noteStartX += 160;
-        editor.noteStartY += 110;
-        if (editor.noteStartX + 150 > editor.width) {
-          editor.noteStartX = editor.noteStartX + 150 - editor.width;
+        if (note.ex == null || (note.ex <= 0 && note.ey <= 0)) {
+        
+          editor.noteStartX += 160;
+          editor.noteStartY += 110;
+          if (editor.noteStartX + 150 > editor.width) {
+            editor.noteStartX = editor.noteStartX + 150 - editor.width;
+          }
+          if (editor.noteStartY + 110 > editor.height * 0.9) {
+            editor.noteStartY = editor.noteStartY + 110 - (editor.height * 0.9);
+          }
+          child.style.left = editor.noteStartX+'px';
+          child.style.top = editor.noteStartY+'px';
+        } else {
+          child.style.left = note.ex+'px';
+          child.style.top = note.ey+'px';
         }
-        if (editor.noteStartY + 110 > editor.height * 0.9) {
-          editor.noteStartY = editor.noteStartY + 110 - (editor.height * 0.9);
-        }
-        child.style.left = editor.noteStartX+'px';
-        child.style.top = editor.noteStartY+'px';
         var child2 = createElement('div');
         child2.setAttribute('id','note_'+note.uid+'_bar');
         child2.className = 'note_bar';
@@ -1208,7 +1269,7 @@ var Base64 = {
         var c_ele = getElement('note_'+from_uid);
         var cx = c_ele.offsetLeft + c_ele.clientWidth;
         var cy = c_ele.offsetTop + c_ele.clientHeight;
-        console.log(c_ele);
+        //console.log(c_ele);
         var ele = getElement('note_'+to_uid);
         var x = ele.offsetLeft;
         var y = ele.offsetTop;
@@ -1401,7 +1462,7 @@ var Base64 = {
         getElement('noteeditor_box').style.display = 'block';
         for (var i = 0; i < editor.game.notes.length; i++) {
           var cons = editor.game.notes[i].connections;
-          console.log(cons);
+          //console.log(cons);
           for (var j = 0; j < cons.length; j++) {
             editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
             //editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
@@ -1463,6 +1524,7 @@ var Base64 = {
           var y = ele.offsetTop + eve.pageY - editor.oy;
           ele.style.top = y + 'px';
           ele.style.left = x + 'px';
+          editor.getNote(uid).setEditorPos(x,y);
           //console.log(ele.id+':'+eve.pageX+','+eve.pageY+','+ele.offsetLeft+','+ele.offsetTop);
           for (var i = 0; i < cons.length; i++) {
             editor.updateArrowLine(cons[i].from_uid,cons[i].to_uid);//from to
@@ -1573,6 +1635,14 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 #help div div {display: none;}
 #help div:hover div {display: block;}
 #help .divHelp div {display: block;}
+.offZoom {font-size: 50%;}
+#noteeditor.offZoom .note {font-size: 7.5px;}
+#noteeditor.offZoom .note .note_title{font-size: 7.5px;}
+#noteeditor.offZoom .note .note_text{font-size: 7.5px;}
+#noteeditor.offZoom .note .connection {font-size: 7.5px;}
+#noteeditor.offZoom .note .connection span{font-size: 7.5px;}
+#noteeditor.offZoom .note .note_menu .menu_element{font-size: 7.5px;}
+#zoom {/*font-weight: bold;*/ margin: 0; margin-left: 5px; }
  </style>
  </head>
  <body>
@@ -1587,6 +1657,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   <button onclick="editor.importEditor();" style="float: left;">import</button>
   <button onclick="editor.exportEditor();" style="float: left;">export</button>
   <button onclick="editor.buildGame();" style="float: left;">build</button>
+  <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
   <button onclick="editor.help();" style="float: left;">help</button>
   <br style="clear: both;">
   </div>

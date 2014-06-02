@@ -1075,8 +1075,10 @@ var Base64 = {
                 tcons = editor.getNote(cons[k].to_uid).connections;
               }
               for (var j = 0; j < tcons.length; j++) {
-                getElement('noteeditor').removeChild(getElement('arrow_'+tcons[j].from_uid+'_'+tcons[j].to_uid));
-                tcons.splice(j, 1);
+                if (tcons[j].from_uid == note.uid || tcons[j].to_uid == note.uid) {
+                  getElement('noteeditor').removeChild(getElement('arrow_'+tcons[j].from_uid+'_'+tcons[j].to_uid));
+                  tcons.splice(j, 1);
+                }
               }
             }
             //delete the uid from the uid couter

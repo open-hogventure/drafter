@@ -76,7 +76,13 @@ function Connection(_uid) {
 @since 2014-05-18
 */
 function MediaLanguage(_lan) {
+ /**
+ @attribute language
+ */
  this.language = _lan;
+ /**
+ @property medias
+ */
  this.medias = [];
  /**
  @method load
@@ -90,6 +96,14 @@ function MediaLanguage(_lan) {
    this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});
   }
  };
+ /**
+ _t64 indicates if the value has to be base64_encoded or not
+ @method setMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ */
  this.setMedia = function(_k, _v, _t64) {
   //console.log('setMedia'+_k);
   if (this.hasMedia(_k)) {
@@ -98,6 +112,15 @@ function MediaLanguage(_lan) {
    this.addMedia(_k, _v, _t64);
   }
  };
+ /**
+ use this to get Images, Audios, Videos and other
+ media that should stay bas64 encoded
+ var myMediaValue = [..].getMedia('key').value;
+ @method getMedia
+ @since 2014-05-15
+ @param _k the key
+ @return the complete media Object
+ */
  this.getMedia = function(_k) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -106,6 +129,14 @@ function MediaLanguage(_lan) {
   }
   return null;
  };
+ /**
+ Don't use this method for images, audios or videos,
+ because those have to stay base64_encoded
+ @method getMediaValue
+ @since 2014-05-15
+ @param _k the key
+ @return the media value - always base64 decoded
+ */
  this.getMediaValue = function(_k) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -115,6 +146,12 @@ function MediaLanguage(_lan) {
   }
   return null;
  };
+ /**
+ @method hasMedia
+ @since 2014-05-15
+ @param _k the key
+ @return {boolean} true if the media with the key exists
+ */
  this.hasMedia = function(_k, _v) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -123,6 +160,11 @@ function MediaLanguage(_lan) {
   }
   return false;
  };
+ /**
+ @method deleteMedia
+ @since 2014-05-16
+ @param _k the key
+ */
  this.deleteMedia = function(_k, _v) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -130,9 +172,24 @@ function MediaLanguage(_lan) {
    }
   }
  };
+ /**
+ @method addMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ */
  this.addMedia = function(_k, _v, _t64) {
   this.medias.push(this.createMedia(_k, _v, _t64));
  };
+ /**
+ @method createMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ @return the media Object
+ */
  this.createMedia = function(_k, _v, _t64) {
   _v = _t64 ? Base64.encode(_v): _v;
   return { key : _k, value : _v };
@@ -196,20 +253,43 @@ function Game() {
  @since 2014-05-18
  */
  this.mediamanager = {
+  /**
+  @property defaultLananguage
+  @default 'en'
+  */
   defaultLanguage : 'en',
+  /**
+  @property currentLanguage
+  @default 'en'
+  */
   currentLanguage : 'en',
+  /**
+  @property {array} languages
+  */
   languages : [],
+  /**
+  @property {array} mediaLanguages
+  */
   mediaLanguages : [],
+  /**
+  @method setCurrentLanguage
+  */
   setCurrentLanguage : function(_lan) {
    this.currentLanguage = _lan;
    if (!this.hasLanguage(_lan)) {
     this.addLanguage(_lan);
    }
   },
+  /**
+  @method addLanguage
+  */
   addLanguage : function(_lan) {
    this.mediaLanguages.push( new MediaLanguage(_lan) );
    this.languages.push(_lan);
   },
+  /**
+  @method hasLanguage
+  */
   hasLanguage : function(_lan) {
    for (var i = 0; i < this.languages.length; i++) {
     if (this.languages[i] == _lan) {
@@ -218,6 +298,9 @@ function Game() {
    }
    return false;
   },
+  /**
+  @method getCurrentLanguage
+  */
   getCurrentLanguage : function() {
    for (var i = 0; i < this.mediaLanguages.length; i++) {
     if (this.mediaLanguages[i].language == this.currentLanguage) {
@@ -231,7 +314,11 @@ function Game() {
    return language;
   },
   /**
-  use getMedia too get the decoded media value
+  use getMediaValue too get the decoded media value
+  @method setMedia
+  @since 2014-05-17
+  @param _k the key
+  @param _v the value
   */
   setMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
@@ -240,8 +327,14 @@ function Game() {
    }
   },
   /**
+  push through for MediaLanguage.setMedia
   the media will not be base64 encoded
   use getMedia too get the media
+  use for Images and other natually base64 encoded media
+  @method setPureMedia
+  @since 2014-05-29
+  @param _k the key
+  @param _v the value - already base64 encoded
   */
   setPureMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
@@ -543,13 +636,21 @@ var Base64 = {
   (
     function(_win) {
       var editor = {};
-      /***/
+      /**
+      @property func
+      */
       editor.func = null;
-      /***/
+      /**
+      @property width
+      */
       editor.width = 0;
-      /***/
+      /**
+      @property height
+      */
       editor.height = 0;
-      /***/
+      /**
+      @property game
+      */
       editor.game = new Game();
       /**
       You should store a game data before you test the code whit the game
@@ -712,13 +813,25 @@ var Base64 = {
           }
         }
       }
-      /***/
+      /**
+      where to add the next note position x
+      @property noteStartX
+      */
       editor.noteStartX = 5;
-      /***/
+      /**
+      where to add the next note position y
+      @property noteStartY
+      */
       editor.noteStartY = 5;
-      /***/
+      /**
+      zoom or not
+      @property offZoom
+      */
       editor.offZoom = false;
-      /***/
+      /**
+      @method zoom
+      @since 2014-05-31
+      */
       editor.zoom = function() {
         editor.offZoom = !editor.offZoom;
         for (var i = 0; i < editor.game.notes.length; i++) {
@@ -732,8 +845,8 @@ var Base64 = {
             ele.style.minHeight = '55px';
             ele.style.maxHeight = '55px';
             //ele.style.overflow = 'auto';
-            //ele.style.fontSize = '50%';  
-          } else {         
+            //ele.style.fontSize = '50%';
+          } else {
             ele.style.left = note.ex+'px';
             ele.style.top = note.ey+'px';
             ele.style.width = '150px';
@@ -774,7 +887,7 @@ var Base64 = {
         child.setAttribute('id','note_'+note.uid);
         ele.appendChild(child);
         if (note.ex == null || (note.ex <= 0 && note.ey <= 0)) {
-        
+
           editor.noteStartX += 160;
           editor.noteStartY += 110;
           if (editor.noteStartX + 150 > editor.width) {
@@ -1485,11 +1598,20 @@ var Base64 = {
         getElement('texteditor').value = '';
         getElement('texteditor').value = json['code'];
       }
-      /***/
+      /**
+      is the mouse pressed true
+      @property pressed
+      */
       editor.pressed = false;
-      /***/
+      /**
+      old x from mouse/touch
+      @property ox
+      */
       editor.ox = 0;
-      /***/
+      /**
+      old y from mouse/touch
+      @property oy
+      */
       editor.oy = 0;
       /**
       attach to 'noteeditor' element

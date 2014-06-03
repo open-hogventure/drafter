@@ -1019,6 +1019,12 @@ var Base64 = {
           child4.setAttribute('onclick','editor.openAddConnectionBox(\''+note.uid+'\');');
           child4.appendChild(document.createTextNode('add connection'));
           child3.appendChild(child4);
+           //
+          child4 = createElement('div');
+          child4.className = 'menu_element';
+          child4.setAttribute('onclick','editor.openEditConnectionBox(\''+note.uid+'\');');
+          child4.appendChild(document.createTextNode('edit connection'));
+          child3.appendChild(child4);
           //
           child4 = createElement('div');
           child4.className = 'menu_element';
@@ -1259,6 +1265,93 @@ var Base64 = {
         getElement('editor').removeChild(getElement('addConnectionBox'));
         editor.addArrowLine(_id, value);
       };
+      /**
+      @method openEditConnectionBox
+      @param _id the uid
+      @since 2014-06-03
+      */
+      editor.openEditConnectionBox = function (_id) {
+        var note = editor.getNote(_id);
+        var cons = note.connections;
+        if (cons.length == 0) {
+          alert('note has no connections');
+          return;
+        }
+        var child = createElement('div');
+        child.setAttribute('id', 'editConnectionBox');
+        child.className = 'connectionBox';
+        getElement('editor').appendChild(child);
+        child.appendChild(document.createTextNode('edit connection'));
+        child.appendChild(createElement('br'));
+
+        var select = createElement('select');
+        select.setAttribute('id','boxTo');
+        select.setAttribute('name','boxTo');
+        select.innerHTML = '';
+	      var child2 = document.createElement('option');
+	      child2.setAttribute('value', '---');
+	      select.appendChild(child2);
+        select.addEventListener('change', function(eve) {
+          var value = getElement('boxTo').value;
+          console.log('boxTo: input edit con -> '+value+' '+getElement('boxTo').getAttribute('data-uid'));
+          var cons = editor.getNote(getElement('boxTo').getAttribute('data-uid')).connections;
+          for (var i = 0; i < cons.length; i++) {
+            if (cons[i].uid == value) {
+              getElement('inputEditCon').value = editor.game.mediamanager.getMediaValue(cons[i].text);
+            }
+          }
+          getElement('changeConnect').setAttribute('data-change-uid', value);
+        }, true);
+
+	      for (var i = 0; i < cons.length; i++) {
+	        child2 = document.createElement('option');
+	        child2.setAttribute('value', ''+cons[i].uid);
+          child2.appendChild(document.createTextNode(cons[i].from_uid+' -> '+cons[i].to_uid));
+          select.appendChild(child2);
+        }
+        select.setAttribute('data-uid', note.uid);
+        child.appendChild(select);
+        child.appendChild(createElement('br'));
+        child.appendChild(document.createTextNode('text: '));
+        child2 = createElement('input');
+        child2.setAttribute('id','inputEditCon');
+        child2.setAttribute('placeholder','select a connection first');
+        child.appendChild(child2);
+        child2 = createElement('button');
+        child2.setAttribute('onclick','editor.closeEditConnectionBox(\''+note.uid+'\');');
+        child2.setAttribute('data-change-uid','');
+        child2.setAttribute('id','changeConnect');
+        child2.appendChild(document.createTextNode('done'));
+        child.appendChild(child2);
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','editor.closeEditConnectionBox(null);');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+      }
+      /**
+      @method closeEditConnectionBox
+      @param _id the uid
+      @since 2014-06-03
+      */
+      editor.closeEditConnectionBox = function (_id) {
+        var change_uid = getElement('changeConnect').getAttribute('data-change-uid');
+        console.log(_id+' - '+change_uid);
+        if (_id == null || change_uid == '') {
+          getElement('editor').removeChild(getElement('editConnectionBox'));
+        }
+        var note = editor.getNote(_id);
+        var cons = note.connections;
+        for (var i = 0; i < cons.length; i++) {
+          if (cons[i].uid == change_uid) {
+            if (cons[i].text == null) {
+              cons[i].text = editor.createUid();
+            }
+            editor.game.mediamanager.setMedia(cons[i].text, getElement('inputEditCon').value);
+          }
+        }
+        getElement('editor').removeChild(getElement('editConnectionBox'));
+      }
       /**
       @method openDeleteConnectionBox
       @param _id

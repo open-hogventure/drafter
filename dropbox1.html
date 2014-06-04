@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js"></script>
+ </head>
+ <body>
+ <center>
+  <button id="loginButton">login to dropbox</button>
+  <div id="dropButtons" style="display: none;"><button id="readButton">download from dropbox</button>
+  <button id="writeButton">upload to dropbox</button>
+  <input id="nameInput" type="text" placeholder="name here" /><br>
+  <textarea id="writeInput" placeholder="code here"></textarea></div>
+ </center>
+
+    <script>
+    var client = new Dropbox.Client({ key: 'YOUR-API-KEY-GOES-HERE' });
+
+    function writeHelloWorld(name, data) {
+      if (name == '' || name == null) {
+        name = 'editor';
+      }
+      client.writeFile(name+'.json', ''+data, function (error) {
+        if (error) {
+          alert('Error: ' + error);
+        } else {
+          alert('File written successfully!');
+        }
+      });
+    }
+    function readHelloWorld(name) {
+      if (name == '' || name == null) {
+        name = 'editor';
+      }
+      client.readFile(name+'.json', function(error, data) {
+        if (error) {
+          alert('Error: ' + error);
+        } else {
+          console.log(data); alert(data);
+        }
+      });
+    };
+
+    // Try to complete OAuth flow.
+    client.authenticate({ interactive: false }, function (error, client) {
+      if (error) {
+          alert('Error: ' + error);
+      }
+    });
+    //
+    var loginToDropbox = function() {
+      client.authenticate(function (error, client) {
+        if (error) {
+          alert('Error: ' + error);
+        } else {
+          document.getElementById('dropButtons').style.display = 'block';
+        }
+      });
+    };
+
+    /*if (client.isAuthenticated()) {
+      writeHelloWorld();
+    }*/
+
+    document.getElementById('writeButton').onclick = function () {
+      if (client.isAuthenticated()) {
+        writeHelloWorld(document.getElementById('nameInput').value, document.getElementById('writeInput').value);
+      } else {
+        alert('Error: please, login to dropbox.');
+      }
+    };
+    document.getElementById('readButton').onclick = function () {
+      if (client.isAuthenticated()) {
+        readHelloWorld(document.getElementById('nameInput').value);
+      } else {
+        alert('Error: please, login to dropbox.');
+      }
+    };
+    document.getElementById('loginButton').onclick = function () {
+      loginToDropbox();
+    };
+    </script>
+ </body>
+</html>

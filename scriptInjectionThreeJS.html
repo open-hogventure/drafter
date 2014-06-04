@@ -1,0 +1,58 @@
+<html>
+	<head>
+		<title>My first Three.js app</title>
+		<style>canvas { width: 100%; height: 100% }</style>
+	</head>
+	<body>
+		<!--s cript src="js/three.min.js">//You should download this and add it as a local resouce!</ script-->
+		<!--s cript src="http://threejs.org/build/three.min.js" type="text/javascript"></sc ript-->
+		You should download <a href="http://threejs.org/build/three.min.js">three.js</a> and use it as a local resouce!<br>
+		stolen from <br>
+		<a href="http://threejs.org/docs/#Manual/Introduction/Creating_a_scene">http://threejs.org/docs/#Manual/Introduction/Creating_a_scene</a>
+		<script type="text/javascript">
+		//script injection
+		//should be a XHR callback
+		var script = document.createElement('script');
+		script.setAttribute('src','http://threejs.org/build/three.min.js');
+		script.setAttribute('type','text/javascript');
+		document.body.appendChild(script);
+		//use XHR for external sources instead!
+		//perfom this after the callback:
+	var timeID = setTimeout(function() {
+		if (typeof THREE !== 'undefined')
+		{
+			secondStep();
+			clearTimeout(timeID);
+		}
+	},500);
+function secondStep() {
+	var script = document.createElement('script');
+	script.setAttribute('type','text/javascript');
+	script.appendChild(document.createTextNode(
+"var scene = new THREE.Scene();\n"+
+"var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );\n"+
+"\n"+
+"var renderer = new THREE.WebGLRenderer();\n"+
+"renderer.setSize( window.innerWidth, window.innerHeight );\n"+
+"document.body.appendChild( renderer.domElement );\n"+
+"\n"+
+"var geometry = new THREE.CubeGeometry(1,1,1);\n"+
+"var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );\n"+
+"var cube = new THREE.Mesh( geometry, material );\n"+
+"scene.add( cube );\n"+
+"\n"+
+"camera.position.z = 5;\n"+
+"\n"+
+"function render() {\n"+
+"	requestAnimationFrame(render);\n"+
+"	cube.rotation.x += 0.1;\n"+
+"	cube.rotation.y += 0.1;\n"+
+"\n"+
+"	renderer.render(scene, camera);\n"+
+"}\n"+
+"render();\n"));
+			document.body.appendChild(script);
+}; //end second step
+		</script>
+	</body>
+</html>

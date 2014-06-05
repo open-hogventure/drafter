@@ -8,7 +8,9 @@
   <meta name="description" content="Drafter, hogventure.com's twine like game and story editor in javascript">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!--s cript type="text/javascript" src="js/base64.js"></s cript-->
+<script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js"></script>
 <script type="text/javascript" id="game_source">
+//the basic datamodel
 /**
 @class Note
 @param _uid
@@ -653,6 +655,11 @@ var Base64 = {
       */
       editor.game = new Game();
       /**
+      @property dropboxClient
+      @since 2014-06-05
+      */
+      editor.dropboxClient = null;
+      /**
       You should store a game data before you test the code whit the game
       @method saveCodeAndGame
       @since 2014-05-17
@@ -764,7 +771,17 @@ var Base64 = {
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
         //experimental from here
-
+        //this might be part of the preferences
+        if (typeof Dropbox != 'undefined') {
+          dropboxClient = new Dropbox.Client({ key: 'YOUR-API-KEY-GOES-HERE' });
+          dropboxClient.authenticate({ interactive: false }, function (error, client) {
+            if (error) {
+              alert('Error: ' + error);
+            }
+          });
+          getElement('dopboxLoginButton').addEventListener('click', function() {editor.dropboxLogin();}, false);
+        }
+        //as the canvas based or html5 game engine should be
       };
       /**
       @parameter uidcounter
@@ -1807,6 +1824,67 @@ var Base64 = {
           help.style.display = 'none';
         }
       };
+      /**
+      @method dropboxWrite
+      @since 2014-06-05
+      */
+      editor.dropboxWrite = function() {
+        var name = getElement('dropboxName');
+        var data = JSON.stringify(editor);
+        if (name == '' || name == null) {
+          name = 'editor';
+        }
+        dropboxClient.writeFile(name+'.json', ''+data, function (error) {
+          if (error) {
+            alert('Error: ' + error);
+          } else {
+            alert('File written successfully!');
+          }
+        });
+      }
+      /**
+      @method dropboxRead
+      @since 2014-06-05
+      */
+      editor.dropboxRead = function() {
+        if (name == '' || name == null) {
+          name = 'editor';
+        }
+        dropboxClient.readFile(name+'.json', function(error, data) {
+          if (error) {
+            alert('Error: ' + error);
+          } else {
+            console.log(data); alert(data);
+          }
+        });
+      }
+      /**
+      @method dropboxLogin
+      @since 2014-06-05
+      */
+      editor.dropboxLogin = function() {
+        dropboxClient.authenticate(function (error, client) {
+          if (error) {
+            alert('Error: ' + error);
+          } else {
+            getElement('dopboxWriteButton').addEventListener('click', function() {
+              if (client.isAuthenticated()) {
+                editor.dropboxWrite();
+              } else {
+                alert('Error: please, login to dropbox.');
+              }
+            }, false);
+            getElement('dopboxReadButton').addEventListener('click', function() {
+              if (client.isAuthenticated()) {
+                editor.dropboxRead();
+              } else {
+                alert('Error: please, login to dropbox.');
+              }
+            }, false);
+            getElement('dropboxButtons').style.display = 'block';
+          }
+        });
+      }
       /***/
       _win.createElement = function(_ele) {
         return document.createElement(_ele);

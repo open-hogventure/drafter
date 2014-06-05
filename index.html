@@ -1867,14 +1867,14 @@ var Base64 = {
           if (error) {
             alert('Error: ' + error);
           } else {
-            getElement('dopboxWriteButton').addEventListener('click', function() {
+            getElement('dropboxWriteButton').addEventListener('click', function() {
               if (client.isAuthenticated()) {
                 editor.dropboxWrite();
               } else {
                 alert('Error: please, login to dropbox.');
               }
             }, false);
-            getElement('dopboxReadButton').addEventListener('click', function() {
+            getElement('dropboxReadButton').addEventListener('click', function() {
               if (client.isAuthenticated()) {
                 editor.dropboxRead();
               } else {
@@ -1979,6 +1979,12 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
   <button onclick="editor.help();" style="float: left;">help</button>
   <button onclick="install();" style="float: left;">install</button>
+  <button onclick="editor.dropboxLogin();" style="float: left;">login to dropbox</button>
+  <div id="dropboxButtons" style="display: none;">
+  <button id="dropboxWriteButton" onclick="editor.dropboxWrite();" style="float: left;">upload to dropbox</button>
+  <button id="dropboxReadButton" onclick="editor.dropboxRead();" style="float: left;">download from dropbox</button>
+  <input id="dropboxName" type="text/javascript" placeholder="editor.json" />
+  </div>
   <br style="clear: both;">
   </div>
   <textarea id="texteditor"><!--var game_cvs = createElement('canvas');

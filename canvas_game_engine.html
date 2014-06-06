@@ -266,7 +266,7 @@ function Game() {
    var json = {"func":null,"width":1210,"height":631,"game":{"notes":[{"uid":"4WC6G","text":"C2Qnh","title":"K8mmT","connections":[{"uid":"PZLsS","text":"ZgASD","to_uid":"4WC6G","from_uid":"uEwSm"},{"uid":"MBvcr","text":"KJ5rI","to_uid":"4WC6G","from_uid":"Eloec"},{"uid":"lgaK0","text":"NqFNd","to_uid":"Eloec","from_uid":"4WC6G"}]},{"uid":"uEwSm","text":"jfuWQ","title":"ZAsGx","connections":[{"uid":"PZLsS","text":"ZgASD","to_uid":"4WC6G","from_uid":"uEwSm"},{"uid":"YEj0j","text":"MYPor","to_uid":"uEwSm","from_uid":"Eloec"},{"uid":"z2RJv","text":"nQ1tI","to_uid":"Eloec","from_uid":"uEwSm"}]},{"uid":"Eloec","text":"32nsf","title":"w1xyb","connections":[{"uid":"YEj0j","text":"MYPor","to_uid":"uEwSm","from_uid":"Eloec"},{"uid":"MBvcr","text":"KJ5rI","to_uid":"4WC6G","from_uid":"Eloec"},{"uid":"lgaK0","text":"NqFNd","to_uid":"Eloec","from_uid":"4WC6G"},{"uid":"z2RJv","text":"nQ1tI","to_uid":"Eloec","from_uid":"uEwSm"}]}],"startNote":"uEwSm","mediamanager":{"defaultLanguage":"en","currentLanguage":"en","languages":["en","en"],"mediaLanguages":[{"language":"en","medias":[{"key":"ZgASD","value":"R28gdG8gdGhlIGVuZA=="},{"key":"32nsf","value":"ZWRpdG9yLCBnYW1lIGFuZCBnYW1lIGVuZ2luZSBtYWRlIGJ5IE1hbHRlIEtvc2lhbg=="},{"key":"w1xyb","value":"Q3JlZGl0cw=="},{"key":"MYPor","value":"VG8gdGhlIHN0YXJ0IG9mIHRoZSBzdG9yeQ=="},{"key":"KJ5rI","value":"QmFjayB0byB0aGUgZW5k"},{"key":"jfuWQ","value":"SGVyZSB0aGUgc3Rvcnkgc3RhcnRzLgpJdCBpcyBhIHZlcnkgc2hvcnQgc3RvcnkuCkhvdyBpdCB3aWxsIGVuZCBpcyBhbGwgeW91ciBjaG9pY2Uu"},{"key":"ZAsGx","value":"VGhpcyBpcyB0aGUgc3RhcnQgbm90ZQ=="},{"key":"C2Qnh","value":"QW5kIG5vdyB0aGUgZW5kIGlzIG5lYXIgbXkgZnJpZW5kLgpWZXJ5IG5lYXIuLi4KRmFtb3VzIGxhc3Qgd29yZHMu"},{"key":"K8mmT","value":"VGhlIGVuZCBpcyBuZWFyLg=="},{"key":"NqFNd","value":"Y3JlZGl0cw=="},{"key":"ejMFA","value":""},{"key":"nQ1tI","value":"Y3JlZGl0cw=="}]},{"language":"en","medias":[{"key":"C2Qnh","value":"QW5kIG5vdyB0aGUgZW5kIGlzIG5lYXIgbXkgZnJpZW5kLgpWZXJ5IG5lYXIuLi4KRmFtb3VzIGxhc3Qgd29yZHMu"},{"key":"K8mmT","value":"VGhlIGVuZCBpcyBuZWFyLg=="},{"key":"NqFNd","value":"Y3JlZGl0cw=="},{"key":"ejMFA","value":""},{"key":"nQ1tI","value":"Y3JlZGl0cw=="},{"key":"jfuWQ","value":"SGVyZSB0aGUgc3Rvcnkgc3RhcnRzLgpJdCBpcyBhIHZlcnkgc2hvcnQgc3RvcnkuCkhvdyBpdCB3aWxsIGVuZCBpcyBhbGwgeW91ciBjaG9pY2Uu"},{"key":"ZAsGx","value":"VGhpcyBpcyB0aGUgc3RhcnQgbm90ZQ=="}]}]}},"uidcounter":["4WC6G","uEwSm","PZLsS","ZgASD","Eloec","32nsf","w1xyb","YEj0j","MYPor","MBvcr","KJ5rI","jfuWQ","ZAsGx","C2Qnh","K8mmT","lgaK0","NqFNd","9KfSq","ejMFA","z2RJv","nQ1tI"],"noteStartX":485,"noteStartY":335,"pressed":false,"ox":167,"oy":323,"noteeditor_box":null,"noteeditor":null,"code":"var game_cvs = createElement('canvas');\ngame_cvs.style.width = '450px';\ngame_cvs.style.height = '300px';\ngame_cvs.style.background = '#000';\ngame_cvs.style.position = 'absolute';\ngame_cvs.style.top = '50px';\ngame_cvs.style.left = '0px';\ndocument.body.appendChild(game_cvs);\n  \n/**\n@class Note\n@param _uid\n@since 2014-05-17\n*/\nfunction Note(_uid) {\n /***/\n this.uid = _uid;\n /***/\n this.text = null;\n /***/\n this.title = null;\n /***/\n this.connections = [];\n /***/\n this.load = function(data) {\n   console.log(data);\n  this.uid = data['uid'];\n  for (var i = 0; i < data['connections'].length;i++) {\n   var connection = new Connection(data['connections'][i]['uid']);\n   connection.load(data['connections'][i]);\n   this.connections.push(connection);\n  }\n  this.text = data['text'];\n  this.title = data['title'];\n };\n};\n/**\n@class Connection\n@param _uid\n@since 2014-05-17\n*/\nfunction Connection(_uid) {\n /***/\n this.uid = _uid;\n /***/\n this.text = null;\n /***/\n this.to_uid = null;\n /***/\n this.from_uid = null;\n /***/\n this.load = function(data) {\n  this.uid = data['uid'];\n  this.text = data['text'];\n  this.to_uid = data['to_uid'];\n  this.from_uid = data['from_uid'];\n };\n};\n/**\n@class MediaLanguage\n@param _lan\n@since 2014-05-18\n*/\nfunction MediaLanguage(_lan) {\n this.language = _lan;\n this.medias = [];\n /**\n @method load\n @param data\n @since 2014-05-29\n */\n this.load = function(data) {\n  this.language = data['language'];\n  this.medias = [];\n  for (var i = 0; i < data['medias'].length; i++) {\n   this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});\n  }\n };\n this.setMedia = function(_k, _v) {\n  //console.log('setMedia'+_k);\n  if (this.hasMedia(_k)) {\n   this.getMedia(_k).value = Base64.encode(_v);\n  } else {\n   this.addMedia(_k, _v);\n  }\n };\n this.getMedia = function(_k) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    return this.medias[i];\n   }\n  }\n  return null;\n };\n this.getMediaValue = function(_k) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    //console.log('getMedia->'+Base64.decode(this.medias[i].value));\n    return Base64.decode(this.medias[i].value);\n   }\n  }\n  return null;\n };\n this.hasMedia = function(_k, _v) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    return true;\n   }\n  }\n  return false;\n };\n this.deleteMedia = function(_k, _v) {\n  for (var i = 0; i < this.medias.length; i++) {\n   if (this.medias[i].key == _k) {\n    return this.medias.splice(i, 1);\n   }\n  }\n };\n this.addMedia = function(_k, _v) {\n  this.medias.push(this.createMedia(_k, _v));\n };\n this.createMedia = function(_k, _v) {\n  return { key : _k, value : Base64.encode(_v) };\n };\n};\n/**\nThe Game class\n@class Game\n@since 2014-05-17\n*/\nfunction Game() {\n /**\n the major data type array\n @parameter notes\n @since 2014-05-17\n */\n this.notes = [];\n /**\n @parameter startNote\n @since 2014-05-29\n */\n this.startNote = null;\n /**\n @method load\n @since 2014-05-17\n */\n this.load = function(data) {\n  if (data == null) {\n    data = window.localStorage.getItem('game_data');\n    data = JSON.parse(data);\n    if (data == null) {\n     //avoid a cannot read property exception\n     //console.log(data);\n     return;\n    }\n  }\n  this.notes = [];\n  for (var i = 0; i < data['notes'].length;i++) {\n   var note = new Note(data['notes'][i]['uid']);\n   note.load(data['notes'][i]);\n   this.notes.push(note);\n  }\n  this.startNote = data['startNote'];\n  this.mediamanager.load(data['mediamanager']);\n };\n /**\n @method save\n @since 2014-05-17\n */\n this.save = function() {\n  var data = JSON.stringify(game);\n  console.log('save data:');\n  console.log(data);\n  console.log(':save data');\n  window.localStorage.setItem('game_data', data);\n };\n /**\n @class mediamanager\n @since 2014-05-18\n */\n this.mediamanager = {\n  defaultLanguage : 'en',\n  currentLanguage : 'en',\n  languages : [],\n  mediaLanguages : [],\n  setCurrentLanguage : function(_lan) {\n   this.currentLanguage = _lan;\n   if (!this.hasLanguage(_lan)) {\n    this.addLanguage(_lan);\n   }\n  },\n  addLanguage : function(_lan) {\n   this.mediaLanguages.push( new MediaLanguage(_lan) );\n   this.languages.push(_lan);\n  },\n  hasLanguage : function(_lan) {\n   for (var i = 0; i < this.languages.length; i++) {\n    if (this.languages[i] == _lan) {\n     return true;\n    }\n   }\n   return false;\n  },\n  getCurrentLanguage : function() {\n   for (var i = 0; i < this.mediaLanguages.length; i++) {\n    if (this.mediaLanguages[i].language == this.currentLanguage) {\n     return this.mediaLanguages[i];\n    }\n   }\n   this.currentLanguage = this.defaultLanguage;\n   var language = new MediaLanguage(this.currentLanguage);\n   this.mediaLanguages.push( language );\n   this.languages.push(this.currentLanguage);\n   return language;\n  },\n  setMedia : function(_k, _v) {\n   //type64=true|false would regulate de/encoding or not\n   for (var i = 0; i < this.mediaLanguages.length; i++) {\n    this.mediaLanguages[i].setMedia(_k, _v);\n   }\n  },\n  deleteMedia : function(_k) {\n   for (var i = 0; i < this.mediaLanguages.length; i++) {\n    this.mediaLanguages[i].deleteMedia(_k);\n   }\n  },\n  getMedia : function(_k) {\n   return this.getCurrentLanguage().getMedia(_k);\n  },\n  getMediaValue : function(_k) {\n   return this.getCurrentLanguage().getMediaValue(_k);\n  },\n  /**\n  @method load\n  @param data\n  @since 2014-05-29\n  */\n  load : function(data) {\n   this.defaultLanguage = 'en',\n   this.currentLanguage = data['currentLangauge'];\n   this.languages = data['languages'];\n   this.mediaLanguages = [];\n   for (var i = 0; i < data['mediaLanguages'].length; i++) {\n    var lan = new MediaLanguage(data['mediaLanguages'][i]['uid']);\n    lan.load(data['mediaLanguages'][i]);\n    this.mediaLanguages.push(lan);\n   }\n  }\n }\n}\n/**\n@property game\n@since 2014-05-28\n*/\n"};
   </script>
   <script type="text/javascript" src="js/base64.js"></script>
-  <script type="text/javascript" id="html5div_game_engine">
+  <script type="text/javascript" id="canvas_game_engine">
    (function(_win) {
      /**
      @class gameEngine
@@ -279,6 +279,24 @@ function Game() {
      */
      gameEngine.game = null;
      /**
+     the 2d context
+     @property ctx
+     @since 2014-06-06
+     */
+     gameEngine.ctx = null;
+     /**
+     the window innerWidth
+     @property ctx
+     @since 2014-06-06
+     */
+     gameEngine.width;
+     /**
+     the window innerHeight
+     @property ctx
+     @since 2014-06-06
+     */
+     gameEngine.height;
+     /**
      @method init
      @since 2014-05-30
      */
@@ -287,53 +305,157 @@ function Game() {
       console.log(gameEngine.game);
       gameEngine.game.mediamanager.addLanguage(gameEngine.game.mediamanager.defaultLanguage);
       gameEngine.game.load(json['game']);
-      var child = document.createElement('div');
+      var child = document.createElement('canvas');
       child.setAttribute('id', 'gameMainView');
       document.body.appendChild(child);
+
+      gameEngine.width = window.innerWidth - 5;
+      gameEngine.height = window.innerHeight - 5 - document.getElementById('gameMainView').offsetTop;
+
+      child.width = gameEngine.width;
+      child.height = gameEngine.height;
+      child.style.width = gameEngine.width + 'px';
+      child.style.height = gameEngine.height + 'px';
+      child.style.padding = 0;
+      child.style.margin = 0;
+
+      document.body.style.padding = 0;
+      document.body.style.margin = 0;
+      child.addEventListener('mousemove', function(eve) {
+       if (gameEngine.renderNote != null) {
+        //console.log(eve.pageX+', '+eve.pageY);
+        gameEngine.renderNote.mouseOver(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+       }
+      }, false);
+      child.addEventListener('mouseup', function(eve) {
+       if (gameEngine.renderNote != null) {
+        //console.log(eve.pageX+', '+eve.pageY);
+        var uid_to = gameEngine.renderNote.mouseHit(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+        if (uid_to != null) {
+         gameEngine.renderNote.setNote(gameEngine.getNote( uid_to ));
+        }
+       }
+      }, false);
+
+
+      gameEngine.ctx = child.getContext('2d');
       if (gameEngine.game.startNote == null) {
         alert('Can\'t start the game. game.startNote is not defined!');
         return;
       }
-      gameEngine.renderNote(gameEngine.game.startNote);
+      gameEngine.renderNote.setNote(gameEngine.getNote( gameEngine.game.startNote ));
+      requestAnimationFrame(gameEngine.drawUpdate);
      };
+     /**
+     @property renderNote
+     @since 2014-06-06
+     */
+     gameEngine.renderNote = {
+      title: null,
+      texts: [],
+      connections: [],
+      /**
+      @method setNote
+      @since 2014-06-06
+      */
+      setNote: function(_n) {
+        this.title = gameEngine.game.mediamanager.getMediaValue(_n.title);
+        var text = gameEngine.game.mediamanager.getMediaValue(_n.text);
+        this.texts = text.split(/\n/);
+        this.connections = [];//_n.connections;
+        var j = 0;
+        for (var i = 0; i < _n.connections.length; i++) {
+         if (_n.connections[i].from_uid == _n.uid) {
+          j++;
+          this.connections.push(this.prepareConnection(_n.connections[i], j, _n.connections.length));
+         }
+        }
+      },
+      /**
+      @method prepareConnection
+      @since 2014-06-06
+      @return connectionObject
+      */
+      prepareConnection: function(_c, _j, _l) {
+       return {
+        text: gameEngine.game.mediamanager.getMediaValue(_c.text),
+        index: _j,
+        x: gameEngine.width - 250,
+        y: 1 + gameEngine.height - _l * 25 + _j * 25,
+        to_uid: _c.to_uid,
+        over: false,
+        /**
+        @method isHit
+        @since 2014-06-06
+        @param _x
+        @param _y
+        @return true if the connection is hit
+        */
+        isHit: function(_x, _y) {
+         return (this.x < _x && this.x + 250 > _x && this.y > _y && this.y - 24 < _y);
+        }
+       };
+      },
+      mouseOver: function(_x, _y) {
+       for (var i = 0; i < this.connections.length; i++) {
+        this.connections[i].over = this.connections[i].isHit(_x, _y);
+       }
+      },
+      mouseHit: function(_x, _y) {
+       for (var i = 0; i < this.connections.length; i++) {
+        if (this.connections[i].isHit(_x, _y)) {
+         return this.connections[i].to_uid;
+        }
+       }
+       return null;
+      }
+     };
+     /**
+     @method drawUpdate
+     @sinc 2014-06-05
+     */
+     gameEngine.drawUpdate = function() {
+      gameEngine.draw();
+      requestAnimationFrame(gameEngine.drawUpdate);
+     }
      /**
      @method renderNote
      @since 2014-05-30
      @param uid
      */
-     gameEngine.renderNote = function (uid) {
-      var note = gameEngine.getNote(uid);
-      var ele = document.getElementById('gameMainView');
-      ele.innerHTML = '';
-      var child = document.createElement('h1');
-      child.appendChild(document.createTextNode(
-                        gameEngine.game.mediamanager.getMediaValue(note.title)));
-      ele.appendChild(child);
-      //ele.appendChild(document.createElement('br'));
-      ele.appendChild(document.createElement('br'));
-      var text = gameEngine.game.mediamanager.getMediaValue(note.text);
-      texts = text.split(/\n/);
-      for (var i = 0; i < texts.length; i++) {
-        ele.appendChild(document.createTextNode(texts[i]));
-        ele.appendChild(document.createElement('br'));
+     gameEngine.draw = function () {
+      var ctx = gameEngine.ctx;
+      //'clearing' the 'page' > the context of the canvas
+      ctx.fillStyle = '#030';
+      ctx.fillRect(0,0, gameEngine.width, gameEngine.height);
+      ctx.fillStyle = '#3d3';
+      ctx.strokeStyle = '#090';
+      //drawing the title
+      ctx.font = '30px Arial';
+      ctx.fillText(gameEngine.renderNote.title, 10, 40);
+      //drawing the text
+      ctx.font = '17.5px Arial';
+      for (var i = 0; i < gameEngine.renderNote.texts.length; i++) {
+        ctx.fillText(gameEngine.renderNote.texts[i], 10, 70 + i * 25);
       }
-      ele.appendChild(document.createElement('br'));
       //connections
-      var cons = note.connections;
+      ctx.beginPath();
+      var cons = gameEngine.renderNote.connections;
       for (var i = 0; i < cons.length; i++) {
-       if (cons[i].from_uid == note.uid) {
-        var con_text = gameEngine.game.mediamanager.getMediaValue(cons[i].text);
-        child = document.createElement('span');
-        child.style.cssFloat = 'right';
-        child.style.cursor = 'pointer';
-        child.style.color = '#00c';
-        child.style.textDecoration = 'underline';
-        child.setAttribute('onclick','gameEngine.renderNote(\''+cons[i].to_uid+'\');');
-        child.appendChild(document.createTextNode(con_text));
-        ele.appendChild(child);
-        ele.appendChild(document.createElement('br'));
-       }
+        if (cons[i].over) {
+         ctx.fillStyle = 'rgba(0,100,0,0.5)';
+         ctx.fillRect(cons[i].x, cons[i].y - 22, 250, 21);
+         ctx.fillStyle = '#3d3';
+         ctx.moveTo( gameEngine.width, cons[i].y - 22);
+         ctx.lineTo( cons[i].x, cons[i].y - 22);
+        }
+        ctx.fillStyle = '#3d3';
+        //console.log(cons[i].text);
+        ctx.fillText(cons[i].index+'. '+cons[i].text, cons[i].x + 2, cons[i].y - 2);
+        ctx.moveTo( gameEngine.width, cons[i].y);
+        ctx.lineTo( cons[i].x, cons[i].y);
       }
+      ctx.stroke();
      };
      /**
      @method getNote

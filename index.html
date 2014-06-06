@@ -990,11 +990,7 @@ var Base64 = {
         //experimental from here
         //this might be part of the preferences
         if (typeof Dropbox != 'undefined') {
-<<<<<<< HEAD
-          dropboxClient = new Dropbox.Client({ key: 'jyttdaiqfuz7drb' });
-=======
           dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
->>>>>>> 0db489c82fba19a92eb14c1a49d11ae104e72641
           dropboxClient.authenticate({ interactive: false }, function (error, client) {
             if (error) {
               alert('Error: ' + error);

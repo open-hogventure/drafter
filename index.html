@@ -988,7 +988,11 @@ var Base64 = {
         //experimental from here
         //this might be part of the preferences
         if (typeof Dropbox != 'undefined') {
+<<<<<<< HEAD
           dropboxClient = new Dropbox.Client({ key: 'jyttdaiqfuz7drb' });
+=======
+          dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
+>>>>>>> 0db489c82fba19a92eb14c1a49d11ae104e72641
           dropboxClient.authenticate({ interactive: false }, function (error, client) {
             if (error) {
               alert('Error: ' + error);
@@ -1798,7 +1802,8 @@ var Base64 = {
         editor.code = getElement('texteditor').value;
         editor.noteeditor_box = null;
         editor.noteeditor = null;
-        var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: getElement('texteditor').value});
+        //JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
         child2 = editor.buildExportBlobUrl( data, 'editor', 'json'); //
 		    child.appendChild(child2);
         child.className = 'eximport';
@@ -1838,8 +1843,8 @@ var Base64 = {
           return;
         }
         var files = eve.target.files; // FileList object
-        for (var i = 0; i < 1; i++) {
-          var f = files[i];
+        //for (var i = 0; i < 1; i++) {
+          var f = files[0];
           var reader = new FileReader();
           reader.onload = (function(theFile) {
             return function(e) {
@@ -1855,7 +1860,7 @@ var Base64 = {
             reader.onloadend = importProjectJsons;
           }*/
           reader.readAsText(f, 'UTF-8');//readAsDataURL(f);//, 'UTF-8');
-        }
+        //}
       };
       /**
       @method buildGame
@@ -2044,8 +2049,8 @@ var Base64 = {
       @since 2014-06-05
       */
       editor.dropboxWrite = function() {
-        var name = getElement('dropboxName');
-        var data = JSON.stringify(editor);
+        var name = getElement('dropboxName').value;
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: getElement('texteditor').value});
         if (name == '' || name == null) {
           name = 'editor';
         }
@@ -2062,6 +2067,7 @@ var Base64 = {
       @since 2014-06-05
       */
       editor.dropboxRead = function() {
+        var name = getElement('dropboxName').value;
         if (name == '' || name == null) {
           name = 'editor';
         }
@@ -2069,7 +2075,8 @@ var Base64 = {
           if (error) {
             alert('Error: ' + error);
           } else {
-            console.log(data); alert(data);
+            console.log(data);// alert(data);
+            editor.load(data);
           }
         });
       }
@@ -2078,6 +2085,11 @@ var Base64 = {
       @since 2014-06-05
       */
       editor.dropboxLogin = function() {
+        if (window.location.protocol != "https:") {
+          alert('Please, accept the self certified ssl.');
+          window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+          return;
+        }
         dropboxClient.authenticate(function (error, client) {
           if (error) {
             alert('Error: ' + error);
@@ -2198,7 +2210,11 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   <div id="dropboxButtons" style="display: none;">
   <button id="dropboxWriteButton" style="float: left;">upload to dropbox</button>
   <button id="dropboxReadButton" style="float: left;">download from dropbox</button>
+<<<<<<< HEAD
   <input id="dropboxName" type="text" placeholder="editor.json" />
+=======
+  <input id="dropboxName" type="text" placeholder="editor is the file name" />
+>>>>>>> 0db489c82fba19a92eb14c1a49d11ae104e72641
   </div>
   <br style="clear: both;">
   </div>

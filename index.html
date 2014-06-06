@@ -883,6 +883,7 @@ var Base64 = {
         var data = JSON.stringify(editor.game);
         //console.log(data);
         _win.localStorage.setItem('game_data', data);
+        _win.localStorage.setItem('uidcounter', JSON.stringify(editor.uidcounter));
       };
       /**
       @method loadCodeAndGame
@@ -896,6 +897,7 @@ var Base64 = {
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         editor.game.load(JSON.parse(data));
+        editor.uidcounter =  JSON.parse(_win.localStorage.getItem('uidcounter'));
         getElement('noteeditor').innerHTML = '';
         getElement('notelist').innerHTML = '';
         for (var i = 0; i < editor.game.notes.length; i++) {

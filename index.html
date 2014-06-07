@@ -1,5 +1,5 @@
 <!doctype html>
-<html manifest="offline.appcache"-->
+<html manifest="offline.appcache">
  <head>
   <title> editor for text games </title>
   <meta name="generator" content="hogventure.com drafter">
@@ -382,216 +382,214 @@ function Game() {
 </script>
 <script type="text/text" id="canvas_game_engine">
 
-   /**
-   @class gameEngine
-   @since 2014-05-30
-   */
-   var gameEngine = {;
-     /**
-     @property game
-     @since 2014-05-30
-     */
-     gameEngine.game = null;
-     /**
-     the 2d context
-     @property ctx
-     @since 2014-06-06
-     */
-     gameEngine.ctx = null;
-     /**
-     the window innerWidth
-     @property ctx
-     @since 2014-06-06
-     */
-     gameEngine.width;
-     /**
-     the window innerHeight
-     @property ctx
-     @since 2014-06-06
-     */
-     gameEngine.height;
-     /**
-     @method init
-     @since 2014-05-30
-     */
-     gameEngine.init = function() {
-      gameEngine.game = new Game();
-      console.log(gameEngine.game);
-      gameEngine.game.mediamanager.addLanguage(gameEngine.game.mediamanager.defaultLanguage);
-      gameEngine.game.load(json['game']);
-      var child = document.createElement('canvas');
-      child.setAttribute('id', 'gameMainView');
-      document.body.appendChild(child);
+ /**
+ @class gameEngine
+ @since 2014-05-30
+ */
+ var gameEngine = {
+  /**
+  @property game
+  @since 2014-05-30
+  */
+  game : null,
+  /**
+  the 2d context
+  @property ctx
+  @since 2014-06-06
+  */
+  ctx : null,
+  /**
+  the window innerWidth
+  @property ctx
+  @since 2014-06-06
+  */
+  width : 600,
+  /**
+  the window innerHeight
+  @property ctx
+  @since 2014-06-06
+  */
+  height : 300,
+  /**
+  @method init
+  @since 2014-05-30
+  */
+  init : function() {
+  gameEngine.game = new Game();
+  console.log(gameEngine.game);
+  gameEngine.game.mediamanager.addLanguage(gameEngine.game.mediamanager.defaultLanguage);
+  gameEngine.game.load(json['game']);
+  var child = document.createElement('canvas');
+  child.setAttribute('id', 'gameMainView');
+  document.body.appendChild(child);
 
-      gameEngine.width = window.innerWidth - 5;
-      gameEngine.height = window.innerHeight - 5 - document.getElementById('gameMainView').offsetTop;
+  gameEngine.width = window.innerWidth - 5;
+  gameEngine.height = window.innerHeight - 5 - document.getElementById('gameMainView').offsetTop;
 
-      child.width = gameEngine.width;
-      child.height = gameEngine.height;
-      child.style.width = gameEngine.width + 'px';
-      child.style.height = gameEngine.height + 'px';
-      child.style.padding = 0;
-      child.style.margin = 0;
+  child.width = gameEngine.width;
+  child.height = gameEngine.height;
+  child.style.width = gameEngine.width + 'px';
+  child.style.height = gameEngine.height + 'px';
+  child.style.padding = 0;
+  child.style.margin = 0;
 
-      document.body.style.padding = 0;
-      document.body.style.margin = 0;
-      child.addEventListener('mousemove', function(eve) {
-       if (gameEngine.renderNote != null) {
-        //console.log(eve.pageX+', '+eve.pageY);
-        gameEngine.renderNote.mouseOver(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
-       }
-      }, false);
-      child.addEventListener('mouseup', function(eve) {
-       if (gameEngine.renderNote != null) {
-        //console.log(eve.pageX+', '+eve.pageY);
-        var uid_to = gameEngine.renderNote.mouseHit(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
-        if (uid_to != null) {
-         gameEngine.renderNote.setNote(gameEngine.getNote( uid_to ));
-        }
-       }
-      }, false);
-
-
-      gameEngine.ctx = child.getContext('2d');
-      if (gameEngine.game.startNote == null) {
-        alert('Can\'t start the game. game.startNote is not defined!');
-        return;
-      }
-      gameEngine.renderNote.setNote(gameEngine.getNote( gameEngine.game.startNote ));
-      requestAnimationFrame(gameEngine.drawUpdate);
-     };
-     /**
-     @property renderNote
-     @since 2014-06-06
-     */
-     gameEngine.renderNote = {
-      title: null,
-      texts: [],
-      connections: [],
-      /**
-      @method setNote
-      @since 2014-06-06
-      */
-      setNote: function(_n) {
-        this.title = gameEngine.game.mediamanager.getMediaValue(_n.title);
-        var text = gameEngine.game.mediamanager.getMediaValue(_n.text);
-        this.texts = text.split(/\n/);
-        this.connections = [];//_n.connections;
-        var j = 0;
-        for (var i = 0; i < _n.connections.length; i++) {
-         if (_n.connections[i].from_uid == _n.uid) {
-          j++;
-          this.connections.push(this.prepareConnection(_n.connections[i], j, _n.connections.length));
-         }
-        }
-      },
-      /**
-      @method prepareConnection
-      @since 2014-06-06
-      @return connectionObject
-      */
-      prepareConnection: function(_c, _j, _l) {
-       return {
-        text: gameEngine.game.mediamanager.getMediaValue(_c.text),
-        index: _j,
-        x: gameEngine.width - 250,
-        y: 1 + gameEngine.height - _l * 25 + _j * 25,
-        to_uid: _c.to_uid,
-        over: false,
-        /**
-        @method isHit
-        @since 2014-06-06
-        @param _x
-        @param _y
-        @return true if the connection is hit
-        */
-        isHit: function(_x, _y) {
-         return (this.x < _x && this.x + 250 > _x && this.y > _y && this.y - 24 < _y);
-        }
-       };
-      },
-      mouseOver: function(_x, _y) {
-       for (var i = 0; i < this.connections.length; i++) {
-        this.connections[i].over = this.connections[i].isHit(_x, _y);
-       }
-      },
-      mouseHit: function(_x, _y) {
-       for (var i = 0; i < this.connections.length; i++) {
-        if (this.connections[i].isHit(_x, _y)) {
-         return this.connections[i].to_uid;
-        }
-       }
-       return null;
-      }
-     };
-     /**
-     @method drawUpdate
-     @sinc 2014-06-05
-     */
-     gameEngine.drawUpdate = function() {
-      gameEngine.draw();
-      requestAnimationFrame(gameEngine.drawUpdate);
+  document.body.style.padding = 0;
+  document.body.style.margin = 0;
+  child.addEventListener('mousemove', function(eve) {
+   if (gameEngine.renderNote != null) {
+    //console.log(eve.pageX+', '+eve.pageY);
+    gameEngine.renderNote.mouseOver(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+   }
+  }, false);
+  child.addEventListener('mouseup', function(eve) {
+   if (gameEngine.renderNote != null) {
+    //console.log(eve.pageX+', '+eve.pageY);
+    var uid_to = gameEngine.renderNote.mouseHit(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+    if (uid_to != null) {
+     gameEngine.renderNote.setNote(gameEngine.getNote( uid_to ));
+    }
+   }
+  }, false);
+  gameEngine.ctx = child.getContext('2d');
+  if (gameEngine.game.startNote == null) {
+    alert('Can\'t start the game. game.startNote is not defined!');
+    return;
+  }
+  gameEngine.renderNote.setNote(gameEngine.getNote( gameEngine.game.startNote ));
+  requestAnimationFrame(gameEngine.drawUpdate);
+  },
+  /**
+  @property renderNote
+  @since 2014-06-06
+  */
+  renderNote : {
+  title: null,
+  texts: [],
+  connections: [],
+  /**
+  @method setNote
+  @since 2014-06-06
+  */
+  setNote: function(_n) {
+    this.title = gameEngine.game.mediamanager.getMediaValue(_n.title);
+    var text = gameEngine.game.mediamanager.getMediaValue(_n.text);
+    this.texts = text.split(/\n/);
+    this.connections = [];//_n.connections;
+    var j = 0;
+    for (var i = 0; i < _n.connections.length; i++) {
+     if (_n.connections[i].from_uid == _n.uid) {
+      j++;
+      this.connections.push(this.prepareConnection(_n.connections[i], j, _n.connections.length));
      }
-     /**
-     @method renderNote
-     @since 2014-05-30
-     @param uid
-     */
-     gameEngine.draw = function () {
-      var ctx = gameEngine.ctx;
-      //'clearing' the 'page' > the context of the canvas
-      ctx.fillStyle = '#030';
-      ctx.fillRect(0,0, gameEngine.width, gameEngine.height);
-      ctx.fillStyle = '#3d3';
-      ctx.strokeStyle = '#090';
-      //drawing the title
-      ctx.font = '30px Arial';
-      ctx.fillText(gameEngine.renderNote.title, 10, 40);
-      //drawing the text
-      ctx.font = '17.5px Arial';
-      for (var i = 0; i < gameEngine.renderNote.texts.length; i++) {
-        ctx.fillText(gameEngine.renderNote.texts[i], 10, 70 + i * 25);
-      }
-      //connections
-      ctx.beginPath();
-      var cons = gameEngine.renderNote.connections;
-      for (var i = 0; i < cons.length; i++) {
-        if (cons[i].over) {
-         ctx.fillStyle = 'rgba(0,100,0,0.5)';
-         ctx.fillRect(cons[i].x, cons[i].y - 22, 250, 21);
-         ctx.fillStyle = '#3d3';
-         ctx.moveTo( gameEngine.width, cons[i].y - 22);
-         ctx.lineTo( cons[i].x, cons[i].y - 22);
-        }
-        ctx.fillStyle = '#3d3';
-        //console.log(cons[i].text);
-        ctx.fillText(cons[i].index+'. '+cons[i].text, cons[i].x + 2, cons[i].y - 2);
-        ctx.moveTo( gameEngine.width, cons[i].y);
-        ctx.lineTo( cons[i].x, cons[i].y);
-      }
-      ctx.stroke();
-     };
-     /**
-     @method getNote
-     @since 2014-05-30
-     @param uid
-     @return {Note} the corresponding Note
-     */
-     gameEngine.getNote = function (uid) {
-      for (var i = 0; i < gameEngine.game.notes.length; i++) {
-        if (gameEngine.game.notes[i].uid == uid) {
-          return gameEngine.game.notes[i];
-        }
-      }
-      return null;
-     };
+    }
+  },
+  /**
+  @method prepareConnection
+  @since 2014-06-06
+  @return connectionObject
+  */
+  prepareConnection: function(_c, _j, _l) {
+   return {
+    text: gameEngine.game.mediamanager.getMediaValue(_c.text),
+    index: _j,
+    x: gameEngine.width - 250,
+    y: 1 + gameEngine.height - _l * 25 + _j * 25,
+    to_uid: _c.to_uid,
+    over: false,
+    /**
+    @method isHit
+    @since 2014-06-06
+    @param _x
+    @param _y
+    @return true if the connection is hit
+    */
+    isHit: function(_x, _y) {
+     return (this.x < _x && this.x + 250 > _x && this.y > _y && this.y - 24 < _y);
+    }
    };
+  },
+  mouseOver: function(_x, _y) {
+   for (var i = 0; i < this.connections.length; i++) {
+    this.connections[i].over = this.connections[i].isHit(_x, _y);
+   }
+  },
+  mouseHit: function(_x, _y) {
+   for (var i = 0; i < this.connections.length; i++) {
+    if (this.connections[i].isHit(_x, _y)) {
+     return this.connections[i].to_uid;
+    }
+   }
+   return null;
+  }
+  },
+  /**
+  @method drawUpdate
+  @sinc 2014-06-05
+  */
+  drawUpdate : function() {
+  gameEngine.draw();
+  requestAnimationFrame(gameEngine.drawUpdate);
+  },
+  /**
+  @method draw
+  @since 2014-05-30
+  @param uid
+  */
+  draw : function () {
+  var ctx = gameEngine.ctx;
+  //'clearing' the 'page' > the context of the canvas
+  ctx.fillStyle = '#030';
+  ctx.fillRect(0,0, gameEngine.width, gameEngine.height);
+  ctx.fillStyle = '#3d3';
+  ctx.strokeStyle = '#090';
+  //drawing the title
+  ctx.font = '30px Arial';
+  ctx.fillText(gameEngine.renderNote.title, 10, 40);
+  //drawing the text
+  ctx.font = '17.5px Arial';
+  for (var i = 0; i < gameEngine.renderNote.texts.length; i++) {
+    ctx.fillText(gameEngine.renderNote.texts[i], 10, 70 + i * 25);
+  }
+  //connections
+  ctx.beginPath();
+  var cons = gameEngine.renderNote.connections;
+  for (var i = 0; i < cons.length; i++) {
+    if (cons[i].over) {
+     ctx.fillStyle = 'rgba(0,100,0,0.5)';
+     ctx.fillRect(cons[i].x, cons[i].y - 22, 250, 21);
+     ctx.fillStyle = '#3d3';
+     ctx.moveTo( gameEngine.width, cons[i].y - 22);
+     ctx.lineTo( cons[i].x, cons[i].y - 22);
+    }
+    ctx.fillStyle = '#3d3';
+    //console.log(cons[i].text);
+    ctx.fillText(cons[i].index+'. '+cons[i].text, cons[i].x + 2, cons[i].y - 2);
+    ctx.moveTo( gameEngine.width, cons[i].y);
+    ctx.lineTo( cons[i].x, cons[i].y);
+  }
+  ctx.stroke();
+  },
+  /**
+  @method getNote
+  @since 2014-05-30
+  @param uid
+  @return {Note} the corresponding Note
+  */
+  getNote : function (uid) {
+  for (var i = 0; i < gameEngine.game.notes.length; i++) {
+    if (gameEngine.game.notes[i].uid == uid) {
+      return gameEngine.game.notes[i];
+    }
+  }
+  return null;
+  }
+ };
 /**
 making the gameEngine public global available
 */
 window.gameEngine = gameEngine;
 gameEngine.init();
-//window.onload = function() {setTimeout(gameEngine.init, 100);};
+
 </script>
 <script type="text/text" id="html5div_game_engine">
  /**
@@ -990,8 +988,8 @@ var Base64 = {
         //experimental from here
         //this might be part of the preferences
         if (typeof Dropbox != 'undefined') {
-          dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
-          dropboxClient.authenticate({ interactive: false }, function (error, client) {
+          editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
+          editor.dropboxClient.authenticate({ interactive: false }, function (error, client) {
             if (error) {
               alert('Error: ' + error);
             }
@@ -2052,7 +2050,7 @@ var Base64 = {
         if (name == '' || name == null) {
           name = 'editor';
         }
-        dropboxClient.writeFile(name+'.json', ''+data, function (error) {
+        editor.dropboxClient.writeFile(name+'.json', ''+data, function (error) {
           if (error) {
             alert('Error: ' + error);
           } else {
@@ -2069,7 +2067,7 @@ var Base64 = {
         if (name == '' || name == null) {
           name = 'editor';
         }
-        dropboxClient.readFile(name+'.json', function(error, data) {
+        editor.dropboxClient.readFile(name+'.json', function(error, data) {
           if (error) {
             alert('Error: ' + error);
           } else {
@@ -2084,11 +2082,11 @@ var Base64 = {
       */
       editor.dropboxLogin = function() {
         if (window.location.protocol != "https:") {
-          alert('Please, accept the self certified ssl.');
+          //alert('Please, accept the self certified ssl.');
           window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
           return;
         }
-        dropboxClient.authenticate(function (error, client) {
+        editor.dropboxClient.authenticate(function (error, client) {
           if (error) {
             alert('Error: ' + error);
           } else {
@@ -2208,11 +2206,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   <div id="dropboxButtons" style="display: none;">
   <button id="dropboxWriteButton" style="float: left;">upload to dropbox</button>
   <button id="dropboxReadButton" style="float: left;">download from dropbox</button>
-<<<<<<< HEAD
-  <input id="dropboxName" type="text" placeholder="editor.json" />
-=======
   <input id="dropboxName" type="text" placeholder="editor is the file name" />
->>>>>>> 0db489c82fba19a92eb14c1a49d11ae104e72641
   </div>
   <br style="clear: both;">
   </div>

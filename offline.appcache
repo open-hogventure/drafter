@@ -1,8 +1,14 @@
 CACHE MANIFEST
-# v0.1
+# v0.3
 /draft/index.html
 /draft/img/arrow.png
 /draft/img/line.png
 /draft/img/Screenshot%20game.png
 /draft/img/Screenshot%20script.png
 /draft/img/Screenshot%20note.png
+
+https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js
+https://ssl.google-analytics.com/ga.js
+
+NETWORK:
+*

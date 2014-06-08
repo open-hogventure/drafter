@@ -8,6 +8,9 @@
   <meta name="description" content="Drafter, hogventure.com's twine like game and story editor in javascript">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!--s cript type="text/javascript" src="js/base64.js"></s cript-->
+<link rel="stylesheet" href="cm/lib/codemirror.css">
+<script src="cm/lib/codemirror.js"></script>
+<script src="cm/mode/javascript/javascript.js"></script>
 <script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js"></script>
 <script type="text/javascript" id="game_source">
 //the basic datamodel
@@ -876,7 +879,7 @@ var Base64 = {
       @since 2014-05-17
       */
       editor.saveCodeAndGame = function() {
-        var code = getElement('texteditor').value;
+        var code = codemirror.getValue();
         _win.localStorage.setItem('texteditor-code', code);
         var data = JSON.stringify(editor.game);
         //console.log(data);
@@ -889,7 +892,7 @@ var Base64 = {
       */
       editor.loadCodeAndGame = function() {
         var code = _win.localStorage.getItem('texteditor-code');
-        getElement('texteditor').value = code;
+        codemirror.setValue(code);
         var data = _win.localStorage.getItem('game_data');
         //console.log(data);
         editor.game = new Game();
@@ -913,21 +916,22 @@ var Base64 = {
       @since 2014-05-17
       */
       editor.testGame = function() {
-        var code = null;
-        /*try {
+        /*var code = null;
+        try {
           code = _win.localStorage.getItem('texteditor-code');
         }
         catch (e) {
-        }*/
-        if (code == null) {
-          code = getElement('texteditor').value;
         }
+        if (code == null) {*/
+          code = getElement('texteditor').value;
+          code = codemirror.getValue();
+        //}
         //perform the code
         try {
           editor.func = null;
           var cache = [];
           console.log('testGame->');
-          var edi = {game: editor.game, code: getElement('texteditor').value};
+          var edi = {game: editor.game, code: code};
           cache = null;
           editor.func = new Function('window,document', 'var json ='+JSON.stringify(edi)+';\n \n'+code);
           editor.func(window, document);
@@ -952,10 +956,10 @@ var Base64 = {
       editor.toggleEditor = function() {
         if (getElement('noteeditor_box').style.display != 'block') {
           getElement('noteeditor_box').style.display = 'block';
-          getElement('texteditor').style.display = 'none';
+          //getElement('texteditor').style.display = 'none';
         } else {
           getElement('noteeditor_box').style.display = 'none';
-          getElement('texteditor').style.display = 'block';
+          //getElement('texteditor').style.display = 'block';
         }
       };
       /**
@@ -977,11 +981,12 @@ var Base64 = {
         ele.style.width = (editor.width - 5) + 'px';
         var game_source = getElement('game_source').innerHTML;
         //getElement('texteditor').value
-        getElement('texteditor').value = game_source+' \n\n'+
+        setHighlighter();
+        codemirror.setValue( game_source+' \n\n'+
                                 getElement('base64_source').innerHTML +' \n\n'+
                                 //select html5 or canvas as part of the editor preferences
-                                //getElement('html5div_game_engine').innerHTML;
-                                getElement('canvas_game_engine').innerHTML;
+                                getElement('html5div_game_engine').innerHTML);
+                                //getElement('canvas_game_engine').innerHTML;
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
@@ -996,7 +1001,7 @@ var Base64 = {
           });
           //getElement('dopboxLoginButton').addEventListener('click', function() {editor.dropboxLogin();}, false);
         }
-        //as the canvas based or html5 game engine should be
+        //as the canvas based or html5 game engine should be        
       };
       /**
       @parameter uidcounter
@@ -1795,10 +1800,10 @@ var Base64 = {
         var child2 = createElement('div');
         child2.appendChild(document.createTextNode(' download editor.json: '));
         child.appendChild(child2);
-        editor.code = getElement('texteditor').value;
+        editor.code = codemirror.getValue();
         editor.noteeditor_box = null;
         editor.noteeditor = null;
-        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: getElement('texteditor').value});
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: editor.code});
         //JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
         child2 = editor.buildExportBlobUrl( data, 'editor', 'json'); //
 		    child.appendChild(child2);
@@ -1864,9 +1869,7 @@ var Base64 = {
       */
       editor.buildGame = function() {
         var ele = document.body;
-
-        var code = getElement('texteditor').value;
-
+        var code = codemirror.getValue();
         //perform the code
         var head = '<doctype html>\n<html>\n<head>\n\n<title>my drafter game</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
         '<meta name="author" content="you author">'+
@@ -1880,7 +1883,7 @@ var Base64 = {
         var child2 = createElement('div');
         child2.appendChild(document.createTextNode(' download myDrafterGame.html: '));
         child.appendChild(child2);
-        editor.code = getElement('texteditor').value;
+        editor.code = codemirror.getValue();
         editor.noteeditor_box = null;
         editor.noteeditor = null;
         //var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
@@ -1923,8 +1926,7 @@ var Base64 = {
             //editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
-        getElement('texteditor').value = '';
-        getElement('texteditor').value = json['code'];
+        codemirror.setValue(json['code']);
       }
       /**
       is the mouse pressed true
@@ -2046,7 +2048,8 @@ var Base64 = {
       */
       editor.dropboxWrite = function() {
         var name = getElement('dropboxName').value;
-        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: getElement('texteditor').value});
+        var code = codemirror.getValue();
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: code});
         if (name == '' || name == null) {
           name = 'editor';
         }
@@ -2138,15 +2141,25 @@ var Base64 = {
   )(window);
 
  </script>
+ <!-- Create a simple CodeMirror instance -->
+<script type="text/javascript">
+var codemirror = null;
+function setHighlighter() {
+  codemirror = new CodeMirror(getElement('cmtexteditor'), {
+    mode: "javascript"
+  });
+};
+</script>
  <style type="text/css">
 body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 25px; height: auto; max-height: 10%;}
-#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; resize: none;}
+#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; display: none;}
+#cmtexteditor { position: absolute; top: 10%; left: 0; width: 80%; max-width: 80%; min-height: 89%; height: 89%; max-height: 89%; /*background: #eee; */border: solid 1px #ddd; }
 #notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
 #noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; }
-#noteeditor_box {position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ddd; border-top: 1px solid #ddd; overflow: auto;}
+#noteeditor_box {z-index: 9; position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ddd; border-top: 1px solid #ddd; overflow: auto;}
 #gameMainView {z-index: 250; position: absolute; top: 10%; left: 1%; width: 98%; height: 89%; display: block; background: #fff; resize: none; overflow: hidden; border: 1px solid #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: auto;}
 .notelistBox {border: 1px solid #ddd; margin: 2px; background: #ddd; width: 95%;}
 #note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; padding: 0; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
@@ -2185,6 +2198,9 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 #noteeditor.offZoom .note .connection span{font-size: 7.5px;}
 #noteeditor.offZoom .note .note_menu .menu_element{font-size: 7.5px;}
 #zoom {/*font-weight: bold;*/ margin: 0; margin-left: 5px; }
+.dpbutton {float: left; height: 22px; vertical-align: top;}
+.dpbutton span {float: left; display: inline-block;}
+#cmtexteditor .CodeMirror {height: 100%;}
  </style>
  </head>
  <body>
@@ -2202,37 +2218,19 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
   <button onclick="editor.help();" style="float: left;">help</button>
   <button onclick="install();" style="float: left;">install</button>
-  <button onclick="editor.dropboxLogin();" style="float: left;">login to dropbox</button>
+  <button onclick="editor.dropboxLogin();" class="dpbutton"><span>&nbsp;login&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
   <div id="dropboxButtons" style="display: none;">
-  <button id="dropboxWriteButton" style="float: left;">upload to dropbox</button>
-  <button id="dropboxReadButton" style="float: left;">download from dropbox</button>
+  <button id="dropboxWriteButton" class="dpbutton"><span>&nbsp;upload&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
+  <button id="dropboxReadButton" class="dpbutton"><span>&nbsp;download&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
   <input id="dropboxName" type="text" placeholder="editor is the file name" />
   </div>
   <br style="clear: both;">
   </div>
-  <textarea id="texteditor"><!--var game_cvs = createElement('canvas');
-game_cvs.style.width = '450px';
-game_cvs.style.height = '300px';
-game_cvs.style.background = '#000';
-game_cvs.style.position = 'absolute';
-game_cvs.style.top = '50px';
-game_cvs.style.left = '0px';
-document.body.appendChild(game_cvs);
---></textarea>
+  <textarea id="texteditor"></textarea>
+  <div id="cmtexteditor"></div>
   <div id="notelist"></div>
-  <div id="noteeditor_box">
-   <div id="noteeditor">
-      <!--div id="note_" class="note">
-      <div id="note_bar" class="note_bar"><span id="note_uid" class="note_uid">n0UID</span></div>
-      <input type="text" id="note_title" class="note_title" placeholder="note title" /><textarea id="note_text" class="note_text" placeholder="note text"></textarea>
-      </div-->
-
-     <!---->
-      <!--div id="addConnectionBox" style="position: absolute; top: 0; left: 0; display: none;">from:<span id="boxFrom"></span><br>text:<input id="boxText" name="boxtext" type="text" placeholder="edit message here"/>
-      <select id="boxTo" name="boxTo"></select><button id="addConnectionBoxButton"
-      onclick="editor.closeAddConnectionBox(this.getAttribute('data-from-id'));">done</button>
-      </div-->
-     <!---->
+  <div id="noteeditor_box" style="display: block;">
+   <div id="noteeditor"> 
    </div>
   </div>
  </div>
@@ -2412,18 +2410,9 @@ document.body.appendChild(game_cvs);
 <!--end-->
 <button onclick="getElement('help').style.display = 'none';" class="closeBoxButton" style="top: 1px;">X</button>
 </div>
-<script type="text/javascript">
+<!-- UserVoice JavaScript SDK (only needed once on a page) -->
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-12182652-2']);
-  _gaq.push(['_trackPageview']);
+<!-- A tab to launch the Classic Widget -->
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
- </body>
+  </body>
 </html>

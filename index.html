@@ -7,12 +7,13 @@
   <meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">
   <meta name="description" content="Drafter, hogventure.com's twine like game and story editor in javascript">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<!--s cript type="text/javascript" src="js/base64.js"></s cript-->
+<link rel="shortcut icon" href="http://hogventure.com/draft/favicon.gif" />
+<link rel="icon" type="image/x-icon" href="http://hogventure.com/draft/favicon.ico" />
 <link rel="stylesheet" href="cm/lib/codemirror.css">
 <script src="cm/lib/codemirror.js"></script>
 <script src="cm/mode/javascript/javascript.js"></script>
 <script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js"></script>
-<script type="text/javascript" id="game_source">
+<script type="text/javascript" id="datamodel_source">
 //the basic datamodel
 /**
 @class Note
@@ -383,7 +384,7 @@ function Game() {
 //var game = new Game();
 
 </script>
-<script type="text/text" id="canvas_game_engine">
+<script type="text/text" id="canvas_game_engine_source">
 
  /**
  @class gameEngine
@@ -594,7 +595,7 @@ window.gameEngine = gameEngine;
 gameEngine.init();
 
 </script>
-<script type="text/text" id="html5div_game_engine">
+<script type="text/text" id="html5_game_engine_source">
  /**
  @class gameEngine
  @since 2014-05-30
@@ -885,6 +886,7 @@ var Base64 = {
         //console.log(data);
         _win.localStorage.setItem('game_data', data);
         _win.localStorage.setItem('uidcounter', JSON.stringify(editor.uidcounter));
+        _win.localStorage.setItem('preferences', JSON.stringify(editor.preferences));
       };
       /**
       @method loadCodeAndGame
@@ -899,6 +901,7 @@ var Base64 = {
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         editor.game.load(JSON.parse(data));
         editor.uidcounter =  JSON.parse(_win.localStorage.getItem('uidcounter'));
+        editor.preferences =  JSON.parse(_win.localStorage.getItem('preferences'));
         getElement('noteeditor').innerHTML = '';
         getElement('notelist').innerHTML = '';
         for (var i = 0; i < editor.game.notes.length; i++) {
@@ -910,6 +913,7 @@ var Base64 = {
             editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
+        editor.usePreferences();
       };
       /**
       @method testGame
@@ -979,20 +983,22 @@ var Base64 = {
         var ele = getElement('editor');
         ele.style.height = (editor.height - 5) + 'px';
         ele.style.width = (editor.width - 5) + 'px';
-        var game_source = getElement('game_source').innerHTML;
+        //var datamodel_source = getElement('datamodel_source').innerHTML;
         //getElement('texteditor').value
         setHighlighter();
-        codemirror.setValue( game_source+' \n\n'+
+        /*codemirror.setValue( datamodel_source+' \n\n'+
                                 getElement('base64_source').innerHTML +' \n\n'+
                                 //select html5 or canvas as part of the editor preferences
                                 getElement('html5div_game_engine').innerHTML);
-                                //getElement('canvas_game_engine').innerHTML;
+                                //getElement('canvas_game_engine_source').innerHTML;*/
+        editor.usePreferences();
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
+        
         //experimental from here
         //this might be part of the preferences
-        if (typeof Dropbox != 'undefined') {
+        /*if (typeof Dropbox != 'undefined') {
           editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
           editor.dropboxClient.authenticate({ interactive: false }, function (error, client) {
             if (error) {
@@ -1000,7 +1006,7 @@ var Base64 = {
             }
           });
           //getElement('dopboxLoginButton').addEventListener('click', function() {editor.dropboxLogin();}, false);
-        }
+        }*/
         //as the canvas based or html5 game engine should be        
       };
       /**
@@ -1020,6 +1026,9 @@ var Base64 = {
             uid = uid + abc.substr(Math.floor(Math.random()*abc.length), 1);
           }
           if (editor.hasUid(uid)) {
+            uid = '';
+          }
+          if (!isNaN(uid)) {
             uid = '';
           }
         }
@@ -1106,7 +1115,220 @@ var Base64 = {
         //make the arrows smaller or bigger
         getElement('noteeditor').className = editor.offZoom ? 'offZoom': '';
         getElement('zoom').innerHTML = editor.offZoom ? '+': '-';
+      };
+      /**
+      @property preferences
+      @since 2014-06-09
+      */
+      editor.preferences = [];
+      /**
+      @method getPreference 
+      @since 2014-06-09
+      @param name
+      @return {object} the preference object
+      */
+      editor.getPreference = function(_name) {
+        for (var i = 0; i < editor.preferences.length; i++) {
+          if (editor.preferences[i].name == _name) {
+            return editor.preferences[i];
+          }
+        }
+        return null;
+      };
+      /**
+      @method createPreference
+      @since 2014-06-09
+      @param name
+      @param value any kind of object
+      @return {object} the new preference
+      */
+      editor.createPreference = function(_name, _value) {
+        return {'name': _name, 'value': _value};
+      };
+      /**
+      @method showPreferences
+      @since 2014-06-09
+      */
+      editor.showPreferences = function() {
+        var child = createElement('div');
+        child.className = 'connectionBox';
+        child.style.width = '300px';
+        child.setAttribute('id','preferencesBox');
+        
+        child.appendChild(createElement('br'));
+        var child2 = createElement('b');
+        child2.appendChild(createTextNode('How to store:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        //saveAndLoad
+        //exAndImport
+        //dropbox
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child2.setAttribute('id','p_saveAndLoad');
+        child.appendChild(child2);
+        child.appendChild(createTextNode(' save and load locally'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_exAndImport');
+        child.appendChild(createTextNode(' ex- and import'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_dropbox');
+        child.appendChild(createTextNode(' dropbox'));
+        child.appendChild(createElement('br'));
+        //html5_game_engine_source 
+        //canvas_game_engine_source
+        child.appendChild(createElement('hr'));
+        child2 = createElement('b');
+        child2.appendChild(createTextNode('choose you game engine:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_html5_game_engine');
+        child.appendChild(createTextNode(' html5 engine'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_canvas_game_engine');
+        child.appendChild(createTextNode(' canvas engine'));
+        child.appendChild(createElement('br'));
+        //editor_source 
+        child2 = createElement('b');
+        child2.appendChild(createTextNode('optional:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_editor_source');
+        child.appendChild(createTextNode(' editor source'));
+        child.appendChild(createElement('br'));
+        //title of the game project
+        child.appendChild(createElement('hr'));
+        child2 = createElement('b');
+        child2.appendChild(createTextNode('project title:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.style.width = '300px';
+        child2.setAttribute('type','text');
+        child2.setAttribute('title', 'only letters, digits, spaces');
+        child2.setAttribute('placeholder','project title only letters, digits, spaces');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_projectTitle');
+        child.appendChild(createElement('br'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('button');
+        child2.setAttribute('onclick','editor.setPreferences(true);');
+        child2.style.cssFloat = 'right';
+        child2.appendChild(document.createTextNode('set preferences'));
+        child.appendChild(child2);        
+        //
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','editor.setPreferences(null);');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+        //
+        getElement('editor').appendChild(child);
       }
+      /**
+      @method showPreferences
+      @since 2014-06-09
+      */
+      editor.setPreferences = function(settings) {
+        if (settings == null) {
+          getElement('editor').removeChild(getElement('preferencesBox'));
+          return;
+        }
+        var tmpreferences = [];
+        //saveAndLoad
+        //exAndImport
+        //dropbox
+        tmpreferences.push(editor.createPreference('p_saveAndLoad', getElement('p_saveAndLoad').checked));
+        tmpreferences.push(editor.createPreference('p_exAndImport', getElement('p_exAndImport').checked));
+        tmpreferences.push(editor.createPreference('p_dropbox', getElement('p_dropbox').checked));
+        if (!getElement('p_saveAndLoad').checked && 
+            !getElement('p_exAndImport').checked && 
+            !getElement('p_dropbox').checked)
+        {
+          alert('You should select one saving option at least.');
+          return;
+        }
+        //html5_game_engine_source 
+        //canvas_game_engine_source
+        tmpreferences.push(editor.createPreference('p_html5_game_engine', getElement('p_html5_game_engine').checked));
+        tmpreferences.push(editor.createPreference('p_canvas_game_engine', getElement('p_canvas_game_engine').checked));
+        //editor_source
+        tmpreferences.push(editor.createPreference('p_editor_source', getElement('p_editor_source').checked));
+        //title of the game project
+        var title = getElement('p_projectTitle').value;
+        title = title.replace(/([^a-z0-9])/gmi, ' ');
+        title = title.replace(/\s+/g,'_');
+        console.log(title);
+        tmpreferences.push(editor.createPreference('p_projectTitle',title));
+        console.log(tmpreferences);
+        editor.preferences = tmpreferences;        
+        editor.usePreferences();
+        getElement('editor').removeChild(getElement('preferencesBox'));
+      };
+      /**
+      @method usePreferences
+      @since 2014-06-09
+      */
+      editor.usePreferences = function() {
+        if (editor.getPreference('p_saveAndLoad') != null) {
+          getElement('saveLoadButtons').style.display = 
+            editor.getPreference('p_saveAndLoad').value ? 'block' : 'none';
+        }
+        if (editor.getPreference('p_exAndImport') != null) {
+          getElement('exImportButtons').style.display = 
+            editor.getPreference('p_exAndImport').value ? 'block' : 'none';        
+        }
+        if (editor.getPreference('p_dropbox') != null) { 
+          getElement('dropboxButtons').style.display = 
+            editor.getPreference('p_dropbox').value ? 'block' : 'none';
+          if (typeof Dropbox != 'undefined' && editor.getPreference('p_dropbox').value) {
+            editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
+            editor.dropboxClient.authenticate({ interactive: false }, function (error, client) {
+              if (error) {
+                alert('Error: ' + error);
+              }
+            });
+            //getElement('dopboxLoginButton').addEventListener('click', function() {editor.dropboxLogin();}, false);
+          }
+        }
+        //
+        if (editor.getPreference('p_html5_game_engine') == null || 
+            editor.getPreference('p_html5_game_engine').value) {
+          //that is default
+          //add the datamodel and the html5_game_engine_source sources to the codemirror
+          codemirror.setValue(getElement('datamodel_source').innerHTML + ' \n' +
+                              getElement('base64_source').innerHTML +' \n'+
+                              getElement('html5_game_engine_source').innerHTML);
+        } else if (editor.getPreference('p_canvas_game_engine') != null && 
+            editor.getPreference('p_canvas_game_engine').value) {
+          //add the datamodel and the html5_game_engine_source sources to the codemirror
+          codemirror.setValue(getElement('datamodel_source').innerHTML + ' \n' +
+                              getElement('base64_source').innerHTML +' \n'+
+                              getElement('canvas_game_engine_source').innerHTML);
+        }
+        //
+        if (editor.getPreference('p_editor_source') != null && 
+            editor.getPreference('p_saveAndLoad').value) {
+          //add the datamodel and the html5_game_engine_source sources to the codemirror
+          codemirror.setValue(codemirror.getValue() + ' \n' +
+                              getElement('editor_source').innerHTML);
+        }
+      };
       /**
       @method addNote
       @since 2014-05-18
@@ -1803,7 +2025,7 @@ var Base64 = {
         editor.code = codemirror.getValue();
         editor.noteeditor_box = null;
         editor.noteeditor = null;
-        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: editor.code});
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: editor.code});
         //JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
         child2 = editor.buildExportBlobUrl( data, 'editor', 'json'); //
 		    child.appendChild(child2);
@@ -1814,6 +2036,13 @@ var Base64 = {
         child2.className = 'closeBoxButton';
         child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
         child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('textarea');
+        child2.value = data;
+        child2.style.width = '300px';
+        child2.style.height = (editor.height / 2)+ 'px';
         child.appendChild(child2);
       };
       /**
@@ -1897,6 +2126,13 @@ var Base64 = {
         child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
         child2.appendChild(document.createTextNode('X'));
         child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('textarea');
+        child2.value = data;
+        child2.style.width = '300px';
+        child2.style.height = (editor.height / 2)+ 'px';
+        child.appendChild(child2);
       };
       /**
       @method load
@@ -1911,6 +2147,7 @@ var Base64 = {
         editor.game.load(json['game']);
         //editor.func = json['func'];
         editor.uidcounter = json['uidcounter'];
+        editor.preferences = json['preferences'];
         //noteStartX,noteStartY,ox,oy,width,height,pressed
         getElement('noteeditor').innerHTML = '';
         getElement('notelist').innerHTML = '';
@@ -1926,6 +2163,7 @@ var Base64 = {
             //editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
+        editor.usePreferences();
         codemirror.setValue(json['code']);
       }
       /**
@@ -2049,7 +2287,7 @@ var Base64 = {
       editor.dropboxWrite = function() {
         var name = getElement('dropboxName').value;
         var code = codemirror.getValue();
-        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, code: code});
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code});
         if (name == '' || name == null) {
           name = 'editor';
         }
@@ -2171,7 +2409,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; /*rgba(0,255,0,0.005)*/}
 .note_menu_button {position: absolute; top: 0px; right: 1px; color: white; font-weight: bold; font-size: 25px; }
 .eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
-.connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px;}
+.connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 10px;}
 .note_bar {position: relative; margin: 1px; background: #009; width: 98%; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
@@ -2206,24 +2444,31 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
  <body>
  <div id="editor">
   <div id="editorbar">
-  <button onclick="editor.saveCodeAndGame();" style="float: left;">save code and game</button>
-  <button onclick="editor.loadCodeAndGame();" style="float: left;">load code and game</button>
+  <span id="saveLoadButtons">
+    <button onclick="editor.saveCodeAndGame();" style="float: left;">save code and game</button>
+    <button onclick="editor.loadCodeAndGame();" style="float: left;">load code and game</button>
+  </span>
   <button onclick="editor.testGame();" style="float: left;">test game</button>
   <button onclick="editor.stopTest();" style="float: left;">stop test</button>
   <button onclick="editor.toggleEditor();" style="float: left;">toggle</button>
   <button onclick="editor.addNote();" style="float: left;">add note</button>
-  <button onclick="editor.importEditor();" style="float: left;">import</button>
-  <button onclick="editor.exportEditor();" style="float: left;">export</button>
+  <span id="exImportButtons">
+    <button onclick="editor.importEditor();" style="float: left;">import</button>
+    <button onclick="editor.exportEditor();" style="float: left;">export</button>
+  </span>
   <button onclick="editor.buildGame();" style="float: left;">build</button>
   <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
   <button onclick="editor.help();" style="float: left;">help</button>
   <button onclick="install();" style="float: left;">install</button>
-  <button onclick="editor.dropboxLogin();" class="dpbutton"><span>&nbsp;login&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
-  <div id="dropboxButtons" style="display: none;">
-  <button id="dropboxWriteButton" class="dpbutton"><span>&nbsp;upload&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
-  <button id="dropboxReadButton" class="dpbutton"><span>&nbsp;download&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
-  <input id="dropboxName" type="text" placeholder="editor is the file name" />
-  </div>
+  <span id="dropboxButtons">
+    <button onclick="editor.dropboxLogin();" class="dpbutton"><span>&nbsp;login&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
+    <div id="dropboxButtons" style="display: none;">
+      <button id="dropboxWriteButton" class="dpbutton"><span>&nbsp;upload&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
+      <button id="dropboxReadButton" class="dpbutton"><span>&nbsp;download&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
+      <input id="dropboxName" type="text" placeholder="editor is the file name" />
+    </div>
+  </span>
+  <button onclick="editor.showPreferences();" style="float: left;" title="project preferences">preferences</button>
   <br style="clear: both;">
   </div>
   <textarea id="texteditor"></textarea>

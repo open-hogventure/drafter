@@ -2,19 +2,19 @@ Why are you such an uncompromising couple?
 
 Maintenance and Support
 
-It is hard to maintain a tool like the hogventure draftercraft 
-editor, if you are alone on your own. If this piece of software 
-has more than one component, a note editor, a drawing tool, a 
-music composer, a source-editor, a media manager and translator 
-on the client side, on server side a login, chat, persistent 
+It is hard to maintain a tool like the hogventure draftercraft
+editor, if you are alone on your own. If this piece of software
+has more than one component, a note editor, a drawing tool, a
+music composer, a source-editor, a media manager and translator
+on the client side, on server side a login, chat, persistent
 storage, share and cooperative work, it was impossible.
 
 That's a full time job.
 
-I do not have so much time, a good reason to make QA, the Quality 
-Assurance, easier for me now. Spare time is a rare source in my 
+I do not have so much time, a good reason to make QA, the Quality
+Assurance, easier for me now. Spare time is a rare source in my
 life.
-Also I want to make games, build more advanced tutorials. I want 
+Also I want to make games, build more advanced tutorials. I want
 to show you how to's. Like:
 - adding background-images to notes.
 - formatting the text
@@ -23,32 +23,43 @@ to show you how to's. Like:
 
 I'm willing to add and discus more advanced tips and tricks.
 
-So today's maintenance is a bug fix for the delete connection 
-method, the new features edit connection and the upload to 
-dropbox and download from dropbox buttons.
+So today's maintenance is a bug fix for the delete connection
+method, the new features edit connection and the upload to
+dropbox and download from dropbox buttons. It is an option in the 
+preference dialog, which is also new.
 
-Still I'm working on the windosws8 version and the google 
+Still I'm working on the windosws8 version and the google
 webstore app.
 <image win8>
 //work in progress windows8 version
-Ooh, I have almost forgotten to mention the feedback button on 
+Ooh, I have almost forgotten to mention the feedback button on
 the right hand side of draftercraft.
 
-Whenever you have a feature request, want some hints, have other 
-suggestions, please feel free NOT TO SCREAM AT ME!!! Even if you 
+Whenever you have a feature request, want some hints, have other
+suggestions, please feel free NOT TO SCREAM AT ME!!! Even if you
 find a bug or something that looks like one, report it to me.
 
-Like this evil thing: After installing the Application with the 
-install button - I used Firefox - export and build options do not 
+Like this evil thing: After installing the Application with the
+install button - I used Firefox - export and build options do not
 work. The file has the size of 0kb. Please fix this bug ....
 
-Hm, there is a little problem. I can not fix it. This is a known 
-issue with the current versions of Firefox OS apps on desktop 
-environments. Not very well documented, by the way. How should 
+Hm, there is a little problem. I can not fix it. This is a known
+issue with the current versions of Firefox OS apps on desktop
+environments. Not very well documented, by the way. How should
 you know?
-I will try to find a work around, if I can identify a Firefox app 
-via code.
-Telling me about your wishes, your use cases and experiences will 
-help me to improve the app. I need your support. Please try the 
+I will try to find a work around, if I can identify a Firefox app
+via code. (Meanwhile the problem is double fixed. I've build in a 
+work around - export via copy and paste - and Firefox Apps seems 
+to be bug-fixed.)
+Telling me about your wishes, your use cases and experiences will
+help me to improve the app. I need your support. Please try the
 app and tell me and your friends.
 
+Use the feedback button on the right of the app.
+Use the disqus forms. Email me. And if you want to support the 
+app use the social buttons to tell your friends and followers.
+Please feel free to review the code on <a 
+href="http://github.com/maltekosian/drafter" 
+target="_blank">github.com/maltekosian/drafter</a>, because 
+hogventure's draftercraft is open source. May mention the donate 
+button on the left?

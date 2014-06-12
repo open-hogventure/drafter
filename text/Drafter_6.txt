@@ -1,0 +1,19 @@
+How to use the browser as your integrated development enviroment
+
+Open the your chrome browser. In chrome click on the menu button 
+in the upper right. Click on tools submenu and select developer 
+tools.
+You should see this:
+<image>
+
+enter in the address field the url 'about:blank'
+this will create a blank webpage with this source code.
+<code>
+  <html>
+    <head>
+    </head>
+    <body>
+    </body>
+  </html>
+</code>
+You can see the source code, if you select the elements tab.

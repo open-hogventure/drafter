@@ -1,17 +1,24 @@
-Finishing the build option. If you have chosen the 'editor source' option
-now it is delivering a complete HTML file with the required elements inside the body.
-Hint: if you want to add a button, add it to the 'editorBar' element.
-if you want to add a button group, create a span with an id something like 'myButtonGroup', add the buttons to the span, add the span to the 'editorBar'.
+Finishing the build option. If you have chosen the 'editor 
+source' option now it is delivering a complete HTML file 
+with the required elements inside the body.
+Hint: if you want to add a button, add it to the 'editorBar' 
+element.
+if you want to add a button group, create a span with an id 
+something like 'myButtonGroup', add the buttons to the span, 
+add the span to the 'editorBar'.
 
 Here are the code snippets:
 <code>
 //createElement is a  short hand for document.createElement
 var child = createElement('button');
 //the button needs a label
-//so is createTextNode a short hand for document.createTextNode
-//if you are not sure the short hand might work or not you always should use //document.createTextNode etc.
+//so is createTextNode a short hand for 
+document.createTextNode
+//if you are not sure the short hand might work or not you 
+//always should use document.createTextNode etc.
 child.appendChild(createTextNode('my button'));
-//if you create an element, be smart and give it an unique id
+//if you create an element, 
+//be smart and give it an unique id
 child.setAttribute('id', 'myButton');
 //at least we want to do something
 child.setAttribute('onclick', 'myFunction();');
@@ -41,9 +48,12 @@ child.appendChild(child2);
 getElement('editorBar').appendChild(child);
 </code>
 Today lecture: Adding background images to the notes.
-A course of programming your own editor and datamodel enhancement.
+A course of programming your own editor and datamodel 
+enhancement.
 
-Have you read <a href="">The why and how of an web based editor</a>?
+Have you read <a href="">The why and how of an web based 
+editor</a>?
 If not please start there.
 
-The bed where you want to lay down and sleep. An analog comparison.
+The bed where you want to lay down and sleep. An analog 
+comparison.

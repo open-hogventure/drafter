@@ -935,7 +935,7 @@ var Base64 = {
           editor.func = null;
           var cache = [];
           console.log('testGame->');
-          var edi = {game: editor.game, code: code};
+          var edi = {uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code};
           cache = null;
           editor.func = new Function('window,document', 'var json ='+JSON.stringify(edi)+';\n \n'+code);
           editor.func(window, document);
@@ -1129,6 +1129,7 @@ var Base64 = {
       @return {object} the preference object
       */
       editor.getPreference = function(_name) {
+        if (editor.preferences != null) 
         for (var i = 0; i < editor.preferences.length; i++) {
           if (editor.preferences[i].name == _name) {
             return editor.preferences[i];
@@ -2101,13 +2102,18 @@ var Base64 = {
         var ele = document.body;
         var code = codemirror.getValue();
         //perform the code
-        var head = '<doctype html>\n<html>\n<head>\n\n<title>my drafter game</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
+        var head = '<!doctype html>\n<html>\n<head>\n\n<title>my drafter game</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
         '<meta name="author" content="you author">'+
         '<meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">'+
         '<meta name="description" content="Drafter, hogventure.com\'s twine like game and story editor in javascript">'+
         '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-        var data = '<s'+'cript type="text/javasc'+'ript">\nvar json ='+JSON.stringify(editor)+';\n \n'+code+'\n</'+'script>\n';
-        var body = '</head>\n<body>\n</body>\n</html>\n';
+        var data = '<s'+'cript type="text/javasc'+'ript">\nvar json ='+JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code})+';\n \n'+code+'\n</'+'script>\n';
+        var body = '';
+        if (editor.getPreference('p_editor_source').value ) {
+          body = '<style type="text/css" id="styles">'+getElement('styles').innerHTML+'</style></head>\n<body>\n' + document.body.innerHTML + '</body>\n</html>\n';
+        } else {
+          body = '</head>\n<body>\n</body>\n</html>\n';
+        }
 
         var child = createElement('div');
         var child2 = createElement('div');
@@ -2116,7 +2122,7 @@ var Base64 = {
         editor.code = codemirror.getValue();
         editor.noteeditor_box = null;
         editor.noteeditor = null;
-        //var data = JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
+        //var data = JSON.stringify(editor{uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code});//encodeURI(JSON.stringify(editor));//store same function like export here
         child2 = editor.buildExportBlobUrl( head+data+body, 'myDrafterGame', 'html');
 		    child.appendChild(child2);
         child.className = 'eximport';
@@ -2389,7 +2395,7 @@ function setHighlighter() {
   });
 };
 </script>
- <style type="text/css">
+ <style type="text/css" id="styles">
 body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}

@@ -20,7 +20,7 @@
 @param _uid
 @since 2014-05-17
 */
-function Note(_uid) {
+function Note (_uid) {
  /***/
  this.uid = _uid;
  /***/
@@ -59,7 +59,7 @@ function Note(_uid) {
 @param _uid
 @since 2014-05-17
 */
-function Connection(_uid) {
+function Connection (_uid) {
  /***/
  this.uid = _uid;
  /***/
@@ -986,28 +986,15 @@ var Base64 = {
         //var datamodel_source = getElement('datamodel_source').innerHTML;
         //getElement('texteditor').value
         setHighlighter();
-        /*codemirror.setValue( datamodel_source+' \n\n'+
-                                getElement('base64_source').innerHTML +' \n\n'+
-                                //select html5 or canvas as part of the editor preferences
-                                getElement('html5div_game_engine').innerHTML);
-                                //getElement('canvas_game_engine_source').innerHTML;*/
         editor.usePreferences();
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
-        
+        getElement('noteeditor').innerHTML = '';
+        getElement('notelist').innerHTML = '';
         //experimental from here
         //this might be part of the preferences
         //console.log(editor.getPreference('p_dropbox').value);
-        /*if (typeof Dropbox != 'undefined') {
-          editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
-          editor.dropboxClient.authenticate({ interactive: false }, function (error, client) {
-            if (error) {
-              alert('Error: ' + error);
-            }
-          });
-          //getElement('dopboxLoginButton').addEventListener('click', function() {editor.dropboxLogin();}, false);
-        }*/
         //as the canvas based or html5 game engine should be        
       };
       /**
@@ -1224,8 +1211,12 @@ var Base64 = {
         child2.setAttribute('type','text');
         child2.setAttribute('title', 'only letters, digits, spaces');
         child2.setAttribute('placeholder','project title only letters, digits, spaces');
-        child.appendChild(child2);
+        var filename = editor.getPreference('p_projectTitle') != null ? 
+                                                editor.getPreference('p_projectTitle').value : '';
+        //child2.value = filename;
+        child2.setAttribute('value', filename);
         child2.setAttribute('id','p_projectTitle');
+        child.appendChild(child2);        
         child.appendChild(createElement('br'));
         child.appendChild(createElement('br'));
         child2 = createElement('button');
@@ -2022,14 +2013,16 @@ var Base64 = {
         var ele = document.body;
         var child = createElement('div');
         var child2 = createElement('div');
-        child2.appendChild(document.createTextNode(' download editor.json: '));
+        var filename = (editor.getPreference('p_projectTitle') != null && 
+                        editor.getPreference('p_projectTitle').value.trim() != '') ? 
+                                                editor.getPreference('p_projectTitle').value : 'editor';
+        child2.appendChild(document.createTextNode(' download '+filename+'.json: '));
         child.appendChild(child2);
         editor.code = codemirror.getValue();
         editor.noteeditor_box = null;
         editor.noteeditor = null;
         var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: editor.code});
-        //JSON.stringify(editor);//encodeURI(JSON.stringify(editor));//store same function like export here
-        child2 = editor.buildExportBlobUrl( data, 'editor', 'json'); //
+        child2 = editor.buildExportBlobUrl( data, filename, 'json'); //
 		    child.appendChild(child2);
         child.className = 'eximport';
         child.setAttribute('id','eximport');
@@ -2109,21 +2102,24 @@ var Base64 = {
         '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
         var data = '<s'+'cript type="text/javasc'+'ript">\nvar json ='+JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code})+';\n \n'+code+'\n</'+'script>\n';
         var body = '';
-        if (editor.getPreference('p_editor_source').value ) {
+        if (editor.getPreference('p_editor_source') != null && editor.getPreference('p_editor_source').value ) {
           body = '<style type="text/css" id="styles">'+getElement('styles').innerHTML+'</style></head>\n<body>\n' + document.body.innerHTML + '</body>\n</html>\n';
         } else {
           body = '</head>\n<body>\n</body>\n</html>\n';
         }
-
+        
+        var filename = (editor.getPreference('p_projectTitle') != null &&
+                        editor.getPreference('p_projectTitle').value.trim() != '') ? 
+                                               editor.getPreference('p_projectTitle').value : 'myDrafterGame';
+        
         var child = createElement('div');
         var child2 = createElement('div');
-        child2.appendChild(document.createTextNode(' download myDrafterGame.html: '));
+        child2.appendChild(document.createTextNode(' download '+filename+'.html: '));
         child.appendChild(child2);
         editor.code = codemirror.getValue();
         editor.noteeditor_box = null;
         editor.noteeditor = null;
-        //var data = JSON.stringify(editor{uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code});//encodeURI(JSON.stringify(editor));//store same function like export here
-        child2 = editor.buildExportBlobUrl( head+data+body, 'myDrafterGame', 'html');
+        child2 = editor.buildExportBlobUrl( head+data+body, filename, 'html');
 		    child.appendChild(child2);
         child.className = 'eximport';
         child.setAttribute('id','eximport');
@@ -2171,6 +2167,7 @@ var Base64 = {
           }
         }
         editor.usePreferences();
+        editor.code = json['code'];
         codemirror.setValue(json['code']);
       }
       /**
@@ -2478,7 +2475,7 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
     </div>
   </span>
   <button onclick="editor.showPreferences();" style="float: left;" title="project preferences">preferences</button>
-  <br style="clear: both;">
+  <!--br style="clear: both;"-->
   </div>
   <textarea id="texteditor"></textarea>
   <div id="cmtexteditor"></div>

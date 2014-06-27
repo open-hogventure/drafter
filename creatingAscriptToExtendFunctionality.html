@@ -11,8 +11,7 @@
 	function test() {
 	  var script = document.createElement('script');
 	  script.setAttribute('id','scr_test');
-	  if (document.getElementById('scr_test') == null)
-	  {
+	  if (document.getElementById('scr_test') == null) {
 		//we should check if the element does not exist
 		//the element id must be unique always
 		document.body.appendChild(script);
@@ -27,7 +26,11 @@
 		'ipt.appendChild(document.createTextNode( \'stop\'));\n'));
 	  } else {
 		//do not forget to give feedback!
-		confirm('stop testing before start again.');
+		var feedback = confirm('stop testing before start again.');
+		console.log(feedback);
+		if (feedback) {
+		  stop();
+		}
 	  }
 	}
   </script>

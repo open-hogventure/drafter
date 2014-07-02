@@ -35,17 +35,23 @@ function Note (_uid) {
  this.connections = [];
  /***/
  this.load = function(data) {
-   console.log(data);
-  this.uid = data['uid'];
+  console.log(data);
+  for (var key in data) {
+    //garanties that primitive values are loaded
+    this[key] = data[key];
+    //console.log(key+' '+data[key]);
+  }
+  //this.uid = data['uid'];
+  this.connections = [];
   for (var i = 0; i < data['connections'].length;i++) {
    var connection = new Connection(data['connections'][i]['uid']);
    connection.load(data['connections'][i]);
    this.connections.push(connection);
   }
-  this.text = data['text'];
+  /*this.text = data['text'];
   this.title = data['title'];
   this.ex = data['ex'];
-  this.ey = data['ey'];
+  this.ey = data['ey'];*/
  };
  /**
  */
@@ -70,10 +76,15 @@ function Connection (_uid) {
  this.from_uid = null;
  /***/
  this.load = function(data) {
-  this.uid = data['uid'];
+  for (var key in data) {
+   //garanties that primitive values are loaded
+   //a good replacement here
+   this[key] = data[key];
+  }
+  /*this.uid = data['uid'];
   this.text = data['text'];
   this.to_uid = data['to_uid'];
-  this.from_uid = data['from_uid'];
+  this.from_uid = data['from_uid'];*/
  };
 };
 /**
@@ -138,12 +149,12 @@ function MediaLanguage(_lan) {
  /**
  Don't use this method for images, audios or videos,
  because those have to stay base64_encoded
- @method getMediaValue
+ @method getTextMedia
  @since 2014-05-15
  @param _k the key
  @return the media value - always base64 decoded
  */
- this.getMediaValue = function(_k) {
+ this.getTextMedia = function(_k) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
     //console.log('getMedia->'+Base64.decode(this.medias[i].value));
@@ -320,13 +331,13 @@ function Game() {
    return language;
   },
   /**
-  use getMediaValue too get the decoded media value
-  @method setMedia
+  use getTextMedia too get the decoded media value
+  @method setTextMedia
   @since 2014-05-17
   @param _k the key
   @param _v the value
   */
-  setMedia : function(_k, _v) {
+  setTextMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
    for (var i = 0; i < this.mediaLanguages.length; i++) {
     this.mediaLanguages[i].setMedia(_k, _v, true);
@@ -337,12 +348,12 @@ function Game() {
   the media will not be base64 encoded
   use getMedia too get the media
   use for Images and other natually base64 encoded media
-  @method setPureMedia
+  @method setMedia
   @since 2014-05-29
   @param _k the key
   @param _v the value - already base64 encoded
   */
-  setPureMedia : function(_k, _v) {
+  setMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
    for (var i = 0; i < this.mediaLanguages.length; i++) {
     this.mediaLanguages[i].setMedia(_k, _v, false);
@@ -356,8 +367,8 @@ function Game() {
   getMedia : function(_k) {
    return this.getCurrentLanguage().getMedia(_k);
   },
-  getMediaValue : function(_k) {
-   return this.getCurrentLanguage().getMediaValue(_k);
+  getTextMedia : function(_k) {
+   return this.getCurrentLanguage().getTextMedia(_k);
   },
   /**
   @method load
@@ -475,17 +486,17 @@ function Game() {
   @since 2014-06-06
   */
   setNote: function(_n) {
-    this.title = gameEngine.game.mediamanager.getMediaValue(_n.title);
-    var text = gameEngine.game.mediamanager.getMediaValue(_n.text);
-    this.texts = text.split(/\n/);
-    this.connections = [];//_n.connections;
-    var j = 0;
-    for (var i = 0; i < _n.connections.length; i++) {
-     if (_n.connections[i].from_uid == _n.uid) {
-      j++;
-      this.connections.push(this.prepareConnection(_n.connections[i], j, _n.connections.length));
-     }
+   this.title = gameEngine.game.mediamanager.getTextMedia(_n.title);
+   var text = gameEngine.game.mediamanager.getTextMedia(_n.text);
+   this.texts = text.split(/\n/);
+   this.connections = [];//_n.connections;
+   var j = 0;
+   for (var i = 0; i < _n.connections.length; i++) {
+    if (_n.connections[i].from_uid == _n.uid) {
+     j++;
+     this.connections.push(this.prepareConnection(_n.connections[i], j, _n.connections.length));
     }
+   }
   },
   /**
   @method prepareConnection
@@ -494,7 +505,7 @@ function Game() {
   */
   prepareConnection: function(_c, _j, _l) {
    return {
-    text: gameEngine.game.mediamanager.getMediaValue(_c.text),
+    text: gameEngine.game.mediamanager.getTextMedia(_c.text),
     index: _j,
     x: gameEngine.width - 250,
     y: 1 + gameEngine.height - _l * 25 + _j * 25,
@@ -635,11 +646,11 @@ var gameEngine = {
   ele.innerHTML = '';
   var child = document.createElement('h1');
   child.appendChild(document.createTextNode(
-                    this.game.mediamanager.getMediaValue(note.title)));
+                    this.game.mediamanager.getTextMedia(note.title)));
   ele.appendChild(child);
   //ele.appendChild(document.createElement('br'));
   ele.appendChild(document.createElement('br'));
-  var text = this.game.mediamanager.getMediaValue(note.text);
+  var text = this.game.mediamanager.getTextMedia(note.text);
   texts = text.split(/\n/);
   for (var i = 0; i < texts.length; i++) {
     ele.appendChild(document.createTextNode(texts[i]));
@@ -650,7 +661,7 @@ var gameEngine = {
   var cons = note.connections;
   for (var i = 0; i < cons.length; i++) {
    if (cons[i].from_uid == note.uid) {
-    var con_text = this.game.mediamanager.getMediaValue(cons[i].text);
+    var con_text = this.game.mediamanager.getTextMedia(cons[i].text);
     child = document.createElement('span');
     child.style.cssFloat = 'right';
     child.style.cursor = 'pointer';
@@ -874,6 +885,11 @@ var Base64 = {
       */
       editor.game = new Game();
       /**
+      @property mediamanager
+      @since 2014-07-01
+      */
+      editor.mediamanager = (new Game()).mediamanager;
+      /**
       @property dropboxClient
       @since 2014-06-05
       */
@@ -924,25 +940,30 @@ var Base64 = {
       @since 2014-05-17
       */
       editor.testGame = function() {
-        /*var code = null;
-        try {
-          code = _win.localStorage.getItem('texteditor-code');
-        }
-        catch (e) {
-        }
-        if (code == null) {*/
           code = getElement('texteditor').value;
           code = codemirror.getValue();
-        //}
-        //perform the code
+          console.log(code);
         try {
           editor.func = null;
           var cache = [];
           console.log('testGame->');
           var edi = {uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code};
           cache = null;
-          editor.func = new Function('window,document', 'var json ='+JSON.stringify(edi)+';\n \n'+code);
-          editor.func(window, document);
+          //
+          if (editor.getPreference('p_editor_source') != null &&
+              editor.getPreference('p_editor_source') ) 
+          {
+            var script = createElement('script');
+            script.setAttribute('id','editor_extention');
+            script.appendChild(createTextNode('\n'+code));
+            document.body.appendChild(script);
+          } else {
+            editor.func = 
+              new Function('window,document', 'var json  = '+ 
+              JSON.stringify(edi)+';\n \n'+code);
+            editor.func(window, document);
+          }
+          //
         } catch(e) {
           console.log(e);
         }
@@ -964,10 +985,8 @@ var Base64 = {
       editor.toggleEditor = function() {
         if (getElement('noteeditor_box').style.display != 'block') {
           getElement('noteeditor_box').style.display = 'block';
-          //getElement('texteditor').style.display = 'none';
         } else {
           getElement('noteeditor_box').style.display = 'none';
-          //getElement('texteditor').style.display = 'block';
         }
       };
       /**
@@ -996,6 +1015,9 @@ var Base64 = {
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
         getElement('noteeditor').innerHTML = '';
         getElement('notelist').innerHTML = '';
+        if (typeof json != 'undefined') {
+          editor.load(JSON.stringify(json));
+        }
         //experimental from here
         //this might be part of the preferences
         //console.log(editor.getPreference('p_dropbox').value);
@@ -1391,7 +1413,7 @@ var Base64 = {
         child2.className ='note_title';
         child2.setAttribute('placeholder','note title');
         if (note.title != null) {
-          child2.value = editor.game.mediamanager.getMediaValue(note.title);
+          child2.value = editor.game.mediamanager.getTextMedia(note.title);
         }
         child.appendChild(child2);
         child2 = createElement('textarea');
@@ -1399,7 +1421,7 @@ var Base64 = {
         child2.className = 'note_text';
         child2.setAttribute('placeholder','note text');
         if (note.text != null) {
-          child2.value = editor.game.mediamanager.getMediaValue(note.text);
+          child2.value = editor.game.mediamanager.getTextMedia(note.text);
         }
         child.appendChild(child2);
         child2 = createElement('div');
@@ -1433,7 +1455,7 @@ var Base64 = {
         //missing connections here?
         child2 = createElement('span');
         if (note.title != null) {
-          child2.appendChild(document.createTextNode(editor.game.mediamanager.getMediaValue(note.title) ) );
+          child2.appendChild(document.createTextNode(editor.game.mediamanager.getTextMedia(note.title) ) );
         }
         child2.setAttribute('id', 'notelistElement_'+note.uid);
         child.setAttribute('id', 'notelistBox_'+note.uid);
@@ -1582,7 +1604,7 @@ var Base64 = {
         child2.setAttribute('id', 'input_note_title');
         child2.setAttribute('name', 'input_note_title');
         if (c_note.title != null)
-          child2.value = editor.game.mediamanager.getMediaValue(c_note.title);
+          child2.value = editor.game.mediamanager.getTextMedia(c_note.title);
         child.appendChild(child2);
         child.appendChild(createElement('br'));
         child.appendChild(document.createTextNode('text: '));
@@ -1590,7 +1612,7 @@ var Base64 = {
         child2.setAttribute('id', 'input_note_text');
         child2.setAttribute('name', 'input_note_text');
         if (c_note.text != null)
-          child2.value = editor.game.mediamanager.getMediaValue(c_note.text);
+          child2.value = editor.game.mediamanager.getTextMedia(c_note.text);
         child.appendChild(child2);
         child.appendChild(createElement('br'));
         child2 = createElement('button');
@@ -1620,17 +1642,17 @@ var Base64 = {
         if (c_note.text == null) {
           c_note.text = editor.createUid();
         }
-        editor.game.mediamanager.setMedia(c_note.text, getElement('input_note_text').value);
+        editor.game.mediamanager.setTextMedia(c_note.text, getElement('input_note_text').value);
         if (c_note.title == null) {
           c_note.title = editor.createUid();
         }
-        editor.game.mediamanager.setMedia(c_note.title, getElement('input_note_title').value);
-        console.log('->'+editor.game.mediamanager.getMediaValue(c_note.title) );
-        getElement('note_'+_id+'_title').value = editor.game.mediamanager.getMediaValue(c_note.title);
+        editor.game.mediamanager.setTextMedia(c_note.title, getElement('input_note_title').value);
+        console.log('->'+editor.game.mediamanager.getTextMedia(c_note.title) );
+        getElement('note_'+_id+'_title').value = editor.game.mediamanager.getTextMedia(c_note.title);
         getElement('notelistElement_'+_id).innerHTML = '';
         getElement('notelistElement_'+_id).appendChild(document.createTextNode(
-                                                       editor.game.mediamanager.getMediaValue(c_note.title) ) );
-        getElement('note_'+_id+'_text').value = editor.game.mediamanager.getMediaValue(c_note.text);
+                                                       editor.game.mediamanager.getTextMedia(c_note.title) ) );
+        getElement('note_'+_id+'_text').value = editor.game.mediamanager.getTextMedia(c_note.text);
 
         getElement('editor').removeChild(getElement('note_input_box'));
       }
@@ -1712,7 +1734,7 @@ var Base64 = {
         if (con.text == null) {
           con.text = editor.createUid();
         }
-        editor.game.mediamanager.setMedia(con.text, getElement('boxText').value);
+        editor.game.mediamanager.setTextMedia(con.text, getElement('boxText').value);
         c_note.connections.push( con );
         editor.getNote(value).connections.push( con );
         getElement('con_amount_'+_id).innerHTML = '';
@@ -1753,7 +1775,7 @@ var Base64 = {
           var cons = editor.getNote(getElement('boxTo').getAttribute('data-uid')).connections;
           for (var i = 0; i < cons.length; i++) {
             if (cons[i].uid == value) {
-              getElement('inputEditCon').value = editor.game.mediamanager.getMediaValue(cons[i].text);
+              getElement('inputEditCon').value = editor.game.mediamanager.getTextMedia(cons[i].text);
             }
           }
           getElement('changeConnect').setAttribute('data-change-uid', value);
@@ -1803,7 +1825,7 @@ var Base64 = {
             if (cons[i].text == null) {
               cons[i].text = editor.createUid();
             }
-            editor.game.mediamanager.setMedia(cons[i].text, getElement('inputEditCon').value);
+            editor.game.mediamanager.setTextMedia(cons[i].text, getElement('inputEditCon').value);
           }
         }
         getElement('editor').removeChild(getElement('editConnectionBox'));
@@ -2072,25 +2094,19 @@ var Base64 = {
           return;
         }
         var files = eve.target.files; // FileList object
-        //for (var i = 0; i < 1; i++) {
-          var f = files[0];
-          var reader = new FileReader();
-          reader.onload = (function(theFile) {
-            return function(e) {
-              //console.log('handleJsonImport->'+theFile.name);
-              console.log(e.target.result);
-              editor.load(e.target.result);
-              console.log(theFile.name);
-              document.body.removeChild(getElement('eximport'));
-            };
-          })(f);
-          /*if (i == files.length - 1)
-          {
-            reader.onloadend = importProjectJsons;
-          }*/
-          reader.readAsText(f, 'UTF-8');//readAsDataURL(f);//, 'UTF-8');
-        //}
-      };
+        var f = files[0];
+        var reader = new FileReader();
+        reader.onload = (function(theFile) {
+          return function(e) {
+            //console.log('handleJsonImport->'+theFile.name);
+            console.log(e.target.result);
+            editor.load(e.target.result);
+            console.log(theFile.name);
+            document.body.removeChild(getElement('eximport'));
+          };
+        })(f);        
+        reader.readAsText(f, 'UTF-8');//readAsDataURL(f);//, 'UTF-8');
+      };      
       /**
       @method buildGame
       @since 2014-05-29
@@ -2099,22 +2115,25 @@ var Base64 = {
         var ele = document.body;
         var code = codemirror.getValue();
         //perform the code
-        var head = '<!doctype html>\n<html>\n<head>\n\n<title>my drafter game</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
+        var filename = (editor.getPreference('p_projectTitle') != null &&
+                        editor.getPreference('p_projectTitle').value.trim() != '') ? 
+                        editor.getPreference('p_projectTitle').value : 'myDrafterGame';
+
+        var head = '<!doctype html>\n<html>\n<head>\n\n<title>'+filename+'</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
         '<meta name="author" content="you author">'+
         '<meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">'+
         '<meta name="description" content="Drafter, hogventure.com\'s twine like game and story editor in javascript">'+
         '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
         var data = '<s'+'cript type="text/javasc'+'ript">\nvar json ='+JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code})+';\n \n'+code+'\n</'+'script>\n';
         var body = '';
-        if (editor.getPreference('p_editor_source') != null && editor.getPreference('p_editor_source').value ) {
-          body = '<style type="text/css" id="styles">'+getElement('styles').innerHTML+'</style></head>\n<body>\n' + document.body.innerHTML + '</body>\n</html>\n';
+        if (editor.getPreference('p_editor_source') != null && 
+            editor.getPreference('p_editor_source').value ) 
+        {
+          head = '<head>' + document.head.innerHTML;
+          body = '</head>\n<body>\n' + document.body.innerHTML + '<sc'+'ript id="extension_source">'+code+'\n\neditor.load(JSON.stringify(json));</'+'script></body>\n</html>\n';
         } else {
           body = '</head>\n<body>\n</body>\n</html>\n';
         }
-        
-        var filename = (editor.getPreference('p_projectTitle') != null &&
-                        editor.getPreference('p_projectTitle').value.trim() != '') ? 
-                                               editor.getPreference('p_projectTitle').value : 'myDrafterGame';
         
         var child = createElement('div');
         var child2 = createElement('div');
@@ -2136,7 +2155,7 @@ var Base64 = {
         child.appendChild(createElement('br'));
         child.appendChild(createElement('br'));
         child2 = createElement('textarea');
-        child2.value = data;
+        child2.value = head+data+body;
         child2.style.width = '300px';
         child2.style.height = (editor.height / 2)+ 'px';
         child.appendChild(child2);
@@ -2152,7 +2171,6 @@ var Base64 = {
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         editor.game.load(json['game']);
-        //editor.func = json['func'];
         editor.uidcounter = json['uidcounter'];
         editor.preferences = json['preferences'];
         //noteStartX,noteStartY,ox,oy,width,height,pressed
@@ -2164,16 +2182,67 @@ var Base64 = {
         getElement('noteeditor_box').style.display = 'block';
         for (var i = 0; i < editor.game.notes.length; i++) {
           var cons = editor.game.notes[i].connections;
-          //console.log(cons);
           for (var j = 0; j < cons.length; j++) {
             editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
-            //editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
         editor.usePreferences();
         editor.code = json['code'];
         codemirror.setValue(json['code']);
-      }
+      };
+      /**
+      @property http_request
+      @since 2014-07-01
+      */
+      editor.http_request = null;
+      /**
+      @method makeRequest
+      @since 2014-07-01
+      @param url
+      */
+      editor.makeRequest = function (url, callback) {
+        if (callback == null) {
+          callback = editor.alertContents;
+        }
+        editor.http_request = null;
+        if (window.XMLHttpRequest) { // Mozilla, Safari,...
+          editor.http_request = new XMLHttpRequest();
+          if (editor.http_request.overrideMimeType) {
+            editor.http_request.overrideMimeType('text/xml');
+          // See note below about this line
+          }
+        } else if (window.ActiveXObject) { // IE
+          try {
+            editor.http_request = new ActiveXObject("Msxml2.XMLHTTP");
+          } catch (e) {
+            try {
+              editor.http_request = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {}
+          }
+        }
+        if (editor.http_request == null) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return;
+        }
+        editor.http_request.onreadystatechange = callback;
+        editor.http_request.open('GET', url, true);
+        editor.http_request.send(null);
+      };
+      /**
+      @method aleartContents
+
+      @since 2014-07-01
+      */
+      editor.alertContents = function () {
+        if (http_request.readyState == 4) {
+          if (http_request.status == 200) {
+            // show contents of downloaded file
+            alert(http_request.responseText);
+          } else {
+            alert('There was a problem with the request.');
+          }
+        }
+      };
       /**
       is the mouse pressed true
       @property pressed
@@ -2215,8 +2284,6 @@ var Base64 = {
             editor.oy = eve.pageY;// - editor.noteeditor_box.scrollTop;
             console.log(ele.id+':'+eve.pageX+','+eve.pageY);
             editor.pressed = true;
-            //noteeditor.style.width = editor.ox + 'px';
-            //noteeditor.style.height = editor.oy + 'px';
           }
         }
       };
@@ -2381,7 +2448,19 @@ var Base64 = {
       }
       /***/
       _win.editor = editor;
-      _win.onload = function() { setTimeout(editor.init, 100); };
+      _win.onload = function() { 
+         window.applicationCache.addEventListener('updateready', function(e) {
+           if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+             // Browser downloaded a new app cache.
+             if (confirm('A new version of this site is available. Load it?')) {
+               window.location.reload();
+             }
+           } else {
+             // Manifest didn't changed. Nothing new to server.
+           }
+         }, false);
+         setTimeout(editor.init, 250);
+      };
     }
 
   )(window);
@@ -2391,14 +2470,27 @@ var Base64 = {
 <script type="text/javascript">
 var codemirror = null;
 function setHighlighter() {
-  codemirror = new CodeMirror(getElement('cmtexteditor'), {
-    mode: "javascript"
-  });
+  if (typeof CodeMirror != 'undefined') {
+    codemirror = new CodeMirror(getElement('cmtexteditor'), {
+      mode: "javascript"
+    });
+  } else {
+    codemirror = {
+      setValue : function(v) {
+        getElement('texteditor').value = v;
+      },
+      getValue : function() {
+        return getElement('texteditor').value;
+      } 
+    };
+    getElement('texteditor').style.display = 'block';
+  }
 };
 </script>
  <style type="text/css" id="styles">
 body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
+button {height: 22px; max-height: 22px;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 25px; height: auto; max-height: 10%;}
 #texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; display: none;}

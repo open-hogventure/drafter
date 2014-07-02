@@ -846,6 +846,10 @@ var Base64 = {
 }
 </script>
 <script type="text/javascript" id="editor_source">
+  var img_arrow = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAUUlEQVR42o2RQQrAMAgEZ83D2v8/KttDexCM2MBAkB0RBbhsM0EIL+FJIAKvRCeUYCegwNGgJEjC4vyc/uGv0GLuvd9e1oEyI0OgBMc9/r3MA+17xBlmgO+bAAAAAElFTkSuQmCC';
+  var img_line = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADUlEQVR4AQECAP3/AAAAAgABfgUN0gAAAABJRU5ErkJggg==';
+
+
   window.URL = window.URL || window.webkitURL || null;
   window.Blob = window.WebKitBlob || window.MozBlob || window.MSBlob || window.Blob || null;
   window.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
@@ -1922,12 +1926,12 @@ var Base64 = {
         arrow_line.style.width = c+'px';
         arrow_line.style.top = '0px';
         arrow_line.style.height = '1px';
-        arrow_line.src = 'img/line.png';
+        arrow_line.src = img_line;
         arrow_png.setAttribute('id','arrow_png_'+from_uid+'_'+to_uid);
         arrow_png.style.position = 'absolute';
         arrow_png.style.left = (c-10)+'px';
         arrow_png.style.top = '-5px';
-        arrow_png.src = 'img/arrow.png';
+        arrow_png.src = img_arrow;
 
         arrow.style.transform = 'rotate('+theta+'deg)';
         arrow.style.msTransform = 'rotate('+theta+'deg)';

@@ -2439,8 +2439,12 @@ var Base64 = {
       /***/
       _win.install = function() {
         try {
+         if (console.log((navigator.userAgent.toLowerCase()).indexOf('firefox') > 0)) {
          var request = window.navigator.mozApps.install(
                         'http://hogventure.com/draft/manifest.webapp');
+         } else {
+          alert('Please use the firefox browser for this feature.');	
+         }
         }
         catch (e) {
          alert('Please use the firefox browser for this feature. Automatic installation failed: '+e.message);

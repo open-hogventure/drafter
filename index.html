@@ -48,11 +48,7 @@ function Note (_uid) {
    connection.load(data['connections'][i]);
    this.connections.push(connection);
   }
-  /*this.text = data['text'];
-  this.title = data['title'];
-  this.ex = data['ex'];
-  this.ey = data['ey'];*/
- };
+};
  /**
  */
  this.setEditorPos = function(x,y) {
@@ -81,10 +77,6 @@ function Connection (_uid) {
    //a good replacement here
    this[key] = data[key];
   }
-  /*this.uid = data['uid'];
-  this.text = data['text'];
-  this.to_uid = data['to_uid'];
-  this.from_uid = data['from_uid'];*/
  };
 };
 /**
@@ -452,13 +444,11 @@ function Game() {
   document.body.style.margin = 0;
   child.addEventListener('mousemove', function(eve) {
    if (gameEngine.renderNote != null) {
-    //console.log(eve.pageX+', '+eve.pageY);
     gameEngine.renderNote.mouseOver(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
    }
   }, false);
   child.addEventListener('mouseup', function(eve) {
    if (gameEngine.renderNote != null) {
-    //console.log(eve.pageX+', '+eve.pageY);
     var uid_to = gameEngine.renderNote.mouseHit(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
     if (uid_to != null) {
      gameEngine.renderNote.setNote(gameEngine.getNote( uid_to ));

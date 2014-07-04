@@ -1186,6 +1186,17 @@ var Base64 = {
         child2.setAttribute('id','p_dropbox');
         child.appendChild(createTextNode(' dropbox'));
         child.appendChild(createElement('br'));
+        //install button
+        child.appendChild(createElement('hr'));
+        child2 = createElement('button');
+        child2.setAttribute('onclick','install();');
+        child2.appendChild(createTextNode('install'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(createTextNode('direct install only for firefox browsers'));
+        child.appendChild(createElement('br'));
+        child.appendChild(createTextNode('install via store will be available later'));
+        child.appendChild(createElement('br'));
         //html5_game_engine_source
         //canvas_game_engine_source
         child.appendChild(createElement('hr'));
@@ -2484,7 +2495,7 @@ function setHighlighter() {
  <style type="text/css" id="styles">
 body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
-button {height: 22px; max-height: 22px; float: inherit;}
+button {height: 22px; max-height: 22px; /*float: inherit;*/}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; float: left; width: 100%; min-height: 25px; height: auto; max-height: 10%; display: block;}
 #texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; display: none;}

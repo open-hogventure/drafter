@@ -8,37 +8,56 @@
   <meta name="Description" content="">
   <title>Document</title>
   <script>
-  var json = JSON.stringify( 
-  {van:{INSTANCE:"Car",car:"yes",cars:["auto","van","monstrum",true],value:1},vans:[1,2,3,4,5,6],value:2,other:{count:4},erm:33} );
+  var CAR = new Car();
+  CAR.load(CAR, {car:"yes",cars:["auto","van","monstrum",true],value:1});
+  var json = new Car();
+  json.load( json,
+  {van:CAR,vans:[1,2,3,4,5,6],value:2,other:{count:4},erm:33} );
+  json = JSON.stringify(json, function(key, value) {
+    var datastr = (value.constructor).toString();
+		datastr = datastr.substr(9);
+		datastr = datastr.substr(0, datastr.indexOf('('));
+    //console.log(datastr);
+    if (datastr != 'Object' && datastr != 'Number' && datastr != 'String' && datastr != 'Boolean' && datastr != 'Function' && datastr != 'Array' ) {
+      value['INSTANCE'] = datastr;
+    }
+    return value;
+  });
   console.log(json);
 
   window.onload = function() {setTimeout(init, 100);};
 
   function Car() {
 	this.load = function(obj, data) {
-	  for (key in data)
-	  {
-		//console.log(data[key]);
-		var datastr = ((data[key]).constructor).toString().toLowerCase();//(Object.prototype.toString.call(data[key])).toLowerCase();
+	  for (key in data) {
+		var datastr = ((data[key]).constructor).toString().toLowerCase();
 		datastr = datastr.substr(9);
 		datastr = datastr.substr(0, datastr.indexOf('('));
 		
-		if (datastr === 'object')
+    if (datastr == 'object')
 		{
 			//must be an object/function
 			//create new instance of object if possible
-			console.log(key+'=>'+datastr);
-			obj[key] = {};
-			this.load(obj[key], data[key]);
-		} else if (datastr === 'array')
+			if (typeof data[key]['INSTANCE'] != 'undefined' && data[key]['INSTANCE'] != null)
+			{
+				var tmp_func = new Function('return new '+data[key]['INSTANCE']+'();');
+				obj[key] = tmp_func();
+				obj[key].load(obj[key],data[key]);
+        console.log(obj[key]);
+			} else {
+			  //console.log(key+'=>'+datastr);
+			  obj[key] = {};
+			  this.load(obj[key], data[key]);
+			}
+		} else if (datastr == 'array')
 		{
-			console.log(key+'->'+datastr);
+			//console.log(key+'->'+datastr);
 			obj[key] = [];
 			this.load(obj[key], data[key]);
 		} else
 		{
 			obj[key] = data[key];
-			console.log(key+' '+data[key]+' '+datastr);
+			//console.log(key+' '+data[key]+' '+datastr);
 			//a normal value
 		}
 	  }
@@ -47,25 +66,12 @@
   
   function init () {
 	var data = JSON.parse(json);
-	var obj = parseData ({}, data);
+	var obj = parseData (data);
   }
 
-  /*function invokeFunctionByName(functionName, context //, args 
-									) {
-	  var args = [].slice.call(arguments).splice(2);
-	  var namespaces = functionName.split(".");
-	  var func = namespaces.pop();
-	  for(var i = 0; i < namespaces.length; i++) {
-		context = context[namespaces[i]];
-	  }
-	  return new (context[func].apply(this, args));
-	};*/
-
   function parseData (data)	{
-	for (key in data)
-	{
-		//console.log(data[key]);
-		var datastr = ((data[key]).constructor).toString().toLowerCase();//(Object.prototype.toString.call(data[key])).toLowerCase();
+	
+		var datastr = (data.constructor).toString().toLowerCase();
 		datastr = datastr.substr(9);
 		datastr = datastr.substr(0, datastr.indexOf('('));
 		
@@ -73,29 +79,30 @@
 		{
 			//must be an object/function
 			//create new instance of object if possible
-			if (typeof data[key]['INSTANCE'] != 'undefined' && data[key]['INSTANCE'] != null)
+			if (typeof data['INSTANCE'] != 'undefined' && data['INSTANCE'] != null)
 			{
-				var tmp_func = new Function('return new '+data[key]['INSTANCE']+'();');
-				//console.log( obj );
+				var tmp_func = new Function('return new '+data['INSTANCE']+'();');
 				var obj = tmp_func();
-				//instead of invokeFunctionByName(data[key]['INSTANCE'], window);
-				obj.load(obj,data[key]);
+				obj.load(obj,data);
 				console.log( obj );
 			} else {
-			console.log(key+'=>'+datastr);
-			parseData (data[key]);
+        for (key in data) {
+			  //console.log(key+'=>'+datastr);
+			  parseData (data[key]);
+        }
 			}
 		} else if (datastr === 'array')
 		{
-			console.log(key+'->'+datastr);
+			for (key in data) {
+      //console.log(key+'->'+datastr);
 			parseData (data[key]);
+      }
 		} else
 		{
-			console.log(key+' '+data[key]+' '+datastr);
+      //console.log(':'+data+' '+datastr);
 			//a normal value
 		}
 		
-	}
   };
   </script>
  </head>

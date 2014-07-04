@@ -995,7 +995,7 @@ var Base64 = {
         //experimental from here
         //this might be part of the preferences
         //console.log(editor.getPreference('p_dropbox').value);
-        //as the canvas based or html5 game engine should be
+        //as the canvas based or html5 game engine should be        
       };
       /**
       @parameter uidcounter
@@ -1110,13 +1110,13 @@ var Base64 = {
       */
       editor.preferences = [];
       /**
-      @method getPreference
+      @method getPreference 
       @since 2014-06-09
       @param name
       @return {object} the preference object
       */
       editor.getPreference = function(_name) {
-        if (editor.preferences != null)
+        if (editor.preferences != null) 
         for (var i = 0; i < editor.preferences.length; i++) {
           if (editor.preferences[i].name == _name) {
             return editor.preferences[i];
@@ -1143,7 +1143,7 @@ var Base64 = {
         child.className = 'connectionBox';
         child.style.width = '300px';
         child.setAttribute('id','preferencesBox');
-
+        
         child.appendChild(createElement('br'));
         var child2 = createElement('b');
         child2.appendChild(createTextNode('How to store:'));
@@ -1170,7 +1170,7 @@ var Base64 = {
         child2.setAttribute('id','p_dropbox');
         child.appendChild(createTextNode(' dropbox'));
         child.appendChild(createElement('br'));
-        //html5_game_engine_source
+        //html5_game_engine_source 
         //canvas_game_engine_source
         child.appendChild(createElement('hr'));
         child2 = createElement('b');
@@ -1189,7 +1189,7 @@ var Base64 = {
         child2.setAttribute('id','p_canvas_game_engine');
         child.appendChild(createTextNode(' canvas engine'));
         child.appendChild(createElement('br'));
-        //editor_source
+        //editor_source 
         child2 = createElement('b');
         child2.appendChild(createTextNode('optional:'));
         child.appendChild(child2);
@@ -1211,19 +1211,19 @@ var Base64 = {
         child2.setAttribute('type','text');
         child2.setAttribute('title', 'only letters, digits, spaces');
         child2.setAttribute('placeholder','project title only letters, digits, spaces');
-        var filename = editor.getPreference('p_projectTitle') != null ?
+        var filename = editor.getPreference('p_projectTitle') != null ? 
                                                 editor.getPreference('p_projectTitle').value : '';
         //child2.value = filename;
         child2.setAttribute('value', filename);
         child2.setAttribute('id','p_projectTitle');
-        child.appendChild(child2);
+        child.appendChild(child2);        
         child.appendChild(createElement('br'));
         child.appendChild(createElement('br'));
         child2 = createElement('button');
         child2.setAttribute('onclick','editor.setPreferences(true);');
         child2.style.cssFloat = 'right';
         child2.appendChild(document.createTextNode('set preferences'));
-        child.appendChild(child2);
+        child.appendChild(child2);        
         //
         child2 = createElement('button');
         child2.className = 'closeBoxButton';
@@ -1249,14 +1249,14 @@ var Base64 = {
         tmpreferences.push(editor.createPreference('p_saveAndLoad', getElement('p_saveAndLoad').checked));
         tmpreferences.push(editor.createPreference('p_exAndImport', getElement('p_exAndImport').checked));
         tmpreferences.push(editor.createPreference('p_dropbox', getElement('p_dropbox').checked));
-        if (!getElement('p_saveAndLoad').checked &&
-            !getElement('p_exAndImport').checked &&
+        if (!getElement('p_saveAndLoad').checked && 
+            !getElement('p_exAndImport').checked && 
             !getElement('p_dropbox').checked)
         {
           alert('You should select one saving option at least.');
           return;
         }
-        //html5_game_engine_source
+        //html5_game_engine_source 
         //canvas_game_engine_source
         tmpreferences.push(editor.createPreference('p_html5_game_engine', getElement('p_html5_game_engine').checked));
         tmpreferences.push(editor.createPreference('p_canvas_game_engine', getElement('p_canvas_game_engine').checked));
@@ -1269,7 +1269,7 @@ var Base64 = {
         console.log(title);
         tmpreferences.push(editor.createPreference('p_projectTitle',title));
         console.log(tmpreferences);
-        editor.preferences = tmpreferences;
+        editor.preferences = tmpreferences;        
         editor.usePreferences();
         getElement('editor').removeChild(getElement('preferencesBox'));
       };
@@ -1279,15 +1279,15 @@ var Base64 = {
       */
       editor.usePreferences = function() {
         if (editor.getPreference('p_saveAndLoad') != null) {
-          getElement('saveLoadButtons').style.display =
+          getElement('saveLoadButtons').style.display = 
             editor.getPreference('p_saveAndLoad').value ? 'block' : 'none';
         }
         if (editor.getPreference('p_exAndImport') != null) {
-          getElement('exImportButtons').style.display =
-            editor.getPreference('p_exAndImport').value ? 'block' : 'none';
+          getElement('exImportButtons').style.display = 
+            editor.getPreference('p_exAndImport').value ? 'block' : 'none';        
         }
-        if (editor.getPreference('p_dropbox') != null) {
-          getElement('dropboxSpanButtons').style.display =
+        if (editor.getPreference('p_dropbox') != null) { 
+          getElement('dropboxSpanButtons').style.display = 
             editor.getPreference('p_dropbox').value ? 'block' : 'none';
           if (typeof Dropbox != 'undefined' && editor.getPreference('p_dropbox').value) {
             editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
@@ -1300,14 +1300,14 @@ var Base64 = {
           }
         }
         //
-        if (editor.getPreference('p_html5_game_engine') == null ||
+        if (editor.getPreference('p_html5_game_engine') == null || 
             editor.getPreference('p_html5_game_engine').value) {
           //that is default
           //add the datamodel and the html5_game_engine_source sources to the codemirror
           codemirror.setValue(getElement('datamodel_source').innerHTML + ' \n' +
                               getElement('base64_source').innerHTML +' \n'+
                               getElement('html5_game_engine_source').innerHTML);
-        } else if (editor.getPreference('p_canvas_game_engine') != null &&
+        } else if (editor.getPreference('p_canvas_game_engine') != null && 
             editor.getPreference('p_canvas_game_engine').value) {
           //add the datamodel and the html5_game_engine_source sources to the codemirror
           codemirror.setValue(getElement('datamodel_source').innerHTML + ' \n' +
@@ -1315,7 +1315,7 @@ var Base64 = {
                               getElement('canvas_game_engine_source').innerHTML);
         }
         //
-        if (editor.getPreference('p_editor_source') != null &&
+        if (editor.getPreference('p_editor_source') != null && 
             editor.getPreference('p_editor_source').value) {
           //add the datamodel and the html5_game_engine_source sources to the codemirror
           codemirror.setValue(codemirror.getValue() + ' \n' +
@@ -2013,8 +2013,8 @@ var Base64 = {
         var ele = document.body;
         var child = createElement('div');
         var child2 = createElement('div');
-        var filename = (editor.getPreference('p_projectTitle') != null &&
-                        editor.getPreference('p_projectTitle').value.trim() != '') ?
+        var filename = (editor.getPreference('p_projectTitle') != null && 
+                        editor.getPreference('p_projectTitle').value.trim() != '') ? 
                                                 editor.getPreference('p_projectTitle').value : 'editor';
         child2.appendChild(document.createTextNode(' download '+filename+'.json: '));
         child.appendChild(child2);
@@ -2107,11 +2107,11 @@ var Base64 = {
         } else {
           body = '</head>\n<body>\n</body>\n</html>\n';
         }
-
+        
         var filename = (editor.getPreference('p_projectTitle') != null &&
-                        editor.getPreference('p_projectTitle').value.trim() != '') ?
+                        editor.getPreference('p_projectTitle').value.trim() != '') ? 
                                                editor.getPreference('p_projectTitle').value : 'myDrafterGame';
-
+        
         var child = createElement('div');
         var child2 = createElement('div');
         child2.appendChild(document.createTextNode(' download '+filename+'.html: '));
@@ -2395,9 +2395,8 @@ function setHighlighter() {
  <style type="text/css" id="styles">
 body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
-button {min-height: 22px; max-height: 22px; float: inherit;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
-#editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 10%; height: 10%; max-height: 10%; float: left; display: block;}
+#editorbar {position: absolute; top: 0; left: 0; width: 100%; min-height: 25px; height: auto; max-height: 10%;}
 #texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; display: none;}
 #cmtexteditor { position: absolute; top: 10%; left: 0; width: 80%; max-width: 80%; min-height: 89%; height: 89%; max-height: 89%; /*background: #eee; */border: solid 1px #ddd; }
 #notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
@@ -2446,23 +2445,27 @@ button {min-height: 22px; max-height: 22px; float: inherit;}
 #cmtexteditor .CodeMirror {height: 100%;}
 #dropboxSpanButtons input, #dropboxSpanButtons button,
 #dropboxSpanButtons div, #dropboxSpanButtons span {float: left;}
-#separator {padding: 0 5px 0 5px; font-weight: bold; font-size: 22px; min-height: 22px; max-height: 22px; float: left; overflow: hidden; line-height: 22px;}
-#editorMainBar {position: absolute; float: right; bottom: 90%; right: 0px;}
  </style>
  </head>
  <body>
  <div id="editor">
   <div id="editorbar">
-  <button onclick="editor.showPreferences();" style="float: left;" title="project preferences">preferences</button>
-  <span id="separator">|</span>
   <span id="saveLoadButtons">
     <button onclick="editor.saveCodeAndGame();" style="float: left;">save code and game</button>
     <button onclick="editor.loadCodeAndGame();" style="float: left;">load code and game</button>
   </span>
+  <button onclick="editor.testGame();" style="float: left;">test game</button>
+  <button onclick="editor.stopTest();" style="float: left;">stop test</button>
+  <button onclick="editor.toggleEditor();" style="float: left;">toggle</button>
+  <button onclick="editor.addNote();" style="float: left;">add note</button>
   <span id="exImportButtons">
     <button onclick="editor.importEditor();" style="float: left;">import</button>
     <button onclick="editor.exportEditor();" style="float: left;">export</button>
   </span>
+  <button onclick="editor.buildGame();" style="float: left;">build</button>
+  <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
+  <button onclick="editor.help();" style="float: left;">help</button>
+  <button onclick="install();" style="float: left;">install</button>
   <span id="dropboxSpanButtons" style="display: none; float: left;">
     <button onclick="editor.dropboxLogin();" class="dpbutton"><span>&nbsp;login&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
     <div id="dropboxButtons" style="display: none;">
@@ -2471,31 +2474,14 @@ button {min-height: 22px; max-height: 22px; float: inherit;}
       <input id="dropboxName" type="text" placeholder="editor is the file name" />
     </div>
   </span>
-  <span id="separator">|</span>
-  <button onclick="editor.buildGame();" style="float: left;">build</button>
-  <span id="separator">|</span>
-  <button onclick="editor.testGame();" style="float: left;">test game</button>
-  <button onclick="editor.stopTest();" style="float: left;">stop test</button>
-  <span id="separator">|</span>
-  <button onclick="editor.toggleEditor();" style="float: left;">toggle</button>
-  <button onclick="editor.addNote();" style="float: left;">add note</button>
-  <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
-  <span id="separator">|</span>
-  </div>
-
-  <div id="editorMainBar">
-  <button onclick="editor.toggleEditor('code');" style="float: left;">code</button>
-  <button onclick="editor.toggleEditor('notes');" style="float: left;">notes</button>
-  <button onclick="editor.help();" style="float: left;">help</button>
-  <!--button onclick="install();" style="float: left;">install</button-->
-
+  <button onclick="editor.showPreferences();" style="float: left;" title="project preferences">preferences</button>
   <!--br style="clear: both;"-->
   </div>
   <textarea id="texteditor"></textarea>
   <div id="cmtexteditor"></div>
   <div id="notelist"></div>
   <div id="noteeditor_box" style="display: block;">
-   <div id="noteeditor">
+   <div id="noteeditor"> 
    </div>
   </div>
  </div>

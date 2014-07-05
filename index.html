@@ -1118,7 +1118,7 @@ var Base64 = {
         }
         //make the arrows smaller or bigger
         getElement('noteeditor').className = editor.offZoom ? 'offZoom': '';
-        getElement('zoom').innerHTML = editor.offZoom ? '+': '-';
+        getElement('zoom').className = editor.offZoom ? 'mini octicon octicon-plus' : 'mini octicon octicon-dash';
       };
       /**
       @property preferences
@@ -2506,8 +2506,6 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   font-family: 'octicons';
   src: url('img/octicons.woff') format('woff'),
        url('img/octicons.ttf') format('truetype');
-       /*url('octicons.eot?#iefix') format('embedded-opentype'),
-       url('octicons.svg#octicons') format('svg');*/
   font-weight: normal;
   font-style: normal;
 }
@@ -2530,10 +2528,14 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .octicon-pencil:before { content: '\f058'}
 .octicon-question:before { content: '\f02c'}
 .octicon-code:before { content: '\f05f'}
+.octicon-search:before { content: '\f02e'}
+.octicon-plus:before { content: '\f05d'}
+.octicon-dash:before { content: '\f0ca'}
 /*button {height: 22px; max-height: 22px; float: inherit;}*/
 button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #ccc; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
-button:hover{box-shadow: 0px 0px 2px #000; color: #000; }
-button:active, button:focus, button.active{color: #000; background: #fff;}
+button:hover, button:hover .mini {box-shadow: 0px 0px 2px #000; color: #000; }
+button:active, button:focus, button.active, button:active .mini, button:focus .mini, button.active .mini
+{color: #000; background: #fff;}
   .bcode {width: auto; text-align: center; color: #fff; background: #093;}
   .bhelp {width: auto; text-align: center; color: #fff; background: #cb0;}
   .bnote{width: auto; text-align: center; color: #fff; background: #009;}
@@ -2547,9 +2549,9 @@ button:active, button:focus, button.active{color: #000; background: #fff;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; float: left; width: 100%; min-height: 25px; height: auto; max-height: 10%; display: block;}
 #texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; display: none;}
-#cmtexteditor { position: absolute; top: 10%; left: 0; width: 80%; max-width: 80%; min-height: 89%; height: 89%; max-height: 89%; /*background: #eee; */border: solid 1px #ddd; }
+#cmtexteditor { position: absolute; top: 10%; left: 0; width: 80%; max-width: 80%; min-height: 89%; height: 89%; max-height: 89%; border: solid 1px #ddd; }
 #notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
-#noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; }
+#noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; background: url(img/56graph.png) #f9f9fd;}
 #noteeditor_box {z-index: 9; position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ddd; border-top: 1px solid #ddd; overflow: auto;}
 #gameMainView {z-index: 250; position: absolute; top: 10%; left: 1%; width: 98%; height: 89%; display: block; background: #fff; resize: none; overflow: hidden; border: 1px solid #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: auto;}
 .notelistBox {border: 1px solid #ddd; margin: 2px; background: #ddd; width: 95%;}
@@ -2558,16 +2560,16 @@ button:active, button:focus, button.active{color: #000; background: #fff;}
 #input_note_text { width: 250px; min-height: 100px; margin: 0;}
 #note_input_box span{float: left; width: 50px; margin: 0;}
 .closeBoxButton {position: absolute; color: white; background: #c00; top: 1px; right: 1px; width: 24px; max-width: 24px; min-width: 24px; font-size: 10px; font-weight: bold; padding: 0;}
-.note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
-.note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; /*rgba(0,255,0,0.005)*/}
-.note_menu_button {position: absolute; top: 0px; right: 1px; color: white; font-weight: bold; font-size: 25px; }
+.note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: url(img/56line.png) #f9f9fd; background-position: 0px -2px; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
+.note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; }
+.note_menu_button {position: absolute; top: 0px; right: 5px; color: white; font-weight: bold; font-size: 25px; }
 .eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
 .connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 10px;}
 .note_bar {position: relative; margin: 1px; background: #009; width: 98%; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
 .note_text {width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;}
-.connection{width: 150px; background: #ddd; font-size: 13px; font-family: sans-serif;}
+.connection{width: 150px; background: transparent; font-size: 13px; font-family: sans-serif;}
 .note_menu{z-index: 15; position: absolute; right: 0px; top: 0px; width: auto; max-width: 150px; display: none; text-align: right; border: 1px #999 solid; background: #ddd; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;}
 .note_menu_button:hover .note_menu{display: block;}
 .menu_element{font-weight: bold; color: #333; font-size: 13px; font-family: sans-serif; white-space: pre;}
@@ -2575,7 +2577,7 @@ button:active, button:focus, button.active{color: #000; background: #fff;}
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
-#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; /*border: 1px solid #ddd;*/ background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto;}
+#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto;}
 #help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px; width: 335px;}
 #help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px; width: 335px;}
 #help div div {display: none;}
@@ -2588,14 +2590,16 @@ button:active, button:focus, button.active{color: #000; background: #fff;}
 #noteeditor.offZoom .note .connection {font-size: 7.5px;}
 #noteeditor.offZoom .note .connection span{font-size: 7.5px;}
 #noteeditor.offZoom .note .note_menu .menu_element{font-size: 7.5px;}
-#zoom {/*font-weight: bold;*/ margin: 0; margin-left: 5px; }
+#zoom {margin: 0; margin-left: 5px;}
 .dpbutton {float: left; height: 22px; vertical-align: top;}
 .dpbutton span {float: left; display: inline-block;}
 #cmtexteditor .CodeMirror {height: 100%;}
 #dropboxSpanButtons input, #dropboxSpanButtons button,
 #dropboxSpanButtons div, #dropboxSpanButtons span {float: left;}
-.separator {float: left; padding: 0 5px 0 5px; font-weight: bold; font-size: 24px; min-height: 24px; max-height: 24px; display: inline-block; line-height: 0.75; overflow: hidden;}
+.separator {float: left; padding: 0 1px 0 1px; font-weight: bold; font-size: 24px; min-height: 24px; max-height: 24px; display: inline-block; line-height: 0.75; overflow: hidden;}
 #editorMainBar {position: absolute; float: right; bottom: 90%; right: 0;}
+.mini{position: relative; top: -4px; left: -17px; font-size: 10px; color: white;}
+
 </style>
  </head>
  <body>
@@ -2624,7 +2628,7 @@ button:active, button:focus, button.active{color: #000; background: #fff;}
   <button onclick="editor.testGame();" style="float: left;">test game</button>
   <button onclick="editor.stopTest();" style="float: left;">stop test</button>
   <span class="separator">|</span>
-  <button onclick="editor.zoom();" style="float: left;">zoom<span id="zoom">-</span></button>
+  <button onclick="editor.zoom();" style="float: left;" class="octicon octicon-search"><span id="zoom" class="mini octicon octicon-dash"></span><span>zoom</span></button>
   <span class="separator">|</span>
   <button onclick="editor.addNote();" style="float: left;">add note</button>
   <span class="separator">|</span>

@@ -972,8 +972,8 @@ var Base64 = {
       @method toggleEditor
       @since 2014-05-17
       */
-      editor.toggleEditor = function() {
-        if (getElement('noteeditor_box').style.display != 'block') {
+      editor.toggleEditor = function(_t) {
+        if (_t == 'notes' || getElement('noteeditor_box').style.display != 'block') {
           getElement('noteeditor_box').style.display = 'block';
         } else {
           getElement('noteeditor_box').style.display = 'none';
@@ -1446,6 +1446,14 @@ var Base64 = {
         child.appendChild(child2);
         child2 = createElement('div');
         child2.className = 'connections';
+        child2.setAttribute('id', 'list_menu_'+note.uid);
+        if (note.uid == editor.game.startNote) {
+          child3 = createElement('span');
+          child3.className = 'list_start';
+          child3.setAttribute('id', 'list_start_'+note.uid);
+          child3.appendChild(createTextNode('start'));
+          child2.appendChild(child3);
+        }
         child2.appendChild(document.createTextNode('connects: '));
         child3 = createElement('span');
         child3.setAttribute('id','list_con_amount_'+note.uid);
@@ -1520,20 +1528,28 @@ var Base64 = {
       @param _uid
       */
       editor.setStartNote = function(_uid) {
-        console.log('setStartNote = '+_uid);
+        //console.log('setStartNote = '+_uid);
         if (editor.game.startNote != null) {
           //remove startNote visualation
           getElement('con_menu_'+editor.game.startNote).removeChild(
                       getElement('con_start_'+editor.game.startNote) );
+          getElement('list_menu_'+editor.game.startNote).removeChild(
+                      getElement('list_start_'+editor.game.startNote) );
         }
         editor.game.startNote = _uid;
         //visualize startNote
         var ele = getElement('con_menu_'+_uid);
-        console.log(ele);
-        console.log('setStartNote = con_menu_'+_uid);
+        //console.log(ele);
+        //console.log('setStartNote = con_menu_'+_uid);
         var child = createElement('span');
         child.className = 'con_start';
         child.setAttribute('id', 'con_start_'+_uid);
+        child.appendChild(createTextNode('start'));
+        ele.appendChild(child);
+        var ele = getElement('list_menu_'+_uid);
+        var child = createElement('span');
+        child.className = 'con_start';
+        child.setAttribute('id', 'list_start_'+_uid);
         child.appendChild(createTextNode('start'));
         ele.appendChild(child);
       }
@@ -2500,7 +2516,7 @@ function setHighlighter() {
   }
 </script>
  <style type="text/css" id="styles">
-body {margin: 0; padding: 0; background: #fff; font-family: sans-serif;}
+body {margin: 0; padding: 0; background: #333; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
 @font-face {
   font-family: 'octicons';
@@ -2532,29 +2548,28 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .octicon-plus:before { content: '\f05d'}
 .octicon-dash:before { content: '\f0ca'}
 /*button {height: 22px; max-height: 22px; float: inherit;}*/
-button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #ccc; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
-button:hover, button:hover .mini {box-shadow: 0px 0px 2px #000; color: #000; }
-button:active, button:focus, button.active, button:active .mini, button:focus .mini, button.active .mini
-{color: #000; background: #fff;}
-  .bcode {width: auto; text-align: center; color: #fff; background: #093;}
-  .bhelp {width: auto; text-align: center; color: #fff; background: #cb0;}
+button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #bbb; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
+button:hover, button:hover .mini {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; }
+button:active, button:active .mini {color: #000; background: #fff;}
+  .bcode {width: auto; text-align: center; color: #fff; background: #090;}
+  .bhelp {width: auto; text-align: center; color: #fff; background: #980;}
   .bnote{width: auto; text-align: center; color: #fff; background: #009;}
   .closeBoxButton{color: #fff; background: #b00; outline: 0px;}
   .bcode span,.bnote span,.bhelp span {font-family: sans-serif; font-size: 13px; margin-left: 5px; color: inherit;}
-  .bcode.active,.bcode:active,.bcode:focus {background: #0c6;}
+  .bcode.active,.bcode:active,.bcode:focus {background: #0f0;}
   .bhelp.active,.bhelp:active,.bhelp:focus {background: #fe0;}
-  .bnote.active,.bnote:active,.bnote:focus {background: #66f;}
+  .bnote.active,.bnote:active,.bnote:focus {background: #00f;}
   .closeBoxButton:hover {background: #e00;color:#fff;}
   .closeBoxButton.active,.closeBoxButton:active,.closeBoxButton:focus {background: #e00;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
 #editorbar {position: absolute; top: 0; left: 0; float: left; width: 100%; min-height: 25px; height: auto; max-height: 10%; display: block;}
-#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border: solid 1px #ddd; display: none;}
+#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #fff; border: solid 1px #ddd; display: none;}
 #cmtexteditor { position: absolute; top: 10%; left: 0; width: 80%; max-width: 80%; min-height: 89%; height: 89%; max-height: 89%; border: solid 1px #ddd; }
-#notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: #eee; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
+#notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: url(img/56graph.png) #f9f9fd; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
 #noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; background: url(img/56graph.png) #f9f9fd;}
 #noteeditor_box {z-index: 9; position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ddd; border-top: 1px solid #ddd; overflow: auto;}
 #gameMainView {z-index: 250; position: absolute; top: 10%; left: 1%; width: 98%; height: 89%; display: block; background: #fff; resize: none; overflow: hidden; border: 1px solid #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: auto;}
-.notelistBox {border: 1px solid #ddd; margin: 2px; background: #ddd; width: 95%;}
+.notelistBox {border: 1px solid #ddd; margin: 2px; background: url(img/56line.png) #f9f9fd; box-shadow: 0 0 3px #333; width: 95%;}
 #note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; padding: 10px; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
 #input_note_title { width: 250px; margin: 0;}
 #input_note_text { width: 250px; min-height: 100px; margin: 0;}
@@ -2565,7 +2580,7 @@ button:active, button:focus, button.active, button:active .mini, button:focus .m
 .note_menu_button {position: absolute; top: 0px; right: 5px; color: white; font-weight: bold; font-size: 25px; }
 .eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
 .connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 10px;}
-.note_bar {position: relative; margin: 1px; background: #009; width: 98%; height: 15px; color: white;}
+.note_bar {position: relative; padding: 1px; background: #009; width: 98%; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
 .note_text {width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;}
@@ -2577,6 +2592,7 @@ button:active, button:focus, button.active, button:active .mini, button:focus .m
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
+#notelist .con_start {margin-right: 3px;}
 #help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto;}
 #help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px; width: 335px;}
 #help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px; width: 335px;}

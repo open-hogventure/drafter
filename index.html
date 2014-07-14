@@ -976,6 +976,7 @@ var Base64 = {
         if (_t == 'notes' || getElement('noteeditor_box').style.display != 'block') {
           getElement('noteeditor_box').style.display = 'block';
         } else {
+          //_t == 'code'
           getElement('noteeditor_box').style.display = 'none';
         }
       };
@@ -1197,6 +1198,30 @@ var Base64 = {
         child.appendChild(createElement('br'));
         child.appendChild(createTextNode('install via store will be available later'));
         child.appendChild(createElement('br'));
+        
+        child.appendChild(createElement('hr'));
+        
+        child2 = createElement('div');
+        child2.setAttribute('id', 'extensionBox');
+        child2.appendChild(createTextNode('Select one of theese Extensions:'));
+        child2.appendChild(createElement('br'));
+        var select = createElement('select');
+        select.setAttribute('name','extension');
+        select.setAttribute('id','extension');
+        select.addEventListener('change', function(eve) {
+          editor.loadExtension(getElement('extension').value);
+        }, true);
+        for (var i = 0; i < editor.extensionsList.length; i++) {
+          child3 = createElement('option');
+          child3.setAttribute('value',editor.extensionsList[i].name);
+          child3.appendChild(createTextNode(editor.extensionsList[i].description));
+          select.appendChild(child3);
+        }
+        child2.appendChild(select);
+        child2.appendChild(createElement('br'));
+        child.appendChild(child2);
+        //child.appendChild(createTextNode('install via store will be available later'));
+        //child.appendChild(createElement('br'));
         //html5_game_engine_source
         //canvas_game_engine_source
         child.appendChild(createElement('hr'));
@@ -1369,7 +1394,7 @@ var Base64 = {
         child.setAttribute('id', 'extensionBox');
         child.className = 'connectionBox';
         child.appendChild(createTextNode('Select one of theese Extensions:'));
-        child.appendChild(Element(createElement('br'));
+        child.appendChild(createElement('br'));
         var select = createElement('select');
         select.setAttribute('name','extension');
         select.setAttribute('id','extension');
@@ -1383,7 +1408,7 @@ var Base64 = {
           select.appendChild(child2);
         }
         child.appendChild(select);
-        child.appendChild(Element(createElement('br'));
+        child.appendChild(createElement('br'));
         //the close button
         child2 = createElement('button');
         child2.className = ('closeBoxButton');
@@ -1403,12 +1428,10 @@ var Base64 = {
       @param _ident
       */
       editor.loadExtension = function (_ident) {
-        if (_ident == null) {
-          //close without loading
-          document.removeChild(getElement('extensionBox'));
+        if (_ident == null || _ident == '---') {
+          //do nothing without loading
           return;
         }
-        
         try {
           //inject the script
           //store in the preferences of the project to load this extension
@@ -1416,8 +1439,6 @@ var Base64 = {
           //that might happen
           alert('loading extension "'+_indent+'" failed.');
         }
-        //close finally
-        document.removeChild(getElement('extensionBox'));
       };
       /**
       @method addNote
@@ -2621,14 +2642,17 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #bbb; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
 button:hover, button:hover .mini {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; }
 button:active, button:active .mini {color: #000; background: #fff;}
-  .bcode {width: auto; text-align: center; color: #fff; background: #090;}
-  .bhelp {width: auto; text-align: center; color: #fff; background: #980;}
+  .bcode {width: auto; text-align: center; color: #fff; background: #09c;}
+  .bhelp {width: auto; text-align: center; color: #fff; background: #fc0;}
   .bnote{width: auto; text-align: center; color: #fff; background: #009;}
   .closeBoxButton{color: #fff; background: #b00; outline: 0px;}
   .bcode span,.bnote span,.bhelp span {font-family: sans-serif; font-size: 13px; margin-left: 5px; color: inherit;}
-  .bcode.active,.bcode:active,.bcode:focus {background: #0f0;}
-  .bhelp.active,.bhelp:active,.bhelp:focus {background: #fe0;}
-  .bnote.active,.bnote:active,.bnote:focus {background: #00f;}
+  /*.bcode.active,.bcode:active,.bcode:focus {background: #09c;}
+  .bhelp.active,.bhelp:active,.bhelp:focus {background: #fc0;}
+  .bnote.active,.bnote:active,.bnote:focus {background: #009;}*/
+  .bcode:hover {background: #0bd;}
+  .bhelp:hover {background: #fd0;}
+  .bnote:hover {background: #00b;}
   .closeBoxButton:hover {background: #e00;color:#fff;}
   .closeBoxButton.active,.closeBoxButton:active,.closeBoxButton:focus {background: #e00;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}

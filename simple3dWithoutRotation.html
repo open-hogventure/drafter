@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script>
+  var My3D = {};
+My3D.canvas = null;
+My3D.ctx = null;
+
+My3D.key = {};
+My3D.key.keys = [];
+
+My3D.mouse = {};
+My3D.mouse.isDown = false;
+My3D.mouse.x = 0;
+My3D.mouse.y = 0;
+My3D.mouse.z = 0;
+
+My3D.rawEvent = {};
+My3D.rawEvent.onLoad = function(e){
+	My3D.canvas = document.getElementById("c");
+	My3D.ctx = My3D.canvas.getContext("2d");
+
+	window.addEventListener("keydown", My3D.rawEvent.onKeyDown, false);
+	window.addEventListener("keyup", My3D.rawEvent.onKeyUp, false);
+	document.addEventListener("mousemove", My3D.rawEvent.onMouseMove, false);
+	document.addEventListener("mousedown", My3D.rawEvent.onMouseDown, false);
+	document.addEventListener("mouseup", My3D.rawEvent.onMouseUp, false);
+	document.addEventListener("mousewheel", My3D.rawEvent.onMouseScroll, false);
+	document.addEventListener("DOMMouseScroll", My3D.rawEvent.onMouseScroll, false);
+	window.addEventListener("hashchange", My3D.rawEvent.onHashChange, false);
+
+	camera.screen = My3D.ctx;
+	camera.width = My3D.canvas.width;
+	camera.height = My3D.canvas.height;
+	camera.offsetX = My3D.canvas.width/2;
+	camera.offsetY = My3D.canvas.height/2;
+
+	
+	//My3D.event.onGameStart();
+	My3D.rawEvent.onHashChange();
+	My3D.startAnimation();
+};
+My3D.rawEvent.onHashChange = function(e){
+	My3D.key.keys = [];
+
+	/*
+	var file = document.location.hash.substr(1);
+	console.log("hashChange: "+file);
+	if(file === ""){
+		file = "step1";
+	}*/
+	var elm = document.getElementById("my3dJS");
+	/*if(elm){
+		elm.parentNode.removeChild(elm);
+	}
+	elm = document.createElement("script");
+	elm.src = "stepsAndMy3Ds/"+file+".js";
+	elm.id = "my3dJS";*/
+	elm.onload = My3D.rawEvent.onGameStart;
+	//document.body.appendChild(elm);
+};
+
+My3D.rawEvent.onGameStart = function(e){
+	if(My3D.event.onGameStart){
+		My3D.event.onGameStart();
+	}
+};
+
+My3D.rawEvent.onKeyDown = function(e){
+
+	var key = e.keyCode || e.which;
+	
+	if(key in My3D.key.keys){
+		My3D.key.keys[key] = 1;
+		e.preventDefault();
+		return false;
+	}else if(My3D.event.onKeyDown){
+		return My3D.event.onKeyDown(e);
+	}else{
+		return true;
+	}	
+};
+My3D.rawEvent.onKeyUp = function(e){
+	var key = e.keyCode || e.which;
+	
+	if(key in My3D.key.keys){
+		My3D.key.keys[key] = 0;
+		e.preventDefault();
+		return false;
+	}else if(My3D.event.onKeyUp){
+		return My3D.event.onKeyUp(e);
+	}else{
+		return true;
+	}	
+};
+My3D.rawEvent.onMouseMove = function(e){
+
+	My3D.mouse.x = e.layerX;
+	My3D.mouse.y = e.layerY;
+	if(My3D.event.onMouseMove){
+		return My3D.event.onMouseMove(e);
+	}else{
+		e.preventDefault();
+		return false;
+	}	
+};
+My3D.rawEvent.onMouseDown = function(e){
+
+	My3D.mouse.isDown = true;
+	if(My3D.event.onMouseDown){
+		return My3D.event.onMouseDown(e);
+	}else{
+		e.preventDefault();
+		return false;
+	}	
+};
+My3D.rawEvent.onMouseUp = function(e){
+
+	My3D.mouse.isDown = false;;
+	if(My3D.event.onMouseUp){
+		return My3D.event.onMouseUp(e);
+	}else{
+		e.preventDefault();
+		return false;
+	}	
+};
+My3D.rawEvent.onMouseScroll = function(e){
+	var delta = e.wheelDelta || e.detail || 0;
+	My3D.mouse.z += delta == 0 ? 0 : Math.abs(delta)/delta;
+	if(My3D.event.onMouseScroll){
+		return My3D.event.onMouseScroll(e);
+	}else{
+		e.preventDefault();
+		return false;
+	}	
+};
+
+My3D.event = {};
+
+
+My3D.key.init = function(keys){
+	for(var i=0; i<arguments.length; i++){
+		My3D.key.keys[arguments[i]] = 0;
+	}
+}
+
+My3D.key.isDown = function(key){
+	return My3D.key.keys[key] === 1 ? 1 : 0;
+};
+
+
+My3D.startAnimation = function(){
+	
+	var requestFrame = (function(){
+		return window.requestAnimationFrame	|| 
+		window.webkitRequestAnimationFrame	|| 
+		window.mozRequestAnimationFrame		|| 
+		window.oRequestAnimationFrame		|| 
+		window.msRequestAnimationFrame		|| 
+		function(callback){
+			window.setTimeout(callback, 1000 / 60);
+		};
+	})();
+
+	var lastFrameTime = +new Date();
+	var frameRequested = function(t){
+		if(My3D.event.onEnterFrame){
+			My3D.event.onEnterFrame(t-lastFrameTime);
+		}
+		requestFrame(frameRequested);
+		lastFrameTime = t;
+	};
+	requestFrame(frameRequested);
+
+};
+(function(){
+		
+	})();
+
+window.addEventListener("load", My3D.rawEvent.onLoad, true);
+
+
+
+</script>
+<script id="my3dJS">
+
+My3D.event.onGameStart = function(e){	
+	for(var i=0; i<world.lines.length; i++){
+		var line = world.lines[i];
+		line.p1 = world.vertices[line.p1];
+		line.p2 = world.vertices[line.p2];
+	}
+	camera.screen.clearRect(0, 0, camera.width, camera.height);
+	camera.screen.strokeStyle = "red";
+	
+	camera.ry = -(My3D.mouse.x/camera.width - 0.5)*Math.PI*2;
+	camera.rx = (My3D.mouse.y/camera.height)*Math.PI/2;
+	
+	camera.y = -Math.sin(camera.rx)*300;
+	ryRadius = Math.cos(camera.rx)*300;
+	
+	camera.x = Math.sin(camera.ry)*ryRadius;
+	camera.z = -Math.cos(camera.ry)*ryRadius;
+
+	camera.screen.strokeStyle = "red";
+	render(world, camera);
+};
+
+
+function render(world, camera){
+	var toDraw = [];
+
+	for(var i=0; i<world.vertices.length; i++){
+		var vertex = world.vertices[i];
+		
+		var dx = vertex.x - camera.x;
+		var dy = vertex.y - camera.y;
+		var dz = vertex.z - camera.z;
+		
+		var d1x = Math.cos(camera.ry)*dx + Math.sin(camera.ry)*dz;
+		var d1y = dy;
+		var d1z = Math.cos(camera.ry)*dz - Math.sin(camera.ry)*dx;
+		
+		var d2x = d1x;
+		var d2y = Math.cos(camera.rx)*d1y - Math.sin(camera.rx)*d1z;
+		var d2z = Math.cos(camera.rx)*d1z + Math.sin(camera.rx)*d1y;
+		
+		var d3x = Math.cos(camera.rz)*d2x + Math.sin(camera.rz)*d2y;
+		var d3y = Math.cos(camera.rz)*d2y - Math.sin(camera.rz)*d2x;
+		var d3z = d2z;
+		
+	
+		var scale = camera.depth / d3z;	
+		vertex.posX = scale * d3x + camera.offsetX;
+		vertex.posY = scale * d3y + camera.offsetY;
+		vertex.posZ = scale;
+	}
+	
+	for(var i=0; i<world.lines.length; i++){
+		var line = world.lines[i];
+		if(line.p1.posZ > 0 && line.p2.posZ > 0){
+			toDraw.push({
+				posX1: line.p1.posX,
+				posY1: line.p1.posY,
+				posX2: line.p2.posX,
+				posY2: line.p2.posY,
+				posZ: (line.p1.posZ + line.p2.posZ)/2
+			});
+		}
+		
+	}
+	
+	toDraw.sort(function(a, b){
+		return a.posZ - b.posZ;
+	});
+	
+	for(var i=0; i<toDraw.length; i++){
+		camera.screen.beginPath();
+		camera.screen.moveTo(toDraw[i].posX1, toDraw[i].posY1);
+		camera.screen.lineTo(toDraw[i].posX2, toDraw[i].posY2);
+		camera.screen.stroke();
+	}
+}
+
+
+var world = {
+	vertices:[
+		{x:100, y:100, z: 100},
+		{x:-100, y:100, z: 100},
+		{x:-100, y:-100, z: 100},
+		{x:100, y:-100, z: 100},
+		{x:100, y:100, z: -100},
+		{x:-100, y:100, z: -100},
+		{x:-100, y:-100, z: -100},
+		{x:100, y:-100, z: -100},
+	],
+	lines:[
+		{p1: 0, p2: 1},
+		{p1: 1, p2: 2},
+		{p1: 2, p2: 3},
+		{p1: 3, p2: 0},
+		
+		{p1: 4, p2: 5},
+		{p1: 5, p2: 6},
+		{p1: 6, p2: 7},
+		{p1: 7, p2: 4},
+		
+		
+		{p1: 0, p2: 4},
+		{p1: 1, p2: 5},
+		{p1: 2, p2: 6},
+		{p1: 3, p2: 7},
+		
+	]
+};
+
+var camera = {
+	x: 0,
+	y: 0,
+	z: 400,
+	rx: 0,
+	ry: 0,
+	rz: 0,
+	depth: 350,
+	screen: null,
+	width: null,
+	height: null,
+	offsetX: null,
+	offsetY: null
+};
+
+
+
+
+  </script>
+  <style>
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			html, body{
+				position: relative;
+			}
+		
+			#c{
+				border: 0px solid black;
+				background: white;
+				position: absolute;
+			}
+		</style>
+ </head>
+ <body>
+<canvas id="c" width="780" height="620"></canvas>  
+ </body>
+</html>

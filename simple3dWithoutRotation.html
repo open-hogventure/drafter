@@ -42,32 +42,19 @@ My3D.rawEvent.onLoad = function(e){
 	camera.offsetY = My3D.canvas.height/2;
 
 	
-	//My3D.event.onGameStart();
-	My3D.rawEvent.onHashChange();
+	My3D.event.onGameStart();
+	//My3D.rawEvent.onHashChange();
 	My3D.startAnimation();
 };
 My3D.rawEvent.onHashChange = function(e){
 	My3D.key.keys = [];
-
-	/*
-	var file = document.location.hash.substr(1);
-	console.log("hashChange: "+file);
-	if(file === ""){
-		file = "step1";
-	}*/
 	var elm = document.getElementById("my3dJS");
-	/*if(elm){
-		elm.parentNode.removeChild(elm);
-	}
-	elm = document.createElement("script");
-	elm.src = "stepsAndMy3Ds/"+file+".js";
-	elm.id = "my3dJS";*/
 	elm.onload = My3D.rawEvent.onGameStart;
-	//document.body.appendChild(elm);
 };
 
 My3D.rawEvent.onGameStart = function(e){
 	if(My3D.event.onGameStart){
+    console.log('onGameStart');
 		My3D.event.onGameStart();
 	}
 };
@@ -190,12 +177,47 @@ window.addEventListener("load", My3D.rawEvent.onLoad, true);
 </script>
 <script id="my3dJS">
 
-My3D.event.onGameStart = function(e){	
-	for(var i=0; i<world.lines.length; i++){
-		var line = world.lines[i];
-		line.p1 = world.vertices[line.p1];
-		line.p2 = world.vertices[line.p2];
+My3D.event.onGameStart = function(e){
+  world.map = [[1,0,0],[0,0,1],[1,0,0]];
+  //world.map = [[0,0,1],[1,0,0],[0,0,1]];
+  //world.map = [[0,1,0],[0,0,0],[1,0,1]];
+  //world.map = [[1,0,1],[0,0,0],[0,1*,0]];*you are standing in the wall
+  
+  world.cubes.push( new Cube(-200,0,-250) );
+  world.cubes.push( new Cube(0,0,-250) );
+  world.cubes.push( new Cube(200,0,-250) );
+  //
+  world.cubes.push( new Cube(-200,0,-50) );
+  world.cubes.push( new Cube(0,0,-50) );
+  world.cubes.push( new Cube(200,0,-50) );
+  //
+  world.cubes.push( new Cube(-200,0,150) );
+  world.cubes.push( new Cube(0,0,150) );
+  world.cubes.push( new Cube(200,0,150) );
+  
+for (var j = 0; j < world.cubes.length; j++) {
+  /*for(var i=0; i<world.cubes[j].lines.length; i++){
+		var line = world.cubes[j].lines[i];
+		line.p1 = world.cubes[j].vertices[line.p1];
+		line.p2 = world.cubes[j].vertices[line.p2];
+	}*/
+  for (var i=0; i<world.cubes[j].raster.length; i++){
+		var side = world.cubes[j].raster[i];
+		side.p1 = world.cubes[j].vertices[side.p1];
+		side.p2 = world.cubes[j].vertices[side.p2];
+    side.p3 = world.cubes[j].vertices[side.p3];
+		side.p4 = world.cubes[j].vertices[side.p4];
+    world.cubes[j].raster[i] = side;
+  }
+  for(var i=0; i<world.cubes[j].sides.length; i++){
+		var side = world.cubes[j].sides[i];
+		side.p1 = world.cubes[j].vertices[side.p1];
+		side.p2 = world.cubes[j].vertices[side.p2];
+    side.p3 = world.cubes[j].vertices[side.p3];
+		side.p4 = world.cubes[j].vertices[side.p4];
+    world.cubes[j].sides[i] = side;
 	}
+}
 	camera.screen.clearRect(0, 0, camera.width, camera.height);
 	camera.screen.strokeStyle = "red";
 	
@@ -208,16 +230,20 @@ My3D.event.onGameStart = function(e){
 	camera.x = Math.sin(camera.ry)*ryRadius;
 	camera.z = -Math.cos(camera.ry)*ryRadius;
 
-	camera.screen.strokeStyle = "red";
-	render(world, camera);
+	camera.screen.strokeStyle = "#fff";
+	//camera.screen.fillStyle = 'rgba(0,0,0,0.5)';
+  render(world, camera);
 };
 
 
 function render(world, camera){
-	var toDraw = [];
-
-	for(var i=0; i<world.vertices.length; i++){
-		var vertex = world.vertices[i];
+  camera.screen.fillStyle = '#000';
+  camera.screen.fillRect(0, 0, camera.width, camera.height);
+	var toStroke = [];
+  var toFill = [];
+for (var j = 0; j < world.cubes.length; j++) {
+	for(var i=0; i<world.cubes[j].vertices.length; i++){
+		var vertex = world.cubes[j].vertices[i];
 		
 		var dx = vertex.x - camera.x;
 		var dy = vertex.y - camera.y;
@@ -241,64 +267,154 @@ function render(world, camera){
 		vertex.posY = scale * d3y + camera.offsetY;
 		vertex.posZ = scale;
 	}
-	
-	for(var i=0; i<world.lines.length; i++){
-		var line = world.lines[i];
-		if(line.p1.posZ > 0 && line.p2.posZ > 0){
-			toDraw.push({
+	/*
+	for(var i=0; i<world.cubes[j].lines.length; i++){
+		var line = world.cubes[j].lines[i];
+		//if(line.p1.posZ > 0 && line.p2.posZ > 0){
+			toStroke.push({
 				posX1: line.p1.posX,
 				posY1: line.p1.posY,
 				posX2: line.p2.posX,
 				posY2: line.p2.posY,
 				posZ: (line.p1.posZ + line.p2.posZ)/2
 			});
-		}
-		
+		//}	
+	}*/
+  for(var i=0; i<world.cubes[j].raster.length; i++){
+		var side = world.cubes[j].raster[i];
+		//if(side.p1.posZ > 0 && side.p2.posZ > 0){
+			toStroke.push({
+				posX1: side.p1.posX,
+				posY1: side.p1.posY,
+				posX2: side.p2.posX,
+				posY2: side.p2.posY,
+        posX3: side.p3.posX,
+				posY3: side.p3.posY,
+        posX4: side.p4.posX,
+				posY4: side.p4.posY,
+				posZ: (side.p1.posZ + side.p2.posZ)/2
+			});
+    //}	
 	}
-	
-	toDraw.sort(function(a, b){
+
+  if (world.map[(j-(j%3))/3][j%3] == 1) {
+    for(var i=0; i<world.cubes[j].sides.length; i++){
+      var side = world.cubes[j].sides[i];
+      if(!(i==2 && j%3==0)){
+        toFill.push({
+          posX1: side.p1.posX,
+          posY1: side.p1.posY,
+          posX2: side.p2.posX,
+          posY2: side.p2.posY,
+          posX3: side.p3.posX,
+          posY3: side.p3.posY,
+          posX4: side.p4.posX,
+          posY4: side.p4.posY,
+          posZ: (side.p1.posZ + side.p2.posZ)/2
+        });
+      }	
+    }
+	}
+}
+	toStroke.sort(function(a, b){
 		return a.posZ - b.posZ;
 	});
+  
+  /*toFill.sort(function(a, b){
+		return Math.abs(a.posX1-a.posX2) + Math.abs(b.posX1-b.posX2);
+	});*/
 	
-	for(var i=0; i<toDraw.length; i++){
+	for(var i=0; i<toStroke.length; i++){
 		camera.screen.beginPath();
-		camera.screen.moveTo(toDraw[i].posX1, toDraw[i].posY1);
-		camera.screen.lineTo(toDraw[i].posX2, toDraw[i].posY2);
-		camera.screen.stroke();
+		camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
+		camera.screen.lineTo(toStroke[i].posX2, toStroke[i].posY2);
+		camera.screen.lineTo(toStroke[i].posX3, toStroke[i].posY3);
+		camera.screen.lineTo(toStroke[i].posX4, toStroke[i].posY4);
+    camera.screen.lineTo(toStroke[i].posX1, toStroke[i].posY1);
+    camera.screen.stroke();
 	}
+  //camera.screen.strokeStyle = '#0f0';
+  //camera.screen.fillStyle = '#000';
+  for(var i=0; i < toFill.length; i++){
+    camera.screen.beginPath();
+		camera.screen.moveTo(toFill[i].posX1, toFill[i].posY1);
+		camera.screen.lineTo(toFill[i].posX2, toFill[i].posY2);
+    camera.screen.lineTo(toFill[i].posX3, toFill[i].posY3);
+    camera.screen.lineTo(toFill[i].posX4, toFill[i].posY4);
+		camera.screen.lineTo(toFill[i].posX1, toFill[i].posY1);
+    camera.screen.stroke();
+    camera.screen.fill();
+	}
+  /*for(var i=0; i<toStroke.length; i++){
+		camera.screen.beginPath();
+		camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
+		camera.screen.lineTo(toStroke[i].posX2, toStroke[i].posY2);
+		camera.screen.stroke();
+	}*/
 }
 
 
 var world = {
-	vertices:[
-		{x:100, y:100, z: 100},
-		{x:-100, y:100, z: 100},
-		{x:-100, y:-100, z: 100},
-		{x:100, y:-100, z: 100},
-		{x:100, y:100, z: -100},
-		{x:-100, y:100, z: -100},
-		{x:-100, y:-100, z: -100},
-		{x:100, y:-100, z: -100},
-	],
-	lines:[
-		{p1: 0, p2: 1},
-		{p1: 1, p2: 2},
-		{p1: 2, p2: 3},
-		{p1: 3, p2: 0},
-		
-		{p1: 4, p2: 5},
-		{p1: 5, p2: 6},
-		{p1: 6, p2: 7},
-		{p1: 7, p2: 4},
-		
-		
-		{p1: 0, p2: 4},
-		{p1: 1, p2: 5},
-		{p1: 2, p2: 6},
-		{p1: 3, p2: 7},
-		
-	]
+  cubes: []
 };
+/**
+@class Cube
+@since 2014-07-15
+*/
+function Cube(_px, _py, _pz) {
+  
+  this.posX = _px;
+  this.posY = _py;
+  this.posZ = _pz;
+  this.vertices = [
+    {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+    {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+    {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},
+    {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},
+    {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+    {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+    {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},
+    {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ}
+  ];
+  this.lines = [
+    {p1: 0, p2: 1},
+    {p1: 1, p2: 2},
+    {p1: 2, p2: 3},
+    {p1: 3, p2: 0},
+    //
+    {p1: 4, p2: 5},
+    {p1: 5, p2: 6},
+    {p1: 6, p2: 7},
+    {p1: 7, p2: 4},
+    //		
+    {p1: 0, p2: 4},
+    {p1: 1, p2: 5},
+    {p1: 2, p2: 6},
+    {p1: 3, p2: 7}
+  ];
+  this.sides = [   
+    //{p1:0,p2:1,p3:5,p4:4},
+    //{p1:4,p2:5,p3:6,p4:7},    
+    {p1:7,p2:6,p3:2,p4:3},       
+    {p1:0,p2:4,p3:7,p4:3},    
+    {p1:5,p2:1,p3:2,p4:6},
+    {p1:0,p2:1,p3:2,p4:3}     
+  ];
+  this.raster = [
+    {p1:0,p2:1,p3:5,p4:4},
+    {p1:7,p2:6,p3:2,p4:3}
+  ];
+  this.map = null;
+  /**
+  @method
+  */
+  this.setPosition = function(posX, posY, posZ) {
+    this.posX = posX;
+    this.posY = posY;
+    this.posZ = posZ;
+  };
+  
+}
 
 var camera = {
 	x: 0,
@@ -307,7 +423,7 @@ var camera = {
 	rx: 0,
 	ry: 0,
 	rz: 0,
-	depth: 350,
+	depth: 250,
 	screen: null,
 	width: null,
 	height: null,
@@ -336,6 +452,6 @@ var camera = {
 		</style>
  </head>
  <body>
-<canvas id="c" width="780" height="620"></canvas>  
+<canvas id="c" width="800" height="400"></canvas>  
  </body>
 </html>

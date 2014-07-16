@@ -323,7 +323,7 @@ for (var j = 0; j < world.cubes.length; j++) {
   /*toFill.sort(function(a, b){
 		return Math.abs(a.posX1-a.posX2) + Math.abs(b.posX1-b.posX2);
 	});*/
-	
+	camera.screen.lineWidth = 1;
 	for(var i=0; i<toStroke.length; i++){
 		camera.screen.beginPath();
 		camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
@@ -335,6 +335,7 @@ for (var j = 0; j < world.cubes.length; j++) {
 	}
   //camera.screen.strokeStyle = '#0f0';
   //camera.screen.fillStyle = '#000';
+  camera.screen.lineWidth = 2;
   for(var i=0; i < toFill.length; i++){
     camera.screen.beginPath();
 		camera.screen.moveTo(toFill[i].posX1, toFill[i].posY1);
@@ -342,8 +343,8 @@ for (var j = 0; j < world.cubes.length; j++) {
     camera.screen.lineTo(toFill[i].posX3, toFill[i].posY3);
     camera.screen.lineTo(toFill[i].posX4, toFill[i].posY4);
 		camera.screen.lineTo(toFill[i].posX1, toFill[i].posY1);
-    camera.screen.stroke();
     camera.screen.fill();
+    camera.screen.stroke();
 	}
   /*for(var i=0; i<toStroke.length; i++){
 		camera.screen.beginPath();

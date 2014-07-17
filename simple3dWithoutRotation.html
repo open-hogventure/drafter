@@ -14,9 +14,299 @@
     werdnaEngine.ctx = null;
     werdnaEngine.canvas = null;
     werdnaEngine.game = null;
-    //Wizardy like game engine
+    werdnaEngine.direction = 0;
     /**
-    
+    @property
+
+    */
+    werdnaEngine.world = {
+      map: null,
+      view: null,
+      cubes: []
+    };
+    /**
+    @property
+    */
+    werdnaEngine.camera = {
+      x: 0,
+      y: 0,
+      z: 400,
+      rx: 0,
+      ry: 0,
+      rz: 0,
+      depth: 250,
+      screen: null,
+      width: null,
+      height: null,
+      offsetX: null,
+      offsetY: null
+    };
+    //werdnaEngine.key = {};
+    //werdnaEngine.key.keys = [];
+
+    /**
+    */    
+    werdnaEngine.mouse = {};
+    werdnaEngine.mouse.isDown = false;
+    werdnaEngine.mouse.x = 0;
+    werdnaEngine.mouse.y = 0;
+    werdnaEngine.mouse.z = 0;
+
+    werdnaEngine.gameStart = function(_map) {
+      if (_map == null) {
+        werdnaEngine.world.map = [[0,0,0],[0,0,0],[0,0,0]];
+        werdnaEngine.world.cubes.push( new Cube(-200,0,-250) );
+        werdnaEngine.world.cubes.push( new Cube(0,0,-250) );
+        werdnaEngine.world.cubes.push( new Cube(200,0,-250) );
+        //
+        werdnaEngine.world.cubes.push( new Cube(-200,0,-50) );
+        werdnaEngine.world.cubes.push( new Cube(0,0,-50) );
+        werdnaEngine.world.cubes.push( new Cube(200,0,-50) );
+        //
+        werdnaEngine.world.cubes.push( new Cube(-200,0,150) );
+        werdnaEngine.world.cubes.push( new Cube(0,0,150) );
+        werdnaEngine.world.cubes.push( new Cube(200,0,150) );
+        for (var j = 0; j < werdnaEngine.world.cubes.length; j++) {
+          
+          for (var i=0; i<werdnaEngine.world.cubes[j].raster.length; i++){
+            var side = werdnaEngine.world.cubes[j].raster[i];
+            side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+            side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+            side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+            side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+            werdnaEngine.world.cubes[j].raster[i] = side;
+          }
+          for(var i=0; i<werdnaEngine.world.cubes[j].sides.length; i++){
+            var side = werdnaEngine.world.cubes[j].sides[i];
+            side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+            side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+            side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+            side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+            werdnaEngine.world.cubes[j].sides[i] = side;
+          }
+        }
+      } else {
+        console.log('new map ->');
+        console.log(_map);
+        werdnaEngine.world.map = _map;
+      }
+      
+
+      werdnaEngine.camera.screen.clearRect(0, 0, werdnaEngine.camera.width, werdnaEngine.camera.height);
+      werdnaEngine.camera.screen.strokeStyle = "red";
+      
+      werdnaEngine.camera.ry = -(werdnaEngine.mouse.x/werdnaEngine.camera.width - 0.5)*Math.PI*2;
+      werdnaEngine.camera.rx = (werdnaEngine.mouse.y/werdnaEngine.camera.height)*Math.PI/2;
+      
+      werdnaEngine.camera.y = -Math.sin(werdnaEngine.camera.rx)*300;
+      ryRadius = Math.cos(werdnaEngine.camera.rx)*300;
+      
+      werdnaEngine.camera.x = Math.sin(werdnaEngine.camera.ry)*ryRadius;
+      werdnaEngine.camera.z = -Math.cos(werdnaEngine.camera.ry)*ryRadius;
+
+      werdnaEngine.camera.screen.strokeStyle = "#fff";
+      //werdnaEngine.camera.screen.fillStyle = 'rgba(0,0,0,0.5)';
+      werdnaEngine.render(werdnaEngine.world, werdnaEngine.camera);
+    };
+
+    werdnaEngine.render = function (world, camera) {
+      camera.screen.fillStyle = '#000';
+      camera.screen.fillRect(0, 0, camera.width, camera.height);
+      var toStroke = [];
+      var toFill = [];
+      for (var j = 0; j < world.cubes.length; j++) {
+        for(var i=0; i<world.cubes[j].vertices.length; i++){
+          var vertex = world.cubes[j].vertices[i];
+          
+          var dx = vertex.x - camera.x;
+          var dy = vertex.y - camera.y;
+          var dz = vertex.z - camera.z;
+          
+          var d1x = Math.cos(camera.ry)*dx + Math.sin(camera.ry)*dz;
+          var d1y = dy;
+          var d1z = Math.cos(camera.ry)*dz - Math.sin(camera.ry)*dx;
+          
+          var d2x = d1x;
+          var d2y = Math.cos(camera.rx)*d1y - Math.sin(camera.rx)*d1z;
+          var d2z = Math.cos(camera.rx)*d1z + Math.sin(camera.rx)*d1y;
+          
+          var d3x = Math.cos(camera.rz)*d2x + Math.sin(camera.rz)*d2y;
+          var d3y = Math.cos(camera.rz)*d2y - Math.sin(camera.rz)*d2x;
+          var d3z = d2z;
+          
+        
+          var scale = camera.depth / d3z;	
+          vertex.posX = scale * d3x + camera.offsetX;
+          vertex.posY = scale * d3y + camera.offsetY;
+          vertex.posZ = scale;
+        }
+        /*
+        for(var i=0; i<world.cubes[j].lines.length; i++){
+          var line = world.cubes[j].lines[i];
+          //if(line.p1.posZ > 0 && line.p2.posZ > 0){
+            toStroke.push({
+              posX1: line.p1.posX,
+              posY1: line.p1.posY,
+              posX2: line.p2.posX,
+              posY2: line.p2.posY,
+              posZ: (line.p1.posZ + line.p2.posZ)/2
+            });
+          //}	
+        }*/
+        for(var i=0; i<world.cubes[j].raster.length; i++){
+          var side = world.cubes[j].raster[i];
+          //if(side.p1.posZ > 0 && side.p2.posZ > 0){
+            toStroke.push({
+              posX1: side.p1.posX,
+              posY1: side.p1.posY,
+              posX2: side.p2.posX,
+              posY2: side.p2.posY,
+              posX3: side.p3.posX,
+              posY3: side.p3.posY,
+              posX4: side.p4.posX,
+              posY4: side.p4.posY,
+              posZ: (side.p1.posZ + side.p2.posZ)/2
+            });
+          //}	
+        }
+
+        if (world.map[(j-(j%3))/3][j%3] == 1) {
+          for(var i=0; i<world.cubes[j].sides.length; i++){
+            var side = world.cubes[j].sides[i];
+            if(!(i==2 && j%3==0) && !((i==2 || i==0) && world.map[(j-(j%3))/3][j%3-1] == 1) ){
+              toFill.push({
+                posX1: side.p1.posX,
+                posY1: side.p1.posY,
+                posX2: side.p2.posX,
+                posY2: side.p2.posY,
+                posX3: side.p3.posX,
+                posY3: side.p3.posY,
+                posX4: side.p4.posX,
+                posY4: side.p4.posY,
+                posZ: (side.p1.posZ + side.p2.posZ)/2
+              });
+            }	
+          }
+        }
+      }
+      toStroke.sort(function(a, b){
+        return a.posZ - b.posZ;
+      });
+      /*toFill.sort(function(a, b){
+        return Math.abs(a.posX1-a.posX2) + Math.abs(b.posX1-b.posX2);
+      });*/
+      camera.screen.lineWidth = 1;
+      for(var i=0; i<toStroke.length; i++){
+        camera.screen.beginPath();
+        camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
+        camera.screen.lineTo(toStroke[i].posX2, toStroke[i].posY2);
+        camera.screen.lineTo(toStroke[i].posX3, toStroke[i].posY3);
+        camera.screen.lineTo(toStroke[i].posX4, toStroke[i].posY4);
+        camera.screen.lineTo(toStroke[i].posX1, toStroke[i].posY1);
+        camera.screen.stroke();
+      }
+      camera.screen.fillStyle = '#000';
+      camera.screen.lineWidth = 2;
+      for(var i=0; i < toFill.length; i++){
+        camera.screen.beginPath();
+        camera.screen.moveTo(toFill[i].posX1, toFill[i].posY1);
+        camera.screen.lineTo(toFill[i].posX2, toFill[i].posY2);
+        camera.screen.lineTo(toFill[i].posX3, toFill[i].posY3);
+        camera.screen.lineTo(toFill[i].posX4, toFill[i].posY4);
+        camera.screen.lineTo(toFill[i].posX1, toFill[i].posY1);
+        camera.screen.fill();
+        camera.screen.stroke();
+      }
+      
+      werdnaEngine.ctx.fillStyle = '#000';
+      werdnaEngine.ctx.lineWidth = 1;
+      var ii = 0;
+      var jj = 0; 
+      switch (Math.abs(werdnaEngine.direction)) {
+        case 1:
+          jj = werdnaEngine.dungeon.length-1;
+          ii = werdnaEngine.dungeon.length-1;
+        break;
+        case 2:
+          ii = werdnaEngine.dungeon.length-1;
+          jj = werdnaEngine.dungeon.length-1;
+        break;
+        case 3:
+          ii = werdnaEngine.dungeon.length-1;
+          jj = werdnaEngine.dungeon.length-1;
+        break;
+        default:
+        break;
+      }
+      console.log(ii,jj,werdnaEngine.direction % 2);
+      if (werdnaEngine.direction % 2 == 0) {      
+        for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
+          werdnaEngine.ctx.fillStyle = '#fff';
+          werdnaEngine.ctx.strokeStyle = '#fff';
+          for (var j = 2; j < 11; j++) {
+            werdnaEngine.ctx.fillStyle = '#fff';
+            werdnaEngine.ctx.strokeRect(
+                        werdnaEngine.canvas.width-Math.abs(j-jj)*10,
+                        -5+Math.abs(i-ii)*10, 8, 8);          
+            if (parseInt(werdnaEngine.dungeon[i].substr(j,1)) == 1) {
+              werdnaEngine.ctx.fillRect(
+                        werdnaEngine.canvas.width-Math.abs(j-jj)*10,
+                        -5+Math.abs(i-ii)*10, 8, 8);  
+            }
+          }
+        }
+
+        werdnaEngine.ctx.fillStyle = '#f00';
+        werdnaEngine.ctx.fillRect(
+          werdnaEngine.canvas.width-Math.abs(ii-werdnaEngine.player.x)*10,  
+          -5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);      
+      } else if(werdnaEngine.direction == 1) {
+        
+        for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
+          werdnaEngine.ctx.fillStyle = '#fff';
+          werdnaEngine.ctx.strokeStyle = '#fff';
+          for (var j = 2; j < 11; j++) {
+            werdnaEngine.ctx.fillStyle = '#fff';
+            werdnaEngine.ctx.strokeRect(
+                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
+                        -5+Math.abs(j)*10, 8, 8);          
+            if ( parseInt(werdnaEngine.dungeon[Math.abs(ii-i)].substr(Math.abs(j),1)) == 1) {
+              werdnaEngine.ctx.fillRect(
+                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
+                        -5+Math.abs(jj-j)*10, 8, 8);  
+            }
+          }
+        }
+
+        werdnaEngine.ctx.fillStyle = '#f00';
+        werdnaEngine.ctx.fillRect(
+          werdnaEngine.canvas.width-Math.abs(werdnaEngine.player.y)*10,  
+          -5+Math.abs(ii-werdnaEngine.player.x)*10, 8, 8);
+      } else {
+        for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
+          werdnaEngine.ctx.fillStyle = '#fff';
+          werdnaEngine.ctx.strokeStyle = '#fff';
+          for (var j = 2; j < 11; j++) {
+            werdnaEngine.ctx.fillStyle = '#fff';
+            werdnaEngine.ctx.strokeRect(
+                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
+                        -5+Math.abs(j)*10, 8, 8);          
+            if ( parseInt(werdnaEngine.dungeon[Math.abs(i)].substr(Math.abs(jj-j),1)) == 1) {
+              werdnaEngine.ctx.fillRect(
+                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
+                        -5+Math.abs(jj-j)*10, 8, 8);  
+            }
+          }
+        }
+
+        werdnaEngine.ctx.fillStyle = '#f00';
+        werdnaEngine.ctx.fillRect(
+          werdnaEngine.canvas.width-Math.abs(jj-werdnaEngine.player.y)*10,  
+          -5+Math.abs(werdnaEngine.player.x)*10, 8, 8);
+      }
+    };
+    /**
+    Wizardy like game engine
     */
     werdnaEngine.init = function() {
       console.log('init');
@@ -48,6 +338,18 @@
       }*/
       //just a generic test method
       werdnaEngine.dungeon = werdnaEngine.dungeonGenerator();
+      console.log(werdnaEngine.canvas);
+      window.addEventListener("keydown", werdnaEngine.keyDown, false);
+      window.addEventListener("keyup", werdnaEngine.keyUp, false);
+      
+      werdnaEngine.camera.screen = werdnaEngine.ctx;
+      werdnaEngine.camera.width = werdnaEngine.canvas.width;
+      werdnaEngine.camera.height = werdnaEngine.canvas.height;
+      werdnaEngine.camera.offsetX = werdnaEngine.canvas.width/2;
+      werdnaEngine.camera.offsetY = werdnaEngine.canvas.height/2;
+      
+      werdnaEngine.gameStart(null);
+      werdnaEngine.startAnimation();
     };        
     /**
     @property dungeon
@@ -77,20 +379,33 @@
             b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
           }
           block = werdnaEngine.dungeonFields[b];
-          fields[1+3*i] = fields[1+3*i] + block[0];
-          fields[1+3*i + 1] = fields[1+3*i + 1] + block[1];
-          fields[1+3*i + 2] = fields[1+3*i + 2] + block[2];
+          fields[2+3*i] = fields[2+3*i] + block[0];
+          fields[2+3*i + 1] = fields[2+3*i + 1] + block[1];
+          fields[2+3*i + 2] = fields[2+3*i + 2] + block[2];
           o = b;
           o[j] = b;
         } 
-        fields[1+3*i] = fields[1+3*i] + '11';
-        fields[1+3*i + 1] = fields[1+3*i + 1] + '11';
-        fields[1+3*i + 2] = fields[1+3*i + 2] + '11';
+        fields[2+3*i] = fields[2+3*i] + '11';
+        fields[2+3*i + 1] = fields[2+3*i + 1] + '11';
+        fields[2+3*i + 2] = fields[2+3*i + 2] + '11';
       }
       console.log(fields);
       
       return fields;
     }
+    /**
+
+    */
+    werdnaEngine.player = {
+      x: null,
+      y: null,
+      health: 0,
+      power: 0,
+      magic: 0,
+      status: 0,//problems solved
+      positive: 0,
+      negative: 0
+    };
     /**
     on click event what to do?
     */
@@ -129,6 +444,146 @@
       }
     }
     /**
+    */
+    werdnaEngine.keyDown = function(e){
+
+      var key = e.keyCode || e.which;
+      console.log('key -> '+key);
+      /*if(key in werdnaEngine.key.keys){
+        werdnaEngine.key.keys[key] = 1;
+        e.preventDefault();
+        return false;
+      }else{
+        return true;
+      }	*/
+    };
+    werdnaEngine.keyUp = function(e){
+      var key = e.keyCode || e.which;
+      console.log('key -> '+key);
+      var data = {
+        x: werdnaEngine.player.x, 
+        y: werdnaEngine.player.y, 
+        start: null, 
+        direction: werdnaEngine.direction
+      }; 
+      switch (key) {
+        case 39:
+        //right
+        werdnaEngine.dungeon = werdnaEngine.rotateView(true);
+      var oldx = werdnaEngine.player.x; 
+      var oldy = werdnaEngine.player.y;
+      data.x = werdnaEngine.dungeon.length - 1 - oldy;//left
+      data.y = oldx;
+      data.direction++;
+        break;
+        case 38:
+        //up
+        data.y = data.y - 1;
+        break;
+        case 37:
+        //left
+        werdnaEngine.dungeon = werdnaEngine.rotateView(false);
+      var oldx = werdnaEngine.player.x; 
+      var oldy = werdnaEngine.player.y;
+      data.y = werdnaEngine.dungeon.length - 1 - oldx;//right
+      data.x = oldy;
+      data.direction--;
+        break;
+        case 40:
+        //down
+        data.y = data.y + 1;
+        break;
+        default:
+        break;
+      }
+      data.start = parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1));
+      if (data.start == 0) {
+        werdnaEngine.direction = data.direction % 4;
+        werdnaEngine.player.x = data.x;
+        werdnaEngine.player.y = data.y;
+        var map = [[
+              parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x-1, 1)),
+              parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x, 1)),
+              parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x+1, 1))],[
+              parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x-1, 1)),
+              parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x, 1)),
+              parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x+1, 1))],[
+              parseInt(werdnaEngine.dungeon[data.y].substr(data.x-1, 1)),
+              parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1)),
+              parseInt(werdnaEngine.dungeon[data.y].substr(data.x+1, 1))]];
+        werdnaEngine.gameStart(map);
+      }
+
+      /*if(key in werdnaEngine.key.keys){
+        werdnaEngine.key.keys[key] = 0;
+        e.preventDefault();
+        return false;
+      }else{
+        return true;
+      }	*/
+    };
+    /**
+
+    */
+    werdnaEngine.rotateView = function(dirLeft) {
+      /*if (dirLeft) {
+        werdnaEngine.mouse.x += werdnaEngine.canvas.width/4;
+      } else {
+        werdnaEngine.mouse.x -= werdnaEngine.canvas.width/4;
+      }*/
+      var copyDungeon = [];
+      if (dirLeft) {
+        for (var i = werdnaEngine.dungeon.length; i > 0; i--) {
+          for (var j = 0; j < werdnaEngine.dungeon[i-1].length; j++) {        
+            if (werdnaEngine.dungeon.length - i == 0) {           
+              copyDungeon.push(werdnaEngine.dungeon[i-1].substr(j,1));
+            } else {
+              copyDungeon[j] = copyDungeon[j] + werdnaEngine.dungeon[i-1].substr(j,1);
+            }
+          }
+        }
+      }else{
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {        
+            if (i == 0) {           
+              copyDungeon.push(werdnaEngine.dungeon[i].substr(werdnaEngine.dungeon[i].length-j-1,1));
+            } else {
+              copyDungeon[j] = copyDungeon[j] + werdnaEngine.dungeon[i].substr(werdnaEngine.dungeon[i].length-1-j,1);
+            }
+          }
+        }
+      }
+      return copyDungeon;
+    };
+    /**
+    
+    */
+    werdnaEngine.startAnimation = function(){
+	
+      var requestFrame = (function(){
+        return window.requestAnimationFrame	|| 
+        window.webkitRequestAnimationFrame	|| 
+        window.mozRequestAnimationFrame		|| 
+        window.oRequestAnimationFrame		|| 
+        window.msRequestAnimationFrame		|| 
+        function(callback){
+          window.setTimeout(callback, 1000 / 60);
+        };
+      })();
+
+      var lastFrameTime = +new Date();
+      var frameRequested = function(t){
+        //if(werdnaEngine.event.onEnterFrame){
+        //	werdnaEngine.event.onEnterFrame(t-lastFrameTime);
+        //}
+        requestFrame(frameRequested);
+        lastFrameTime = t;
+      };
+      requestFrame(frameRequested);
+
+    };
+
+    /**
     really self removing
     */
     werdnaEngine.exit = function() {
@@ -148,368 +603,8 @@ function createElement(_t) {
 function getElement(_t) {
   return document.getElementById(_t);
 }
-//Wizardy like game engine
-// werdnaEngine.initLoad();
-// window.addEventListener('load',werdnaEngine.initLoad, true);
+//a Wizardy I like game engine
 
-werdnaEngine.key = {};
-werdnaEngine.key.keys = [];
-
-werdnaEngine.mouse = {};
-werdnaEngine.mouse.isDown = false;
-werdnaEngine.mouse.x = 0;
-werdnaEngine.mouse.y = 0;
-werdnaEngine.mouse.z = 0;
-
-werdnaEngine.rawEvent = {};
-werdnaEngine.initLoad = function(){
-	//werdnaEngine.canvas = document.getElementById("c");
-	//werdnaEngine.ctx = werdnaEngine.canvas.getContext("2d");
-  werdnaEngine.init();
-  console.log(werdnaEngine.canvas);
-	window.addEventListener("keydown", werdnaEngine.keyDown, false);
-	window.addEventListener("keyup", werdnaEngine.keyUp, false);
-	
-	camera.screen = werdnaEngine.ctx;
-	camera.width = werdnaEngine.canvas.width;
-	camera.height = werdnaEngine.canvas.height;
-	camera.offsetX = werdnaEngine.canvas.width/2;
-	camera.offsetY = werdnaEngine.canvas.height/2;
-	
-	werdnaEngine.gameStart(null);
-	werdnaEngine.startAnimation();
-};
-
-werdnaEngine.keyDown = function(e){
-
-	var key = e.keyCode || e.which;
-	console.log('key -> '+key);
-	if(key in werdnaEngine.key.keys){
-		werdnaEngine.key.keys[key] = 1;
-		e.preventDefault();
-		return false;
-	}else{
-		return true;
-	}	
-};
-werdnaEngine.keyUp = function(e){
-	var key = e.keyCode || e.which;
-	console.log('key -> '+key);
-  var data = {x: werdnaEngine.player.x, y: werdnaEngine.player.y, start: null};
-  switch (key) {
-    case 37:
-    //left
-    data.x = data.x + 1;
-    break;
-    case 38:
-    //up
-    data.y = data.y - 1;
-    break;
-    case 39:
-    //right
-    data.x = data.x - 1;
-    break;
-    case 40:
-    //down
-    data.y = data.y + 1;
-    break;
-    default:
-    break;
-  }
-  data.start = parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1));
-  if (data.start == 0) {
-    werdnaEngine.player.x = data.x;
-    werdnaEngine.player.y = data.y;
-    var map = [[
-          parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x-1, 1)),
-          parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x, 1)),
-          parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x+1, 1))],[
-          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x-1, 1)),
-          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x, 1)),
-          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x+1, 1))],[
-          parseInt(werdnaEngine.dungeon[data.y].substr(data.x-1, 1)),
-          parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1)),
-          parseInt(werdnaEngine.dungeon[data.y].substr(data.x+1, 1))]];
-    werdnaEngine.gameStart(map);
-  }
-
-	if(key in werdnaEngine.key.keys){
-		werdnaEngine.key.keys[key] = 0;
-		e.preventDefault();
-		return false;
-	}else{
-		return true;
-	}	
-};
-/*werdnaEngine.rawEvent.onMouseMove = function(e){
-
-	werdnaEngine.mouse.x = e.layerX;
-	werdnaEngine.mouse.y = e.layerY;
-	if(werdnaEngine.event.onMouseMove){
-		return werdnaEngine.event.onMouseMove(e);
-	}else{
-		e.preventDefault();
-		return false;
-	}	
-};
-werdnaEngine.rawEvent.onMouseDown = function(e){
-
-	werdnaEngine.mouse.isDown = true;
-	if(werdnaEngine.event.onMouseDown){
-		return werdnaEngine.event.onMouseDown(e);
-	}else{
-		e.preventDefault();
-		return false;
-	}	
-};
-werdnaEngine.rawEvent.onMouseUp = function(e){
-
-	werdnaEngine.mouse.isDown = false;;
-	if(werdnaEngine.event.onMouseUp){
-		return werdnaEngine.event.onMouseUp(e);
-	}else{
-		e.preventDefault();
-		return false;
-	}	
-};
-werdnaEngine.rawEvent.onMouseScroll = function(e){
-	var delta = e.wheelDelta || e.detail || 0;
-	werdnaEngine.mouse.z += delta == 0 ? 0 : Math.abs(delta)/delta;
-	if(werdnaEngine.event.onMouseScroll){
-		return werdnaEngine.event.onMouseScroll(e);
-	}else{
-		e.preventDefault();
-		return false;
-	}	
-};
-
-werdnaEngine.event = {};
-
-
-werdnaEngine.key.init = function(keys){
-	for(var i=0; i<arguments.length; i++){
-		werdnaEngine.key.keys[arguments[i]] = 0;
-	}
-}
-
-werdnaEngine.key.isDown = function(key){
-	return werdnaEngine.key.keys[key] === 1 ? 1 : 0;
-};
-*/
-
-werdnaEngine.startAnimation = function(){
-	
-	var requestFrame = (function(){
-		return window.requestAnimationFrame	|| 
-		window.webkitRequestAnimationFrame	|| 
-		window.mozRequestAnimationFrame		|| 
-		window.oRequestAnimationFrame		|| 
-		window.msRequestAnimationFrame		|| 
-		function(callback){
-			window.setTimeout(callback, 1000 / 60);
-		};
-	})();
-
-	var lastFrameTime = +new Date();
-	var frameRequested = function(t){
-		//if(werdnaEngine.event.onEnterFrame){
-		//	werdnaEngine.event.onEnterFrame(t-lastFrameTime);
-		//}
-		requestFrame(frameRequested);
-		lastFrameTime = t;
-	};
-	requestFrame(frameRequested);
-
-};
-(function(){
-		
-	})();
-
-window.addEventListener("load", werdnaEngine.initLoad, true);
-//werdnaEngine.initLoad();
-</script>
-<script id="my3dJS">
-
-werdnaEngine.gameStart = function(_map){
-  if (_map == null) {
-    world.map = [[0,0,0],[0,0,0],[0,0,0]];
-    world.cubes.push( new Cube(-200,0,-250) );
-    world.cubes.push( new Cube(0,0,-250) );
-    world.cubes.push( new Cube(200,0,-250) );
-    //
-    world.cubes.push( new Cube(-200,0,-50) );
-    world.cubes.push( new Cube(0,0,-50) );
-    world.cubes.push( new Cube(200,0,-50) );
-    //
-    world.cubes.push( new Cube(-200,0,150) );
-    world.cubes.push( new Cube(0,0,150) );
-    world.cubes.push( new Cube(200,0,150) );
-for (var j = 0; j < world.cubes.length; j++) {
-  
-  for (var i=0; i<world.cubes[j].raster.length; i++){
-		var side = world.cubes[j].raster[i];
-		side.p1 = world.cubes[j].vertices[side.p1];
-		side.p2 = world.cubes[j].vertices[side.p2];
-    side.p3 = world.cubes[j].vertices[side.p3];
-		side.p4 = world.cubes[j].vertices[side.p4];
-    world.cubes[j].raster[i] = side;
-  }
-  for(var i=0; i<world.cubes[j].sides.length; i++){
-		var side = world.cubes[j].sides[i];
-		side.p1 = world.cubes[j].vertices[side.p1];
-		side.p2 = world.cubes[j].vertices[side.p2];
-    side.p3 = world.cubes[j].vertices[side.p3];
-		side.p4 = world.cubes[j].vertices[side.p4];
-    world.cubes[j].sides[i] = side;
-	}
-}
-  } else {
-    console.log('new map ->');
-    console.log(_map);
-    world.map = _map;
-  }
-  
-
-	camera.screen.clearRect(0, 0, camera.width, camera.height);
-	camera.screen.strokeStyle = "red";
-	
-	camera.ry = -(werdnaEngine.mouse.x/camera.width - 0.5)*Math.PI*2;
-	camera.rx = (werdnaEngine.mouse.y/camera.height)*Math.PI/2;
-	
-	camera.y = -Math.sin(camera.rx)*300;
-	ryRadius = Math.cos(camera.rx)*300;
-	
-	camera.x = Math.sin(camera.ry)*ryRadius;
-	camera.z = -Math.cos(camera.ry)*ryRadius;
-
-	camera.screen.strokeStyle = "#fff";
-	//camera.screen.fillStyle = 'rgba(0,0,0,0.5)';
-  render(world, camera);
-};
-
-
-function render(world, camera){
-  camera.screen.fillStyle = '#000';
-  camera.screen.fillRect(0, 0, camera.width, camera.height);
-	var toStroke = [];
-  var toFill = [];
-for (var j = 0; j < world.cubes.length; j++) {
-	for(var i=0; i<world.cubes[j].vertices.length; i++){
-		var vertex = world.cubes[j].vertices[i];
-		
-		var dx = vertex.x - camera.x;
-		var dy = vertex.y - camera.y;
-		var dz = vertex.z - camera.z;
-		
-		var d1x = Math.cos(camera.ry)*dx + Math.sin(camera.ry)*dz;
-		var d1y = dy;
-		var d1z = Math.cos(camera.ry)*dz - Math.sin(camera.ry)*dx;
-		
-		var d2x = d1x;
-		var d2y = Math.cos(camera.rx)*d1y - Math.sin(camera.rx)*d1z;
-		var d2z = Math.cos(camera.rx)*d1z + Math.sin(camera.rx)*d1y;
-		
-		var d3x = Math.cos(camera.rz)*d2x + Math.sin(camera.rz)*d2y;
-		var d3y = Math.cos(camera.rz)*d2y - Math.sin(camera.rz)*d2x;
-		var d3z = d2z;
-		
-	
-		var scale = camera.depth / d3z;	
-		vertex.posX = scale * d3x + camera.offsetX;
-		vertex.posY = scale * d3y + camera.offsetY;
-		vertex.posZ = scale;
-	}
-	/*
-	for(var i=0; i<world.cubes[j].lines.length; i++){
-		var line = world.cubes[j].lines[i];
-		//if(line.p1.posZ > 0 && line.p2.posZ > 0){
-			toStroke.push({
-				posX1: line.p1.posX,
-				posY1: line.p1.posY,
-				posX2: line.p2.posX,
-				posY2: line.p2.posY,
-				posZ: (line.p1.posZ + line.p2.posZ)/2
-			});
-		//}	
-	}*/
-  for(var i=0; i<world.cubes[j].raster.length; i++){
-		var side = world.cubes[j].raster[i];
-		//if(side.p1.posZ > 0 && side.p2.posZ > 0){
-			toStroke.push({
-				posX1: side.p1.posX,
-				posY1: side.p1.posY,
-				posX2: side.p2.posX,
-				posY2: side.p2.posY,
-        posX3: side.p3.posX,
-				posY3: side.p3.posY,
-        posX4: side.p4.posX,
-				posY4: side.p4.posY,
-				posZ: (side.p1.posZ + side.p2.posZ)/2
-			});
-    //}	
-	}
-
-  if (world.map[(j-(j%3))/3][j%3] == 1) {
-    for(var i=0; i<world.cubes[j].sides.length; i++){
-      var side = world.cubes[j].sides[i];
-      if(!(i==2 && j%3==0) && !((i==2 || i==0) && world.map[(j-(j%3))/3][j%3-1] == 1) ){
-        toFill.push({
-          posX1: side.p1.posX,
-          posY1: side.p1.posY,
-          posX2: side.p2.posX,
-          posY2: side.p2.posY,
-          posX3: side.p3.posX,
-          posY3: side.p3.posY,
-          posX4: side.p4.posX,
-          posY4: side.p4.posY,
-          posZ: (side.p1.posZ + side.p2.posZ)/2
-        });
-      }	
-    }
-	}
-}
-	toStroke.sort(function(a, b){
-		return a.posZ - b.posZ;
-	});
-  
-  /*toFill.sort(function(a, b){
-		return Math.abs(a.posX1-a.posX2) + Math.abs(b.posX1-b.posX2);
-	});*/
-	camera.screen.lineWidth = 1;
-	for(var i=0; i<toStroke.length; i++){
-		camera.screen.beginPath();
-		camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
-		camera.screen.lineTo(toStroke[i].posX2, toStroke[i].posY2);
-		camera.screen.lineTo(toStroke[i].posX3, toStroke[i].posY3);
-		camera.screen.lineTo(toStroke[i].posX4, toStroke[i].posY4);
-    camera.screen.lineTo(toStroke[i].posX1, toStroke[i].posY1);
-    camera.screen.stroke();
-	}
-  //camera.screen.strokeStyle = '#0f0';
-  //camera.screen.fillStyle = '#000';
-  camera.screen.lineWidth = 2;
-  for(var i=0; i < toFill.length; i++){
-    camera.screen.beginPath();
-		camera.screen.moveTo(toFill[i].posX1, toFill[i].posY1);
-		camera.screen.lineTo(toFill[i].posX2, toFill[i].posY2);
-    camera.screen.lineTo(toFill[i].posX3, toFill[i].posY3);
-    camera.screen.lineTo(toFill[i].posX4, toFill[i].posY4);
-		camera.screen.lineTo(toFill[i].posX1, toFill[i].posY1);
-    camera.screen.fill();
-    camera.screen.stroke();
-	}
-  /*for(var i=0; i<toStroke.length; i++){
-		camera.screen.beginPath();
-		camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
-		camera.screen.lineTo(toStroke[i].posX2, toStroke[i].posY2);
-		camera.screen.stroke();
-	}*/
-}
-
-
-var world = {
-  cubes: []
-};
 /**
 @class Cube
 @since 2014-07-15
@@ -566,27 +661,9 @@ function Cube(_px, _py, _pz) {
     this.posY = posY;
     this.posZ = posZ;
   };
-  
 }
 
-var camera = {
-	x: 0,
-	y: 0,
-	z: 400,
-	rx: 0,
-	ry: 0,
-	rz: 0,
-	depth: 250,
-	screen: null,
-	width: null,
-	height: null,
-	offsetX: null,
-	offsetY: null
-};
-
-
-
-
+window.addEventListener("load", werdnaEngine.init, true);
   </script>
   <style>
 			*{

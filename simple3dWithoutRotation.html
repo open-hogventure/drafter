@@ -8,141 +8,296 @@
   <meta name="Description" content="">
   <title>Document</title>
   <script>
-  var My3D = {};
-My3D.canvas = null;
-My3D.ctx = null;
+(
+  function(_win) {
+    var werdnaEngine  = {};
+    werdnaEngine.ctx = null;
+    werdnaEngine.canvas = null;
+    werdnaEngine.game = null;
+    //Wizardy like game engine
+    /**
+    
+    */
+    werdnaEngine.init = function() {
+      console.log('init');
+      werdnaEngine.canvas = createElement('canvas');
+      werdnaEngine.canvas.width = 600;
+      werdnaEngine.canvas.height = 300;
+      werdnaEngine.canvas.style.width = '600px';
+      werdnaEngine.canvas.style.height = '300px';
+      werdnaEngine.canvas.style.position = 'absolute';
+      werdnaEngine.canvas.style.top = '11.2%';
+      werdnaEngine.canvas.style.left = '3%';
+      werdnaEngine.canvas.style.zIndex = '10000';//top of all
+      werdnaEngine.canvas.style.background = 'black';
+      werdnaEngine.canvas.style.position = 'absolute';
+      
+      werdnaEngine.ctx = werdnaEngine.canvas.getContext('2d');
+      //werdnaEngine 
+      document.body.appendChild(werdnaEngine.canvas);
+     
+      werdnaEngine.canvas.addEventListener('click', werdnaEngine.clicker, true);
+      /*werdnaEngine.game = typeof Game != 'undefined' ? new Game() : {};
+      //if  we operate in the editor mode json variable is not set
+      
+      if(typeof json == 'undefined') { 
+        var json = JSON.stringify({game: editor.game});
+        werdnaEngine.game.load(json['game']);
+      } else {
+        werdnaEngine.game.load(json['game']);
+      }*/
+      //just a generic test method
+      werdnaEngine.dungeon = werdnaEngine.dungeonGenerator();
+    };        
+    /**
+    @property dungeon
+    */
+    werdnaEngine.dungeon = null;
+    /**
+    @property dungeonFields
+    */
+    werdnaEngine.dungeonFields = [['101','000','010'], ['100','001','100'], ['010','000','101'], ['001','100','001'], ['100','000','001'], ['000','010','000'], ['001','000','100']];
+    /**
+    just a generic test method
+    @method dungeonGenerator
+    */
+    werdnaEngine.dungeonGenerator = function() {
+      var fields = ['1111111111111','1111111111111','11', '11', '11', '11', '11', '11', '11', '11', '11','1111111111111','1111111111111'];
+      var old = [-1,-1,-1];
+      var sizeX = 3;
+      var sizeY = 3;
+      for ( var i = 0; i < sizeX; i++) {
+        var o = -1;
+        var block = null;
+        var b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+        
+        for ( var j = 0; j < sizeY; j++) {
+          var b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+          while (b == old[j] || o == b) {
+            b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+          }
+          block = werdnaEngine.dungeonFields[b];
+          fields[1+3*i] = fields[1+3*i] + block[0];
+          fields[1+3*i + 1] = fields[1+3*i + 1] + block[1];
+          fields[1+3*i + 2] = fields[1+3*i + 2] + block[2];
+          o = b;
+          o[j] = b;
+        } 
+        fields[1+3*i] = fields[1+3*i] + '11';
+        fields[1+3*i + 1] = fields[1+3*i + 1] + '11';
+        fields[1+3*i + 2] = fields[1+3*i + 2] + '11';
+      }
+      console.log(fields);
+      
+      return fields;
+    }
+    /**
+    on click event what to do?
+    */
+    werdnaEngine.clicker = function(eve) {
+      console.log('x:'+eve.pageX+', y:'+eve.pageY);
+      var data = {x: (2+eve.pageX%9), y:(2+eve.pageY%9), start: null};
+      data.start = werdnaEngine.dungeon[data.y+1].substr(data.x, 1);
+      console.log(data);
+      if (data.start == 0) {
+        if (typeof werdnaEngine.player == 'undefined') {        
+          werdnaEngine.player = {
+           x: null,
+           y: null,
+           health: 0,
+           power: 0,
+           magic: 0,
+           status: 0,//problems solved
+           positive: 0,
+           negative: 0
+          };
+        }
+        werdnaEngine.player.x = data.x;
+        werdnaEngine.player.y = data.y + 1;
+      
+        var map = [[
+          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x-1, 1)),
+          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x, 1)),
+          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x+1, 1))],[
+          parseInt(werdnaEngine.dungeon[data.y].substr(data.x-1, 1)),
+          parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1)),
+          parseInt(werdnaEngine.dungeon[data.y].substr(data.x+1, 1))],[
+          parseInt(werdnaEngine.dungeon[data.y+1].substr(data.x-1, 1)),
+          parseInt(werdnaEngine.dungeon[data.y+1].substr(data.x, 1)),
+          parseInt(werdnaEngine.dungeon[data.y+1].substr(data.x+1, 1))]];
+        werdnaEngine.gameStart(map);
+      }
+    }
+    /**
+    really self removing
+    */
+    werdnaEngine.exit = function() {
+      document.body.removeChild(werdnaEngine.canvas);
+      document.body.removeChild(getElement('editor_extension'));
+    };
+    //
+    _win.werdnaEngine = werdnaEngine;
+    
+  }//no semicolon here! 
+)(window)
 
-My3D.key = {};
-My3D.key.keys = [];
+function createElement(_t) {
+  return document.createElement(_t);
+}
 
-My3D.mouse = {};
-My3D.mouse.isDown = false;
-My3D.mouse.x = 0;
-My3D.mouse.y = 0;
-My3D.mouse.z = 0;
+function getElement(_t) {
+  return document.getElementById(_t);
+}
+//Wizardy like game engine
+// werdnaEngine.initLoad();
+// window.addEventListener('load',werdnaEngine.initLoad, true);
 
-My3D.rawEvent = {};
-My3D.rawEvent.onLoad = function(e){
-	My3D.canvas = document.getElementById("c");
-	My3D.ctx = My3D.canvas.getContext("2d");
+werdnaEngine.key = {};
+werdnaEngine.key.keys = [];
 
-	window.addEventListener("keydown", My3D.rawEvent.onKeyDown, false);
-	window.addEventListener("keyup", My3D.rawEvent.onKeyUp, false);
-	document.addEventListener("mousemove", My3D.rawEvent.onMouseMove, false);
-	document.addEventListener("mousedown", My3D.rawEvent.onMouseDown, false);
-	document.addEventListener("mouseup", My3D.rawEvent.onMouseUp, false);
-	document.addEventListener("mousewheel", My3D.rawEvent.onMouseScroll, false);
-	document.addEventListener("DOMMouseScroll", My3D.rawEvent.onMouseScroll, false);
-	window.addEventListener("hashchange", My3D.rawEvent.onHashChange, false);
+werdnaEngine.mouse = {};
+werdnaEngine.mouse.isDown = false;
+werdnaEngine.mouse.x = 0;
+werdnaEngine.mouse.y = 0;
+werdnaEngine.mouse.z = 0;
 
-	camera.screen = My3D.ctx;
-	camera.width = My3D.canvas.width;
-	camera.height = My3D.canvas.height;
-	camera.offsetX = My3D.canvas.width/2;
-	camera.offsetY = My3D.canvas.height/2;
-
+werdnaEngine.rawEvent = {};
+werdnaEngine.initLoad = function(){
+	//werdnaEngine.canvas = document.getElementById("c");
+	//werdnaEngine.ctx = werdnaEngine.canvas.getContext("2d");
+  werdnaEngine.init();
+  console.log(werdnaEngine.canvas);
+	window.addEventListener("keydown", werdnaEngine.keyDown, false);
+	window.addEventListener("keyup", werdnaEngine.keyUp, false);
 	
-	My3D.event.onGameStart();
-	//My3D.rawEvent.onHashChange();
-	My3D.startAnimation();
-};
-My3D.rawEvent.onHashChange = function(e){
-	My3D.key.keys = [];
-	var elm = document.getElementById("my3dJS");
-	elm.onload = My3D.rawEvent.onGameStart;
-};
-
-My3D.rawEvent.onGameStart = function(e){
-	if(My3D.event.onGameStart){
-    console.log('onGameStart');
-		My3D.event.onGameStart();
-	}
+	camera.screen = werdnaEngine.ctx;
+	camera.width = werdnaEngine.canvas.width;
+	camera.height = werdnaEngine.canvas.height;
+	camera.offsetX = werdnaEngine.canvas.width/2;
+	camera.offsetY = werdnaEngine.canvas.height/2;
+	
+	werdnaEngine.gameStart(null);
+	werdnaEngine.startAnimation();
 };
 
-My3D.rawEvent.onKeyDown = function(e){
+werdnaEngine.keyDown = function(e){
 
 	var key = e.keyCode || e.which;
-	
-	if(key in My3D.key.keys){
-		My3D.key.keys[key] = 1;
+	console.log('key -> '+key);
+	if(key in werdnaEngine.key.keys){
+		werdnaEngine.key.keys[key] = 1;
 		e.preventDefault();
 		return false;
-	}else if(My3D.event.onKeyDown){
-		return My3D.event.onKeyDown(e);
 	}else{
 		return true;
 	}	
 };
-My3D.rawEvent.onKeyUp = function(e){
+werdnaEngine.keyUp = function(e){
 	var key = e.keyCode || e.which;
-	
-	if(key in My3D.key.keys){
-		My3D.key.keys[key] = 0;
+	console.log('key -> '+key);
+  var data = {x: werdnaEngine.player.x, y: werdnaEngine.player.y, start: null};
+  switch (key) {
+    case 37:
+    //left
+    data.x = data.x + 1;
+    break;
+    case 38:
+    //up
+    data.y = data.y - 1;
+    break;
+    case 39:
+    //right
+    data.x = data.x - 1;
+    break;
+    case 40:
+    //down
+    data.y = data.y + 1;
+    break;
+    default:
+    break;
+  }
+  data.start = parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1));
+  if (data.start == 0) {
+    werdnaEngine.player.x = data.x;
+    werdnaEngine.player.y = data.y;
+    var map = [[
+          parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x-1, 1)),
+          parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x, 1)),
+          parseInt(werdnaEngine.dungeon[data.y-2].substr(data.x+1, 1))],[
+          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x-1, 1)),
+          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x, 1)),
+          parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x+1, 1))],[
+          parseInt(werdnaEngine.dungeon[data.y].substr(data.x-1, 1)),
+          parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1)),
+          parseInt(werdnaEngine.dungeon[data.y].substr(data.x+1, 1))]];
+    werdnaEngine.gameStart(map);
+  }
+
+	if(key in werdnaEngine.key.keys){
+		werdnaEngine.key.keys[key] = 0;
 		e.preventDefault();
 		return false;
-	}else if(My3D.event.onKeyUp){
-		return My3D.event.onKeyUp(e);
 	}else{
 		return true;
 	}	
 };
-My3D.rawEvent.onMouseMove = function(e){
+/*werdnaEngine.rawEvent.onMouseMove = function(e){
 
-	My3D.mouse.x = e.layerX;
-	My3D.mouse.y = e.layerY;
-	if(My3D.event.onMouseMove){
-		return My3D.event.onMouseMove(e);
+	werdnaEngine.mouse.x = e.layerX;
+	werdnaEngine.mouse.y = e.layerY;
+	if(werdnaEngine.event.onMouseMove){
+		return werdnaEngine.event.onMouseMove(e);
 	}else{
 		e.preventDefault();
 		return false;
 	}	
 };
-My3D.rawEvent.onMouseDown = function(e){
+werdnaEngine.rawEvent.onMouseDown = function(e){
 
-	My3D.mouse.isDown = true;
-	if(My3D.event.onMouseDown){
-		return My3D.event.onMouseDown(e);
+	werdnaEngine.mouse.isDown = true;
+	if(werdnaEngine.event.onMouseDown){
+		return werdnaEngine.event.onMouseDown(e);
 	}else{
 		e.preventDefault();
 		return false;
 	}	
 };
-My3D.rawEvent.onMouseUp = function(e){
+werdnaEngine.rawEvent.onMouseUp = function(e){
 
-	My3D.mouse.isDown = false;;
-	if(My3D.event.onMouseUp){
-		return My3D.event.onMouseUp(e);
+	werdnaEngine.mouse.isDown = false;;
+	if(werdnaEngine.event.onMouseUp){
+		return werdnaEngine.event.onMouseUp(e);
 	}else{
 		e.preventDefault();
 		return false;
 	}	
 };
-My3D.rawEvent.onMouseScroll = function(e){
+werdnaEngine.rawEvent.onMouseScroll = function(e){
 	var delta = e.wheelDelta || e.detail || 0;
-	My3D.mouse.z += delta == 0 ? 0 : Math.abs(delta)/delta;
-	if(My3D.event.onMouseScroll){
-		return My3D.event.onMouseScroll(e);
+	werdnaEngine.mouse.z += delta == 0 ? 0 : Math.abs(delta)/delta;
+	if(werdnaEngine.event.onMouseScroll){
+		return werdnaEngine.event.onMouseScroll(e);
 	}else{
 		e.preventDefault();
 		return false;
 	}	
 };
 
-My3D.event = {};
+werdnaEngine.event = {};
 
 
-My3D.key.init = function(keys){
+werdnaEngine.key.init = function(keys){
 	for(var i=0; i<arguments.length; i++){
-		My3D.key.keys[arguments[i]] = 0;
+		werdnaEngine.key.keys[arguments[i]] = 0;
 	}
 }
 
-My3D.key.isDown = function(key){
-	return My3D.key.keys[key] === 1 ? 1 : 0;
+werdnaEngine.key.isDown = function(key){
+	return werdnaEngine.key.keys[key] === 1 ? 1 : 0;
 };
+*/
 
-
-My3D.startAnimation = function(){
+werdnaEngine.startAnimation = function(){
 	
 	var requestFrame = (function(){
 		return window.requestAnimationFrame	|| 
@@ -157,9 +312,9 @@ My3D.startAnimation = function(){
 
 	var lastFrameTime = +new Date();
 	var frameRequested = function(t){
-		if(My3D.event.onEnterFrame){
-			My3D.event.onEnterFrame(t-lastFrameTime);
-		}
+		//if(werdnaEngine.event.onEnterFrame){
+		//	werdnaEngine.event.onEnterFrame(t-lastFrameTime);
+		//}
 		requestFrame(frameRequested);
 		lastFrameTime = t;
 	};
@@ -170,37 +325,27 @@ My3D.startAnimation = function(){
 		
 	})();
 
-window.addEventListener("load", My3D.rawEvent.onLoad, true);
-
-
-
+window.addEventListener("load", werdnaEngine.initLoad, true);
+//werdnaEngine.initLoad();
 </script>
 <script id="my3dJS">
 
-My3D.event.onGameStart = function(e){
-  world.map = [[1,0,0],[0,0,1],[1,0,0]];
-  //world.map = [[0,0,1],[1,0,0],[0,0,1]];
-  //world.map = [[0,1,0],[0,0,0],[1,0,1]];
-  //world.map = [[1,0,1],[0,0,0],[0,1*,0]];*you are standing in the wall
-  
-  world.cubes.push( new Cube(-200,0,-250) );
-  world.cubes.push( new Cube(0,0,-250) );
-  world.cubes.push( new Cube(200,0,-250) );
-  //
-  world.cubes.push( new Cube(-200,0,-50) );
-  world.cubes.push( new Cube(0,0,-50) );
-  world.cubes.push( new Cube(200,0,-50) );
-  //
-  world.cubes.push( new Cube(-200,0,150) );
-  world.cubes.push( new Cube(0,0,150) );
-  world.cubes.push( new Cube(200,0,150) );
-  
+werdnaEngine.gameStart = function(_map){
+  if (_map == null) {
+    world.map = [[0,0,0],[0,0,0],[0,0,0]];
+    world.cubes.push( new Cube(-200,0,-250) );
+    world.cubes.push( new Cube(0,0,-250) );
+    world.cubes.push( new Cube(200,0,-250) );
+    //
+    world.cubes.push( new Cube(-200,0,-50) );
+    world.cubes.push( new Cube(0,0,-50) );
+    world.cubes.push( new Cube(200,0,-50) );
+    //
+    world.cubes.push( new Cube(-200,0,150) );
+    world.cubes.push( new Cube(0,0,150) );
+    world.cubes.push( new Cube(200,0,150) );
 for (var j = 0; j < world.cubes.length; j++) {
-  /*for(var i=0; i<world.cubes[j].lines.length; i++){
-		var line = world.cubes[j].lines[i];
-		line.p1 = world.cubes[j].vertices[line.p1];
-		line.p2 = world.cubes[j].vertices[line.p2];
-	}*/
+  
   for (var i=0; i<world.cubes[j].raster.length; i++){
 		var side = world.cubes[j].raster[i];
 		side.p1 = world.cubes[j].vertices[side.p1];
@@ -218,11 +363,18 @@ for (var j = 0; j < world.cubes.length; j++) {
     world.cubes[j].sides[i] = side;
 	}
 }
+  } else {
+    console.log('new map ->');
+    console.log(_map);
+    world.map = _map;
+  }
+  
+
 	camera.screen.clearRect(0, 0, camera.width, camera.height);
 	camera.screen.strokeStyle = "red";
 	
-	camera.ry = -(My3D.mouse.x/camera.width - 0.5)*Math.PI*2;
-	camera.rx = (My3D.mouse.y/camera.height)*Math.PI/2;
+	camera.ry = -(werdnaEngine.mouse.x/camera.width - 0.5)*Math.PI*2;
+	camera.rx = (werdnaEngine.mouse.y/camera.height)*Math.PI/2;
 	
 	camera.y = -Math.sin(camera.rx)*300;
 	ryRadius = Math.cos(camera.rx)*300;
@@ -300,7 +452,7 @@ for (var j = 0; j < world.cubes.length; j++) {
   if (world.map[(j-(j%3))/3][j%3] == 1) {
     for(var i=0; i<world.cubes[j].sides.length; i++){
       var side = world.cubes[j].sides[i];
-      if(!(i==2 && j%3==0)){
+      if(!(i==2 && j%3==0) && !((i==2 || i==0) && world.map[(j-(j%3))/3][j%3-1] == 1) ){
         toFill.push({
           posX1: side.p1.posX,
           posY1: side.p1.posY,
@@ -444,15 +596,8 @@ var camera = {
 			html, body{
 				position: relative;
 			}
-		
-			#c{
-				border: 0px solid black;
-				background: white;
-				position: absolute;
-			}
 		</style>
  </head>
- <body>
-<canvas id="c" width="800" height="400"></canvas>  
+ <body> 
  </body>
 </html>

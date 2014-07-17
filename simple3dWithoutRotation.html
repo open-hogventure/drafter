@@ -222,7 +222,7 @@
       werdnaEngine.ctx.lineWidth = 1;
       var ii = 0;
       var jj = 0; 
-      switch (Math.abs(werdnaEngine.direction)) {
+      switch (werdnaEngine.direction) {
         case 1:
           jj = werdnaEngine.dungeon.length-1;
           ii = werdnaEngine.dungeon.length-1;
@@ -498,7 +498,10 @@
       }
       data.start = parseInt(werdnaEngine.dungeon[data.y].substr(data.x, 1));
       if (data.start == 0) {
-        werdnaEngine.direction = data.direction % 4;
+        if (data.direction < 0) {
+          data.direction = 3;
+        }
+        werdnaEngine.direction = Math.abs(data.direction % 4);
         werdnaEngine.player.x = data.x;
         werdnaEngine.player.y = data.y;
         var map = [[

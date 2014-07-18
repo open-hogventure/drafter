@@ -390,10 +390,10 @@ function Game() {
 <script type="text/text" id="canvas_game_engine_source">
 
  /**
- @class gameEngine
+ @class gameCanvasEngine
  @since 2014-05-30
  */
- var gameEngine = {
+ var gameCanvasEngine = {
   /**
   @property game
   @since 2014-05-30
@@ -422,46 +422,46 @@ function Game() {
   @since 2014-05-30
   */
   init : function() {
-  gameEngine.game = new Game();
-  console.log(gameEngine.game);
-  gameEngine.game.mediamanager.addLanguage(gameEngine.game.mediamanager.defaultLanguage);
-  gameEngine.game.load(json['game']);
+  gameCanvasEngine.game = new Game();
+  console.log(gameCanvasEngine.game);
+  gameCanvasEngine.game.mediamanager.addLanguage(gameCanvasEngine.game.mediamanager.defaultLanguage);
+  gameCanvasEngine.game.load(json['game']);
   var child = document.createElement('canvas');
   child.setAttribute('id', 'gameMainView');
   document.body.appendChild(child);
 
-  gameEngine.width = window.innerWidth - 5;
-  gameEngine.height = window.innerHeight - 5 - document.getElementById('gameMainView').offsetTop;
+  gameCanvasEngine.width = window.innerWidth - 5;
+  gameCanvasEngine.height = window.innerHeight - 5 - document.getElementById('gameMainView').offsetTop;
 
-  child.width = gameEngine.width;
-  child.height = gameEngine.height;
-  child.style.width = gameEngine.width + 'px';
-  child.style.height = gameEngine.height + 'px';
+  child.width = gameCanvasEngine.width;
+  child.height = gameCanvasEngine.height;
+  child.style.width = gameCanvasEngine.width + 'px';
+  child.style.height = gameCanvasEngine.height + 'px';
   child.style.padding = 0;
   child.style.margin = 0;
 
   document.body.style.padding = 0;
   document.body.style.margin = 0;
   child.addEventListener('mousemove', function(eve) {
-   if (gameEngine.renderNote != null) {
-    gameEngine.renderNote.mouseOver(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+   if (gameCanvasEngine.renderNote != null) {
+    gameCanvasEngine.renderNote.mouseOver(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
    }
   }, false);
   child.addEventListener('mouseup', function(eve) {
-   if (gameEngine.renderNote != null) {
-    var uid_to = gameEngine.renderNote.mouseHit(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+   if (gameCanvasEngine.renderNote != null) {
+    var uid_to = gameCanvasEngine.renderNote.mouseHit(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
     if (uid_to != null) {
-     gameEngine.renderNote.setNote(gameEngine.getNote( uid_to ));
+     gameCanvasEngine.renderNote.setNote(gameCanvasEngine.getNote( uid_to ));
     }
    }
   }, false);
-  gameEngine.ctx = child.getContext('2d');
-  if (gameEngine.game.startNote == null) {
+  gameCanvasEngine.ctx = child.getContext('2d');
+  if (gameCanvasEngine.game.startNote == null) {
     alert('Can\'t start the game. game.startNote is not defined!');
     return;
   }
-  gameEngine.renderNote.setNote(gameEngine.getNote( gameEngine.game.startNote ));
-  requestAnimationFrame(gameEngine.drawUpdate);
+  gameCanvasEngine.renderNote.setNote(gameCanvasEngine.getNote( gameCanvasEngine.game.startNote ));
+  requestAnimationFrame(gameCanvasEngine.drawUpdate);
   },
   /**
   @property renderNote
@@ -476,8 +476,8 @@ function Game() {
   @since 2014-06-06
   */
   setNote: function(_n) {
-   this.title = gameEngine.game.mediamanager.getTextMedia(_n.title);
-   var text = gameEngine.game.mediamanager.getTextMedia(_n.text);
+   this.title = gameCanvasEngine.game.mediamanager.getTextMedia(_n.title);
+   var text = gameCanvasEngine.game.mediamanager.getTextMedia(_n.text);
    this.texts = text.split(/\n/);
    this.connections = [];//_n.connections;
    var j = 0;
@@ -495,10 +495,10 @@ function Game() {
   */
   prepareConnection: function(_c, _j, _l) {
    return {
-    text: gameEngine.game.mediamanager.getTextMedia(_c.text),
+    text: gameCanvasEngine.game.mediamanager.getTextMedia(_c.text),
     index: _j,
-    x: gameEngine.width - 250,
-    y: 1 + gameEngine.height - _l * 25 + _j * 25,
+    x: gameCanvasEngine.width - 250,
+    y: 1 + gameCanvasEngine.height - _l * 25 + _j * 25,
     to_uid: _c.to_uid,
     over: false,
     /**
@@ -532,8 +532,8 @@ function Game() {
   @sinc 2014-06-05
   */
   drawUpdate : function() {
-  gameEngine.draw();
-  requestAnimationFrame(gameEngine.drawUpdate);
+  gameCanvasEngine.draw();
+  requestAnimationFrame(gameCanvasEngine.drawUpdate);
   },
   /**
   @method draw
@@ -541,35 +541,35 @@ function Game() {
   @param uid
   */
   draw : function () {
-  var ctx = gameEngine.ctx;
+  var ctx = gameCanvasEngine.ctx;
   //'clearing' the 'page' > the context of the canvas
   ctx.fillStyle = '#030';
-  ctx.fillRect(0,0, gameEngine.width, gameEngine.height);
+  ctx.fillRect(0,0, gameCanvasEngine.width, gameCanvasEngine.height);
   ctx.fillStyle = '#3d3';
   ctx.strokeStyle = '#090';
   //drawing the title
   ctx.font = '30px Arial';
-  ctx.fillText(gameEngine.renderNote.title, 10, 40);
+  ctx.fillText(gameCanvasEngine.renderNote.title, 10, 40);
   //drawing the text
   ctx.font = '17.5px Arial';
-  for (var i = 0; i < gameEngine.renderNote.texts.length; i++) {
-    ctx.fillText(gameEngine.renderNote.texts[i], 10, 70 + i * 25);
+  for (var i = 0; i < gameCanvasEngine.renderNote.texts.length; i++) {
+    ctx.fillText(gameCanvasEngine.renderNote.texts[i], 10, 70 + i * 25);
   }
   //connections
   ctx.beginPath();
-  var cons = gameEngine.renderNote.connections;
+  var cons = gameCanvasEngine.renderNote.connections;
   for (var i = 0; i < cons.length; i++) {
     if (cons[i].over) {
      ctx.fillStyle = 'rgba(0,100,0,0.5)';
      ctx.fillRect(cons[i].x, cons[i].y - 22, 250, 21);
      ctx.fillStyle = '#3d3';
-     ctx.moveTo( gameEngine.width, cons[i].y - 22);
+     ctx.moveTo( gameCanvasEngine.width, cons[i].y - 22);
      ctx.lineTo( cons[i].x, cons[i].y - 22);
     }
     ctx.fillStyle = '#3d3';
     //console.log(cons[i].text);
     ctx.fillText(cons[i].index+'. '+cons[i].text, cons[i].x + 2, cons[i].y - 2);
-    ctx.moveTo( gameEngine.width, cons[i].y);
+    ctx.moveTo( gameCanvasEngine.width, cons[i].y);
     ctx.lineTo( cons[i].x, cons[i].y);
   }
   ctx.stroke();
@@ -581,19 +581,19 @@ function Game() {
   @return {Note} the corresponding Note
   */
   getNote : function (uid) {
-  for (var i = 0; i < gameEngine.game.notes.length; i++) {
-    if (gameEngine.game.notes[i].uid == uid) {
-      return gameEngine.game.notes[i];
+  for (var i = 0; i < gameCanvasEngine.game.notes.length; i++) {
+    if (gameCanvasEngine.game.notes[i].uid == uid) {
+      return gameCanvasEngine.game.notes[i];
     }
   }
   return null;
   }
  };
 /**
-making the gameEngine public global available
+making the gameCanvasEngine public global available
 */
-window.gameEngine = gameEngine;
-gameEngine.init();
+window.gameCanvasEngine = gameCanvasEngine;
+gameCanvasEngine.init();
 
 </script>
 <script type="text/text" id="html5_game_engine_source">

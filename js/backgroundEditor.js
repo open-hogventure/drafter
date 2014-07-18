@@ -139,3 +139,6 @@ editor.background_input = function (_uid, _media) {
 //always as last?!
 //gameEngine.init();
 
+window.removeExtension_background_image = function() {
+  getElement('editorbar').removeChild(getElement('backgroundButton'));
+};

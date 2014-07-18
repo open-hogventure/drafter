@@ -1213,7 +1213,7 @@ var Base64 = {
           child3.setAttribute('id','ext_'+i);
           child3.setAttribute('type','checkbox');
           child3.setAttribute('value', editor.extensionsList[i].name);
-          child3.setAttribute('onchange', 'editor.loadExtension(this.value);');          
+          child3.setAttribute('onchange', 'editor.loadExtension(this);');          
           select.appendChild(child3);
           select.appendChild(createTextNode(' '+editor.extensionsList[i].description));
           select.appendChild(createElement('br'));
@@ -1427,37 +1427,44 @@ var Base64 = {
       /**
       @method loadExtension
       @since 2014-07-11
-      @param _ident
+      @param value
       */
-      editor.loadExtension = function (_ident) {
-        if (_ident == null || _ident == '---') {
+      editor.loadExtension = function (_ele) {
+        var value = _ele.value;
+        if (value == null || value == '---') {
           //do nothing without loading
           return;
         }
+        var checked = _ele.checked;
         try {
-          var script = getElement(_ident.replace(/ /g, '_'));
+          var script = getElement(value.replace(/ /g, '_'));
           if (script != null) {
+            console.log('removeExtension_'+value.replace(/ /g, '_')+'();');
+            var f = new Function('window,editor', 'removeExtension_'+value.replace(/ /g, '_')+'();');
+            f(window, editor);
             document.body.removeChild(script);
           }
-          console.log(_ident);
+          console.log(value,checked);
           var extension = null;
           for (var i = 0; i < editor.extensionsList.length; i++) {
-            if (editor.extensionsList[i].name == _ident) {
+            if (editor.extensionsList[i].name == value) {
               extension = editor.extensionsList[i];
             }
           }
           //inject the script
           //store in the preferences of the project to load this extension
-          script = createElement('script');
-          script.setAttribute('id', _ident.replace(/ /g, '_'));
-          script.setAttribute('type','text/javascript');
-          script.src = extension.path;
-          console.log(script.id);
-          document.body.appendChild(script);
+          if (checked) {
+            script = createElement('script');
+            script.setAttribute('id', value.replace(/ /g, '_'));
+            script.setAttribute('type','text/javascript');
+            script.src = extension.path;
+            console.log(script.id);
+            document.body.appendChild(script);
+          }
           //currently you have to be online!
         } catch(e) {
           //that might happen
-          alert('loading extension "'+_ident+'" failed.');
+          alert('loading extension "'+value+'" failed.');
         }
       };
       /**

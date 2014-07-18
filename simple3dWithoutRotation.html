@@ -52,9 +52,9 @@
     werdnaEngine.mouse.y = 0;
     werdnaEngine.mouse.z = 0;
 
-    werdnaEngine.gameStart = function(_map) {
-      if (_map == null) {
-        werdnaEngine.world.map = [[0,0,0],[0,0,0],[0,0,0]];
+    werdnaEngine.gameStart = function(_view) {
+      if (_view == null) {
+        werdnaEngine.world.view = [[0,0,0],[0,0,0],[0,0,0]];
         werdnaEngine.world.cubes.push( new Cube(-200,0,-250) );
         werdnaEngine.world.cubes.push( new Cube(0,0,-250) );
         werdnaEngine.world.cubes.push( new Cube(200,0,-250) );
@@ -87,9 +87,9 @@
           }
         }
       } else {
-        console.log('new map ->');
-        console.log(_map);
-        werdnaEngine.world.map = _map;
+        console.log('new view ->');
+        console.log(_view);
+        werdnaEngine.world.view = _view;
       }
       
 
@@ -171,12 +171,12 @@
           //}	
         }
 
-        if (world.map[(j-(j%3))/3][j%3] >= 1) {
+        if (world.view[(j-(j%3))/3][j%3] >= 1) {
           for(var i=0; i<world.cubes[j].sides.length; i++){
             var side = world.cubes[j].sides[i];
             if(!(i==2 && j%3==0) && 
-              !((i==2 || i==0) && world.map[(j-(j%3))/3][j%3-1] >= 1) &&  
-              !(i==4 && world.map[(j-(j%3))/3][j%3] != 2)
+              !((i==2 || i==0) && world.view[(j-(j%3))/3][j%3-1] >= 1) &&  
+              !(i==4 && world.view[(j-(j%3))/3][j%3] != 2)
             ) {
               toFill.push({
                 posX1: side.p1.posX,
@@ -242,90 +242,98 @@
         default:
         break;
       }
-      console.log(ii,jj,werdnaEngine.direction % 2);
-      if (werdnaEngine.direction % 2 == 0) {      
-        for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
-          werdnaEngine.ctx.fillStyle = '#fff';
-          werdnaEngine.ctx.strokeStyle = '#fff';
-          for (var j = 2; j < 11; j++) {
-            werdnaEngine.ctx.fillStyle = '#fff';
-            werdnaEngine.ctx.strokeRect(
-                        werdnaEngine.canvas.width-Math.abs(j-jj)*10,
-                        -5+Math.abs(i-ii)*10, 8, 8);          
-            var value = parseInt(werdnaEngine.dungeon[i].substr(j,1));
-            if ( value >= 1) {
+      if (werdnaEngine.inArray(werdnaEngine.player.map,werdnaEngine.level)) {
+      //
+        console.log(ii,jj,werdnaEngine.direction % 2);
+        if (werdnaEngine.direction % 2 == 0) {      
+          for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
+            werdnaEngine.ctx.fillStyle = '#000';
+            werdnaEngine.ctx.strokeStyle = '#fff';
+            for (var j = 2; j < 11; j++) {
+              werdnaEngine.ctx.strokeRect(
+                          werdnaEngine.canvas.width-Math.abs(j-jj)*10,
+                          -5+Math.abs(i-ii)*10, 8, 8);          
+              var value = parseInt(werdnaEngine.dungeon[i].substr(j,1));            
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
-              } else { 
+              } else if ( value == 1) { 
                 werdnaEngine.ctx.fillStyle = '#fff';
               }
               werdnaEngine.ctx.fillRect(
                         werdnaEngine.canvas.width-Math.abs(j-jj)*10,
-                        -5+Math.abs(i-ii)*10, 8, 8);  
+                        -5+Math.abs(i-ii)*10, 8, 8);
             }
           }
-        }
-
-        werdnaEngine.ctx.fillStyle = '#666';
-        werdnaEngine.ctx.fillRect(
-          werdnaEngine.canvas.width-Math.abs(ii-werdnaEngine.player.x)*10,  
-          -5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);      
-      } else if(werdnaEngine.direction == 1) {
-        
-        for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
-          werdnaEngine.ctx.fillStyle = '#fff';
-          werdnaEngine.ctx.strokeStyle = '#fff';
-          for (var j = 2; j < 11; j++) {
-            werdnaEngine.ctx.fillStyle = '#fff';
-            werdnaEngine.ctx.strokeRect(
-                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                        -5+Math.abs(j)*10, 8, 8);          
-            var value = parseInt(werdnaEngine.dungeon[Math.abs(ii-i)].substr(Math.abs(j),1));
-            if ( value >= 1) {
+          werdnaEngine.ctx.fillStyle = '#666';
+          werdnaEngine.ctx.fillRect(
+            werdnaEngine.canvas.width-Math.abs(ii-werdnaEngine.player.x)*10,  
+            -5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);      
+        } else if(werdnaEngine.direction == 1) {
+          for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
+            werdnaEngine.ctx.fillStyle = '#000';
+            werdnaEngine.ctx.strokeStyle = '#fff';
+            for (var j = 2; j < 11; j++) {
+              werdnaEngine.ctx.strokeRect(
+                          werdnaEngine.canvas.width-Math.abs(ii-i)*10,
+                          -5+Math.abs(j)*10, 8, 8);          
+              var value = parseInt(werdnaEngine.dungeon[Math.abs(ii-i)].substr(Math.abs(j),1));
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
-              } else { 
+              } else if ( value == 1) { 
                 werdnaEngine.ctx.fillStyle = '#fff';
               }
               werdnaEngine.ctx.fillRect(
                         werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                        -5+Math.abs(jj-j)*10, 8, 8);  
+                        -5+Math.abs(jj-j)*10, 8, 8);
             }
           }
-        }
 
-        werdnaEngine.ctx.fillStyle = '#666';
-        werdnaEngine.ctx.fillRect(
-          werdnaEngine.canvas.width-Math.abs(werdnaEngine.player.y)*10,  
-          -5+Math.abs(ii-werdnaEngine.player.x)*10, 8, 8);
-      } else {
-        for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
-          werdnaEngine.ctx.fillStyle = '#fff';
-          werdnaEngine.ctx.strokeStyle = '#fff';
-          for (var j = 2; j < 11; j++) {
-            
-            werdnaEngine.ctx.strokeRect(
-                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                        -5+Math.abs(j)*10, 8, 8);          
-            var value = parseInt(werdnaEngine.dungeon[Math.abs(i)].substr(Math.abs(jj-j),1));
-            if ( value >= 1) {
+          werdnaEngine.ctx.fillStyle = '#666';
+          werdnaEngine.ctx.fillRect(
+            werdnaEngine.canvas.width-Math.abs(werdnaEngine.player.y)*10,  
+            -5+Math.abs(ii-werdnaEngine.player.x)*10, 8, 8);
+        } else {
+          for (var i = 2; i < werdnaEngine.dungeon.length-2; i++) {
+            werdnaEngine.ctx.fillStyle = '#000';
+            werdnaEngine.ctx.strokeStyle = '#fff';
+            for (var j = 2; j < 11; j++) {            
+              werdnaEngine.ctx.strokeRect(
+                          werdnaEngine.canvas.width-Math.abs(ii-i)*10,
+                          -5+Math.abs(j)*10, 8, 8);          
+              var value = parseInt(werdnaEngine.dungeon[Math.abs(i)].substr(Math.abs(jj-j),1));
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
-              } else { 
+              } else if ( value == 1) { 
                 werdnaEngine.ctx.fillStyle = '#fff';
               }
               werdnaEngine.ctx.fillRect(
                         werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                        -5+Math.abs(jj-j)*10, 8, 8);  
+                        -5+Math.abs(jj-j)*10, 8, 8);
             }
           }
-        }
 
-        werdnaEngine.ctx.fillStyle = '#666';
-        werdnaEngine.ctx.fillRect(
-          werdnaEngine.canvas.width-Math.abs(jj-werdnaEngine.player.y)*10,  
-          -5+Math.abs(werdnaEngine.player.x)*10, 8, 8);
+          werdnaEngine.ctx.fillStyle = '#666';
+          werdnaEngine.ctx.fillRect(
+            werdnaEngine.canvas.width-Math.abs(jj-werdnaEngine.player.y)*10,  
+            -5+Math.abs(werdnaEngine.player.x)*10, 8, 8);
+        }
+      //
       }
+    };
+    /**
+    @method inArray
+    @since 2014-07-18
+    @param _array
+    @param _value
+    @return {boolean} true if the value is member of the array
+    */
+    werdnaEngine.inArray = function(_array, _value) {
+      for (var i = 0; i < _array.length; i++) {
+        if (_array[i] == _value) {
+          return true;
+        }
+      }
+      return false;
     };
     /**
     Wizardy like game engine
@@ -434,7 +442,7 @@
       console.log(fields);
 
       return fields;
-    }
+    };
     /**
 
     */
@@ -446,7 +454,9 @@
       magic: 0,
       status: 0,//problems solved
       positive: 0,
-      negative: 0
+      negative: 0,
+      map: [],//can see the level map
+      relations: []
     };
     /**
     on click event what to do?
@@ -461,7 +471,7 @@
         werdnaEngine.player.x = data.x;
         werdnaEngine.player.y = data.y + 1;
       
-        var map = [[
+        var view = [[
           parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x-1, 1)),
           parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x, 1)),
           parseInt(werdnaEngine.dungeon[data.y-1].substr(data.x+1, 1))],[
@@ -471,9 +481,9 @@
           parseInt(werdnaEngine.dungeon[data.y+1].substr(data.x-1, 1)),
           parseInt(werdnaEngine.dungeon[data.y+1].substr(data.x, 1)),
           parseInt(werdnaEngine.dungeon[data.y+1].substr(data.x+1, 1))]];
-        werdnaEngine.gameStart(map);
+        werdnaEngine.gameStart(view);
       }
-    }
+    };
     /**
     */
     werdnaEngine.keyDown = function(e){
@@ -488,6 +498,8 @@
         return true;
       }	*/
     };
+    /**
+    */
     werdnaEngine.keyUp = function(e){
       var key = e.keyCode || e.which;
       console.log('key -> '+key);

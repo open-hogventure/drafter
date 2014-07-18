@@ -1205,17 +1205,18 @@ var Base64 = {
         child2.setAttribute('id', 'extensionBox');
         child2.appendChild(createTextNode('Select one of theese Extensions:'));
         child2.appendChild(createElement('br'));
-        var select = createElement('select');
-        select.setAttribute('name','extension');
+        var select = createElement('div');
+        select.style.border = 'solid #999 1px';
         select.setAttribute('id','extension');
-        select.addEventListener('change', function(eve) {
-          editor.loadExtension(getElement('extension').value);
-        }, true);
         for (var i = 0; i < editor.extensionsList.length; i++) {
-          child3 = createElement('option');
-          child3.setAttribute('value',editor.extensionsList[i].name);
-          child3.appendChild(createTextNode(editor.extensionsList[i].description));
+          child3 = createElement('input');
+          child3.setAttribute('id','ext_'+i);
+          child3.setAttribute('type','checkbox');
+          child3.setAttribute('value', editor.extensionsList[i].name);
+          child3.setAttribute('onchange', 'editor.loadExtension(this.value);');          
           select.appendChild(child3);
+          select.appendChild(createTextNode(' '+editor.extensionsList[i].description));
+          select.appendChild(createElement('br'));
         }
         child2.appendChild(select);
         child2.appendChild(createElement('br'));
@@ -1382,7 +1383,7 @@ var Base64 = {
       */
       editor.extensionsList = [
           {name: 'simple test', path: '', description: 'simple none for test'},
-          {name: 'background image', path: 'js/backgroundEditor2.json', description: 'upload an background image for a note'}
+          {name: 'background image', path: 'js/backgroundEditor.js', description: 'upload an background image for a note'}
         ];
       /**
       laods the extensionsList and show a select in a box
@@ -1390,7 +1391,7 @@ var Base64 = {
       @since 2014-07-11
       */
       editor.showExtensions = function () {
-        var child = createElement('div');
+        /*var child = createElement('div');
         child.setAttribute('id', 'extensionBox');
         child.className = 'connectionBox';
         child.appendChild(createTextNode('Select one of theese Extensions:'));
@@ -1398,7 +1399,8 @@ var Base64 = {
         var select = createElement('select');
         select.setAttribute('name','extension');
         select.setAttribute('id','extension');
-        select.addEventListener('change', function(eve) {
+        select.addEventListener('change',
+        function(eve) {
           editor.loadExtension(getElement('extension').value);
         }, true);
         for (var i = 0; i < editor.extensionsList.length; i++) {
@@ -1420,7 +1422,7 @@ var Base64 = {
         child2.appendChild(createTextNode('done'));
         child2.setAttribute('onclick', 'editor.loadExtension(null);');
         child.appendChild(child2);
-        getElement('editor').appendChild(child);
+        getElement('editor').appendChild(child);*/
       };
       /**
       @method loadExtension
@@ -1433,11 +1435,29 @@ var Base64 = {
           return;
         }
         try {
+          var script = getElement(_ident.replace(/ /g, '_'));
+          if (script != null) {
+            document.body.removeChild(script);
+          }
+          console.log(_ident);
+          var extension = null;
+          for (var i = 0; i < editor.extensionsList.length; i++) {
+            if (editor.extensionsList[i].name == _ident) {
+              extension = editor.extensionsList[i];
+            }
+          }
           //inject the script
           //store in the preferences of the project to load this extension
+          script = createElement('script');
+          script.setAttribute('id', _ident.replace(/ /g, '_'));
+          script.setAttribute('type','text/javascript');
+          script.src = extension.path;
+          console.log(script.id);
+          document.body.appendChild(script);
+          //currently you have to be online!
         } catch(e) {
           //that might happen
-          alert('loading extension "'+_indent+'" failed.');
+          alert('loading extension "'+_ident+'" failed.');
         }
       };
       /**
@@ -2931,6 +2951,35 @@ button:active, button:active .mini {color: #000; background: #fff;}
  It is a single webpage file with all data and source<br>
  will you need to publish the game in the internet.<br>
   </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The install button</h1>
+  <div>
+ <h2>Firefox users can install the editor.</h2>
+ Users of the Firefox Browser can install this editor<br>
+ directly to the computer.<br>
+ You can find the install button in the preferences<br>
+ dialog box.<br>
+ All other users may wate for the Windows Store Version<br>
+ or a Google Play app. To make this happen please support<br>
+ this project.<br>
+ <br>  
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The Preferences dialog</h1>
+  <div>
+ <h2>What preferences can you use?</h2>
+ <br><br><br><br><br><br><br>
+ <br>  
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The extensions</h1>
+  <div>
+ <h2>Currently the extensions are experimental</h2>
+ You activate the usage of extensions in the preferences<br>
+ dialoy box.<br><br><br><br><br><br>
+ <br>  
+  </div>
+</div>
 <!--end-->
 <button onclick="getElement('help').style.display = 'none';" class="closeBoxButton" style="top: 1px;">X</button>
 </div>

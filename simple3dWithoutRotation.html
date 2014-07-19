@@ -672,6 +672,10 @@ function Cube(_px, _py, _pz) {
     {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
     {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
     {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+    {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+    {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+    {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+    {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
     {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ}
   ];
   this.lines = [
@@ -697,7 +701,8 @@ function Cube(_px, _py, _pz) {
     {p1:0,p2:4,p3:7,p4:3},    
     {p1:5,p2:1,p3:2,p4:6},
     {p1:0,p2:1,p3:2,p4:3},
-    {p1:8,p2:9,p3:10,p4:11}
+    {p1:8,p2:9,p3:10,p4:11},//door
+    {p1:12,p2:13,p3:14,p4:15}//map text note
   ];
   this.raster = [
     {p1:0,p2:1,p3:5,p4:4},

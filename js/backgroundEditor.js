@@ -3,6 +3,7 @@
 //background is just a reference
 
 Note.prototype.background = null;
+Note.prototype.audio = null;
 
 //also we have to overwrite the Note.load method
 //so we can load the background key
@@ -21,6 +22,9 @@ Note.prototype.load = function() {
   this.ey = data['ey'];
   if (typeof data['background'] != 'undefined') {
   	this.background = data['background'];
+  }
+  if (typeof data['audio'] != 'undefined') {
+  	this.audio = data['audio'];
   }
 };
 //we have to cleare the screen
@@ -90,7 +94,7 @@ editor.closeNoteToBackground = function() {
 if (getElement('backgroundButton') == null) {
 setTimeout( function() {
  var child = createElement('button');
- child.appendChild(createTextNode('background'));
+ child.appendChild(createTextNode('upload media'));
  child.style.cssFloat = 'left';
  child.setAttribute('id','backgroundButton');
  child.setAttribute('onclick','editor.openNoteToBackground();');
@@ -140,5 +144,8 @@ editor.background_input = function (_uid, _media) {
 //gameEngine.init();
 
 window.removeExtension_background_image = function() {
+  getElement('editorbar').removeChild(getElement('backgroundButton'));
+};
+window.removeExtension_mediae_for_note = function() {
   getElement('editorbar').removeChild(getElement('backgroundButton'));
 };

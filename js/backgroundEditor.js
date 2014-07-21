@@ -27,13 +27,11 @@ Note.prototype.load = function() {
   	this.audio = data['audio'];
   }
 };
-//we have to cleare the screen
-//reload your prototype with sava/load or ex/impoert or dropbox
+//we have to clear the screen
+//reload your prototype with save/load or ex/impoert or dropbox
 //do not forget to save before testing
 
 /**
-a new function
-just show an alert to show it works
 */
 editor.openNoteToBackground = function() {
   //instead of this we should do:
@@ -71,10 +69,31 @@ editor.openNoteToBackground = function() {
   child.appendChild(child2);
   child.appendChild(createElement('br'));
   child2 = createElement('input');
+  child2.setAttribute('type', 'radio');  
+  child2.setAttribute('id', 'background');
+  child2.setAttribute('value', 'background');
+  child2.setAttribute('onchange', 
+      'getElement(\'backgroundFile\').setAttribute(\'data-type\',this.value);' );
+  child2.setAttribute('name', 'mediaType');
+  child.appendChild(child2);
+  child.appendChild(createTextNode(' background '));
+
+  child2 = createElement('input');
+  child2.setAttribute('type', 'radio');
+  child2.setAttribute('id', 'audio');
+  child2.setAttribute('value', 'audio');
+  child2.setAttribute('onchange', 
+      'getElement(\'backgroundFile\').setAttribute(\'data-type\',this.value);' );
+  child2.setAttribute('name', 'mediaType');
+  child.appendChild(child2);
+  child.appendChild(createTextNode(' audio'));
+
+  child.appendChild(createElement('br'));
+  child2 = createElement('input');
   child2.setAttribute('type', 'file');
   child2.setAttribute('id', 'backgroundFile');
   child2.addEventListener('change', function(eve) { 
-    editor.background_upload(eve, this.getAttribute('data-uid') ); }, true);
+    editor.media_upload(eve, this.getAttribute('data-uid'), this.getAttribute('data-type') ); }, true);
   child.appendChild(child2);
   child2 = createElement('button');
   child2.appendChild(createTextNode('X'));
@@ -87,6 +106,8 @@ editor.openNoteToBackground = function() {
   child2.setAttribute('onclick','editor.closeNoteToBackground();');
   child.appendChild(child2);
 };
+/** 
+*/
 editor.closeNoteToBackground = function() {
   getElement('editor').removeChild(getElement('backgroundBox'));
 };
@@ -101,38 +122,53 @@ setTimeout( function() {
  getElement('editorbar').appendChild(child);
 }, 2500);
 }
-
-editor.background_upload = function (eve, _uid) {
+/** 
+*/
+editor.media_upload = function (eve, _uid, _media_type) {
  if (_uid == null) {
   alert('Select a note first.');
   return;
  }
+ if (_media_type == null) {
+  alert('Select a media type first.');
+  return;
+ }
+ console.log(_uid+' -,- '+_media_type);
  var files = eve.target.files; // FileList object
  var f = files[0];
- if (!f.type.match('image.*') ) {
+ if (!(f.type.match('image.*') && _media_type == 'background') ||  
+   !(f.type.match('audio.*') && _media_type == 'audio') ) 
+ {
   return;
  }
  var reader = new FileReader();
   reader.onload = (function(theFile) {
    return function(e) {
     console.log(e.target.result);
-    editor.background_input(_uid, e.target.result);
+    editor.media_input(_uid, e.target.result, _media_type);
     console.log(theFile.name);
    };
   })(f);
  reader.readAsDataURL(f);
 };
-
-editor.background_input = function (_uid, _media) {
+/** 
+*/
+editor.media_input = function (_uid, _media, _media_type) {
  console.log(_uid+' -> '+_media);
  var note = editor.getNote(_uid);
  //check if the reference already exist
- if (note.background == null) {
+ if (note.background == null &&  _media_type == 'background') {
   note.background = editor.createUid(); 
+ } else if (note.audio == null &&  _media_type == 'audio') {
+  note.audio = editor.createUid(); 
  }
  //	
- console.log(_uid+' -> '+note.background+' '+_media);
- editor.game.mediamanager.setMedia(note.background, _media);
+ console.log(_uid+' -> '+note.background+' '+note.audio+' '+_media+' '+_media_type);
+ if (_media_type == 'background') {
+  editor.game.mediamanager.setMedia(note.background, _media);
+ } else {
+  editor.game.mediamanager.setMedia(note.audio, _media);
+ }
  var ele = getElement('selectBackground');
  var selected = ele.children[ele.selectedIndex];
  selected.style.backgroundColor = '#0c0';
@@ -142,10 +178,13 @@ editor.background_input = function (_uid, _media) {
 };
 //always as last?!
 //gameEngine.init();
-
+/** 
+*/
 window.removeExtension_background_image = function() {
   getElement('editorbar').removeChild(getElement('backgroundButton'));
 };
+/** 
+*/
 window.removeExtension_mediae_for_note = function() {
   getElement('editorbar').removeChild(getElement('backgroundButton'));
 };

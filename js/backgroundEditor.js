@@ -54,17 +54,15 @@ editor.openNoteToBackground = function() {
   child2.setAttribute('onchange', 
       'getElement(\'backgroundFile\').setAttribute(\'data-uid\',this.value);' );
   for (var i = 0; i < editor.game.notes.length; i++) {
-    if (editor.game.notes[i].uid != editor.game.startNote) {
-    	var child3 = createElement('option');
-    	child3.setAttribute('value', editor.game.notes[i].uid);
-    	child3.appendChild(createTextNode(editor.game.notes[i].uid + ' ' + 
-           editor.game.mediamanager.getTextMedia(editor.game.notes[i].title)));
-    	if (editor.game.notes[i].background != null) {
-      	child3.style.background = '#0b0';
-      	child3.style.color = '#ff9';
-    	}
-    	child2.appendChild(child3);
+    var child3 = createElement('option');
+    child3.setAttribute('value', editor.game.notes[i].uid);
+    child3.appendChild(createTextNode(editor.game.notes[i].uid + ' ' + 
+         editor.game.mediamanager.getTextMedia(editor.game.notes[i].title)));
+    if (editor.game.notes[i].background != null) {
+      child3.style.background = '#0b0';
+      child3.style.color = '#ff9';
     }
+    child2.appendChild(child3);
   }
   child.appendChild(child2);
   child.appendChild(createElement('br'));
@@ -175,6 +173,54 @@ editor.media_input = function (_uid, _media, _media_type) {
  selected.style.color = '#fff';
  //alert('background for note '+_uid);
  // 
+};
+/**
+*/
+gameEngine.renderNote = function (uid) {
+  var note = gameEngine.getNote(uid);
+  var ele = document.getElementById('gameMainView');
+  ele.innerHTML = '';
+  if (note.background != null) {
+    ele.style.backgroundImage = 'url('+gameEngine.game.mediamanager.getMedia(note.background)+')';
+    ele.style.backgroundSize = '50% 50%';
+    ele.style.backgroundPosition = '50% 0%';
+    ele.style.backgroundRepeat = 'no-repeat';
+  }
+  if (note.audio != null) {
+    gameEngine.audio = document.createElement('audio');
+    gameEngine.audio.src = gameEngine.game.mediamanager.getMedia(note.audio);
+    gameEngine.audio.play();
+  }
+  var child = document.createElement('h1');
+  child.appendChild(document.createTextNode(
+                    gameEngine.game.mediamanager.getTextMedia(note.title)));
+  ele.appendChild(child);
+  //ele.appendChild(document.createElement('br'));
+  ele.appendChild(document.createElement('br'));
+  var text = gameEngine.game.mediamanager.getTextMedia(note.text);
+  texts = text.split(/\n/);
+  for (var i = 0; i < texts.length; i++) {
+    ele.appendChild(document.createTextNode(texts[i]));
+    ele.appendChild(document.createElement('br'));
+  }
+  ele.appendChild(document.createElement('br'));
+  //connections
+  var cons = note.connections;
+  for (var i = 0; i < cons.length; i++) {
+   if (cons[i].from_uid == note.uid) {
+    var con_text = gameEngine.game.mediamanager.getTextMedia(cons[i].text);
+    child = document.createElement('span');
+    child.style.cssFloat = 'right';
+    child.style.cursor = 'pointer';
+    child.style.color = '#00c';
+    child.style.textDecoration = 'underline';
+    child.setAttribute('onclick','function() { gameEngine.audio.pause();'+
+      ' gameEngine.audio = null; gameEngine.renderNote(\''+cons[i].to_uid+'\'); };');
+    child.appendChild(document.createTextNode(con_text));
+    ele.appendChild(child);
+    ele.appendChild(document.createElement('br'));
+   }
+  }
 };
 //always as last?!
 //gameEngine.init();

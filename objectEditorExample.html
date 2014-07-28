@@ -8,16 +8,44 @@
   <meta name="Description" content="">
   <title>Document</title>
   <script>
-  
-  function GameObject(_uid) {
+
+  function Note(_uid) {
 	this.uid = _uid;
-	this.posX = 0;
-	this.posY = 0;
-	this.width = 0;
-	this.height = 0;
-	this.image = null;//an simple image
-	this.sprite = null;//used later
+	this.connections =  [];
+	this.load = function(json) {
+	  for (var key in json)
+	  {		
+		if (typeof this[key] == 'Array')
+		{
+		  this[key] = [];
+		  for (var i = 0; i < json[key].length; i++)
+		  {
+		    if (json[key][i]['type']==null) {
+		      this[key].push(json[key][i]);
+		    } else {
+		      var func = new Function('return new '+json[key][i]['type']+'("'+json[key][i]['uid']+'");');
+			  var obj = func();
+			  obj.load(json[key][i]);
+			  this[key].push(obj);
+		    }
+		  }			
+		}
+	  }
+	}
+	this.save = function() {
+	  return JSON.stringify(this);
+	}
   }
+  //the necessary constructor of a GameObject
+  function GameObject(_uid) { this.uid = _uid; };
+  GameObject.prototype = new Note();  	
+  GameObject.prototype.posX = 0;
+  GameObject.prototype.posY = 0;
+  GameObject.prototype.width = 0;
+  GameObject.prototype.height = 0;
+  GameObject.prototype.image = null;//an simple image
+  GameObject.prototype.sprite = null;//used later
+  
   var objEditor = {};
   objEditor.ctx = null;
   objEditor.objects = [];

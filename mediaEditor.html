@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title> New Document </title>
+  <meta name="Generator" content="Malte Kosian">
+  <meta name="Author" content="Malte Kosian">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <script src="js/base64.js"></script>
+ <!--s cript src="js/amap.js">THIS IS THE DATAMODEL</ s cript-->
+ <script>
+ var default_language = 'en';
+ var current_language = default_language;
+ var available_languages = [
+{'af': 'Afrikaans'}, {'sq': 'Albanian'},
+{'ar-sa': 'Arabic (Saudi Arabia)'}, {'ar-iq': 'Arabic (Iraq)'},
+{'ar-eg': 'Arabic (Egypt)'}, {'ar-ly': 'Arabic (Libya)'},
+{'ar-dz': 'Arabic (Algeria)'}, {'ar-ma': 'Arabic (Morocco)'},
+{'ar-tn': 'Arabic (Tunisia)'}, {'ar-om': 'Arabic (Oman)'},
+{'ar-ye': 'Arabic (Yemen)'}, {'ar-sy': 'Arabic (Syria)'},
+{'ar-jo': 'Arabic (Jordan)'}, {'ar-lb': 'Arabic (Lebanon)'},
+{'ar-kw': 'Arabic (Kuwait)'}, {'ar-ae': 'Arabic (U.A.E.)'},
+{'ar-bh': 'Arabic (Bahrain)'}, {'ar-qa': 'Arabic (Qatar)'},
+{'eu': 'Basque (Basque)'}, {'bg': 'Bulgarian'},
+{'be': 'Belarusian'}, {'ca': 'Catalan'},
+{'zh-tw': 'Chinese (Taiwan)'}, {'zh-cn': 'Chinese (PRC)'},
+{'zh-hk': 'Chinese (Hong Kong SAR)'}, {'zh-sg': 'Chinese (Singapore)'},
+{'hr': 'Croatian'}, {'cs': 'Czech'},
+{'da': 'Danish'}, {'nl': 'Dutch (Standard)'},
+{'nl-be': 'Dutch (Belgium)'}, {'en': 'English'},
+{'en-us': 'English (United States)'}, {'en-gb': 'English (United Kingdom)'},
+{'en-au': 'English (Australia)'}, {'en-ca': 'English (Canada)'},
+{'en-nz': 'English (New Zealand)'}, {'en-ie': 'English (Ireland)'},
+{'en-za': 'English (South Africa)'}, {'en-jm': 'English (Jamaica)'},
+{'en': 'English (Caribbean)'}, {'en-bz': 'English (Belize)'},
+{'en-tt': 'English (Trinidad)'}, {'et': 'Estonian'},
+{'fo': 'Faeroese'}, {'fa': 'Farsi'},
+{'fi': 'Finnish'}, {'fr': 'French (Standard)'},
+{'fr-be': 'French (Belgium)'}, {'fr-ca': 'French (Canada)'},
+{'fr-ch': 'French (Switzerland)'}, {'fr-lu': 'French (Luxembourg)'},
+{'gd': 'Gaelic (Scotland)'}, {'ga': 'Irish'},
+{'de': 'German (Standard)'}, {'de-ch': 'German (Switzerland)'},
+{'de-at': 'German (Austria)'}, {'de-lu': 'German (Luxembourg)'},
+{'de-li': 'German (Liechtenstein)'}, {'el': 'Greek'},
+{'he': 'Hebrew'}, {'hi': 'Hindi'},
+{'hu': 'Hungarian'}, {'is': 'Icelandic'},
+{'id': 'Indonesian'}, {'it': 'Italian (Standard)'},
+{'it-ch': 'Italian (Switzerland)'}, {'ja': 'Japanese'},
+{'ko': 'Korean'}, {'ko': 'Korean (Johab)'},
+{'lv': 'Latvian'}, {'lt': 'Lithuanian'},
+{'mk': 'Macedonian (FYROM)'}, {'ms': 'Malaysian'},
+{'mt': 'Maltese'}, {'no': 'Norwegian (Bokmal)'},
+{'no': 'Norwegian (Nynorsk)'}, {'pl': 'Polish'},
+{'pt-br': 'Portuguese (Brazil)'}, {'pt': 'Portuguese (Portugal)'},
+{'rm': 'Rhaeto-Romanic'}, {'ro': 'Romanian'},
+{'ro-mo': 'Romanian (Republic of Moldova)'}, {'ru': 'Russian'},
+{'ru-mo': 'Russian (Republic of Moldova)'}, {'sz': 'Sami (Lappish)'},
+{'sr': 'Serbian (Cyrillic)'}, {'sr': 'Serbian (Latin)'},
+{'sk': 'Slovak'}, {'sl': 'Slovenian'},
+{'sb': 'Sorbian'}, {'es': 'Spanish (Spain)'},
+{'es-mx': 'Spanish (Mexico)'}, {'es-gt': 'Spanish (Guatemala)'},
+{'es-cr': 'Spanish (Costa Rica)'}, {'es-pa': 'Spanish (Panama)'},
+{'es-do': 'Spanish (Dominican Republic)'}, {'es-ve': 'Spanish (Venezuela)'},
+{'es-co': 'Spanish (Colombia)'}, {'es-pe': 'Spanish (Peru)'},
+{'es-ar': 'Spanish (Argentina)'}, {'es-ec': 'Spanish (Ecuador)'},
+{'es-cl': 'Spanish (Chile)'}, {'es-uy': 'Spanish (Uruguay)'},
+{'es-py': 'Spanish (Paraguay)'}, {'es-bo': 'Spanish (Bolivia)'},
+{'es-sv': 'Spanish (El Salvador)'}, {'es-hn': 'Spanish (Honduras)'},
+{'es-ni': 'Spanish (Nicaragua)'}, {'es-pr': 'Spanish (Puerto Rico)'},
+{'sx': 'Sutu'}, {'sv': 'Swedish'},
+{'sv-fi': 'Swedish (Finland)'}, {'th': 'Thai'},
+{'ts': 'Tsonga'}, {'tn': 'Tswana'},
+{'tr': 'Turkish'}, {'uk': 'Ukrainian'},
+{'ur': 'Urdu'}, {'ve': 'Venda'},
+{'vi': 'Vietnamese'}, {'xh': 'Xhosa'},
+{'ji': 'Yiddish'}, {'zu': 'Zulu'}
+ ];
+ /**
+
+ */
+ var mediamanager = new MediaManager();
+ /**
+
+ */
+ var uidcounter = new UidCounter();
+ /**
+
+ */
+ function init() {
+  var element = getElement('available_languages');
+  var htm = '';
+  for (var i = 0; i < available_languages.length; i++) {
+    for (key in available_languages[i]) {
+      htm = htm + '<option value="'+key+'">'+key+' '+available_languages[i][key]+'</option>';
+    }
+  }
+  element.innerHTML = htm;
+  element = getElement('language_choose');
+  htm = '';
+
+  for (var i = 0; i < mediamanager.appliedLanguages.length; i++) {
+    htm = htm + '<option value="'+mediamanager.appliedLanguages[i]+'">'+mediamanager.appliedLanguages[i]+'</option>';
+  }
+  element.innerHTML = htm;
+
+  getElement('available_languages').addEventListener('change', addLanguage, false);
+  getElement('language_choose').addEventListener('change', setCurrentLanguage, false);
+  getElement('key_select').addEventListener('change', selectKey, false);
+  getElement('image_files').addEventListener('change', handleFileSelect, false);
+  getElement('audio_files').addEventListener('change', handleFileSelect, false);
+  getElement('key_create').addEventListener('click', createKey, false);
+  getElement('current_language').addEventListener('keyup', editKeyValue, false);
+  getElement('key_input').addEventListener('keyup', createKey, false);
+ }
+
+  // Check for the various File API support.
+if (window.File && window.FileReader && window.FileList && window.Blob) {
+  // Great success! All the File APIs are supported.
+} else {
+  alert('The File APIs are not fully supported in this browser.');
+}
+  /**
+  @method editKeyValue
+
+  @param {Event} evt
+  */
+  function editKeyValue(evt) {
+    console.log(getElement('language_choose').value);
+    var key = getElement('key_current').innerHTML;
+    var value = getElement('current_language').value;
+    console.log(key + ' -> ' + value);
+    mediamanager.addMedia(Base64.encode(key), Base64.encode(value), 'text');
+    getElement('default_language').value = value;
+  }
+  /**
+  @method addKeyValue
+
+  @param {Event} evt
+  */
+  function addKeyValue(evt) {
+    var key = getElement('key_current').innerHTML;
+    var value = getElement('current_language').value;
+    console.log(key + ' -> ' + value);
+    console.log(key + ' -> ' + value);
+    mediamanager.addMedia(Base64.encode(key), Base64.encode(value), 'text');
+    getElement('default_language').value = value;
+  }
+  /**
+  @method createKey
+
+  @param {Event} evt
+  */
+  function createKey(evt) {
+    console.log('createKey -> ' + evt.keyIdentifier + ' ' + evt.target.id);
+    if((evt.keyIdentifier && evt.keyIdentifier.toLowerCase() == 'enter')
+        || event.target.id == 'key_create')
+    {
+      //read the input
+      var key = getElement('key_input').value;
+      //only if the key is not in the mediamanager keys array
+      if (!uidcounter.hasUid(Base64.encode(key)) && key != 'undefined' ) {
+        uidcounter.addUid(Base64.encode(key));
+      } else {
+        key = uidcounter.createNew();
+        alert('The key exsits. Instead a new key has been created: "'+key+'".');
+        //return;
+      }
+      var element = getElement('key_select');
+      var ele = document.createElement('option');
+      ele.innerHTML = key;
+      ele.value = key;
+      element.appendChild(ele);
+    }
+  }
+  /**
+  */
+  function getElement(id) {
+    return document.getElementById(id);
+  }
+  /**
+  @method selectKey
+
+  @param {Event} evt
+  */
+  function selectKey(evt) {
+    console.log('selectKey -> '+evt.target.value);
+    var currentKey = evt.target.value;
+    getElement('key_current').innerHTML = currentKey;
+  }
+
+  function setCurrentLanguage(evt) {
+    console.log('setCurrentMediaLanguage -> '+evt.target.value);
+    mediamanager.setCurrentMediaLanguage( evt.target.value );
+  }
+  /**
+  @method addlanguage
+
+  @param {Event} evt
+  */
+  function addLanguage(evt) {
+    console.log('addLanguage -> '+evt.target.value);
+    var element = getElement('language_choose');
+    var ele = document.createElement('option');
+    ele.value = evt.target.value;
+    ele.innerHTML = evt.target.value;
+    element.appendChild(ele);
+  }
+  /**
+  */
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+
+      // Only process image files.
+      if (!(f.type.match('audio.*') || f.type.match('image.*') || f.type.match('text.*')) ) {
+        continue;
+      }
+      console.log(f.type);
+      switch (f.type.split('/')[0]) {
+      case 'audio':
+        var reader = new FileReader();
+
+        // Closure to capture the file information.
+        reader.onload = (function(theFile) {
+          return function(e) {
+            getElement('list').innerHTML = '';
+            // Render thumbnail.
+            var span = document.createElement('span');
+            var audio_src = e.target.result;
+            console.log(audio_src);
+            if (!uidcounter.hasUid(escape(theFile.name))) {
+              uidcounter.addUid(escape(theFile.name));
+            }
+            mediamanager.addMedia(escape(theFile.name),audio_src);
+            span.innerHTML = '<audio src="'+ audio_src  +'" title="'+ escape(theFile.name) +
+                '" controls="true" style="width: 45px;"></audio>&nbsp;'+ escape(theFile.name) +'<br /><br />';
+            console.log(span.innerHTML);
+            getElement('list').appendChild(span);
+          };
+        })(f);
+
+        // Read in the image file as a data URL.
+        reader.readAsDataURL(f);
+      break;
+      case 'image':
+        var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          getElement('list').innerHTML = '';
+          // Render thumbnail.
+          var image_src = e.target.result;
+          var span = document.createElement('span');
+          span.innerHTML = '<img class="thumb" src="'+ image_src+
+                            '" title="'+ escape(theFile.name)+'"/><br />';
+          console.log(image_src);
+          if (!uidcounter.hasUid(escape(theFile.name))) {
+            uidcounter.addUid(escape(theFile.name));
+          }
+          mediamanager.addMedia(escape(theFile.name),image_src);
+          getElement('list').appendChild(span);
+        };
+      })(f);
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
+      break;
+      default:
+      //read as text file
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile) {
+        return function(e) {
+          // Render thumbnail.
+          var span = document.createElement('span');
+          span.innerHTML = 'title="'+ escape(theFile.name)+'" <br /><pre style="font-size: 8px;">'+ e.target.result+
+                            '</pre><br />';
+          getElement('list').appendChild(span);
+        };
+      })(f);
+
+      // Read in the image file as a data URL.
+      reader.readAsText(f);
+      break;
+      }
+
+    }
+    files = null;
+    evt = null;
+  }
+
+  function exportMedia() {
+    var mediaString = mediamanager.store();
+    console.log(mediaString);
+    var ele = getElement('list');
+    ele.innerHTML = '';
+    var child = document.createElement('textarea');
+    child.value = mediaString;
+    ele.appendChild(child);
+    ele.style.width = '100%';
+    ele.style.height = '1000px';
+    child.style.width = '100%';
+    child.style.height = '100%';
+    //child.value.selectAll();
+  }
+ window.onload = function() {setTimeout(init,100);}
+ </script>
+ <style>
+ </style>
+ <!-- -->
+ </head>
+ <body>
+ show available languages<select id="available_languages"></select><br>
+
+ select / set new language<select id="language_choose"></select><br>
+ current key <b><span id="key_current">no key selected</span></b> <button id="add_key_value">add</button><br>
+<textarea id="current_language" style="float: left; width: 400px; height: 300px; border: 1px solid #000;" placeholder="into current language"></textarea>
+<textarea id="default_language" style="float: left; width: 400px; height: 300px; border: 1px solid #999; background: #ccc;" disabled="disabled" placeholder="from default language"></textarea><br style="clear: both;">
+  <br>
+  Keys<br>
+  <select id="key_select" name="key_select"><option value="">---</option></select> / <input type="text" value="" name="key_input" id="key_input"/><button id="key_create">create</button> text<br><br>
+  MEDIA<br>
+  <label><input type="file" id="image_files" name="files[]" />upload</label> / <button id="">show</button> image<br>
+
+  <label><input type="file" id="audio_files" name="files[]" />upload</label> / <button id="">play</button> audio -> show length in milliseconds<br>
+  ¿video? as file -> show length in milliseconds<br>
+  <label><input type="button" value="export" name="export_button" id="export_button" onclick="exportMedia();" />export</label>
+<div id="list"></div>
+ </body>
+</html>

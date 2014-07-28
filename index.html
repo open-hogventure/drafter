@@ -593,6 +593,8 @@ function Game() {
 making the gameCanvasEngine public global available
 */
 window.gameCanvasEngine = gameCanvasEngine;
+//allways at last
+//must be comment if you extent the code
 gameCanvasEngine.init();
 
 </script>
@@ -681,6 +683,8 @@ var gameEngine = {
 };
 
 window.gameEngine = gameEngine;
+//allways at last
+//must be comment if you extent the code
 gameEngine.init();
 </script>
 <script type="text/javascript" id="base64_source">
@@ -943,19 +947,23 @@ var Base64 = {
           if (editor.getPreference('p_editor_source') != null &&
               editor.getPreference('p_editor_source') ) 
           {
+            console.log('p_editor_source - test');
             var script = createElement('script');
-            script.setAttribute('id','editor_extention');
-            script.appendChild(createTextNode('\n'+code));
+            script.setAttribute('id','editor_extension');
+            script.appendChild(createTextNode('var json  = '+JSON.stringify(edi)+';\n\n'+code + 
+                  '\n'+getElement('background_image').innerHTML));
             document.body.appendChild(script);
           } else {
+            console.log('func - test');
             editor.func = 
-              new Function('window,document', 'var json  = '+ 
-              JSON.stringify(edi)+';\n \n'+code);
+              new Function('window,document', 'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +
+                  +'\n'+getElement('background_image').innerHTML);
             editor.func(window, document);
           }
           //
         } catch(e) {
-          console.log(e);
+          console.log(e,'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +
+                  +'\n'+getElement('background_image').innerHTML);
         }
       };
       /**
@@ -1203,7 +1211,7 @@ var Base64 = {
         
         child2 = createElement('div');
         child2.setAttribute('id', 'extensionBox');
-        child2.appendChild(createTextNode('Select one of theese Extensions:'));
+        child2.appendChild(createTextNode('Select one of these Extensions:'));
         child2.appendChild(createElement('br'));
         var select = createElement('div');
         select.style.border = 'solid #999 1px';
@@ -1457,7 +1465,18 @@ var Base64 = {
             script = createElement('script');
             script.setAttribute('id', value.replace(/ /g, '_'));
             script.setAttribute('type','text/javascript');
-            script.src = extension.path;
+            editor.makeRequest(extension.path, function() {
+              if (editor.http_request.readyState == 4) {
+                if (editor.http_request.status == 200) {
+                  // show contents of downloaded file
+                  script.appendChild(createTextNode(editor.http_request.responseText));
+                } else {
+                  alert('There was a problem with the request.');
+                }
+              }
+              //editor.storage.setItem('ext_'+value.replace(/ /g, '_'),result);
+            });
+            //script.src = extension.path;
             console.log(script.id);
             document.body.appendChild(script);
           }
@@ -1647,7 +1666,7 @@ var Base64 = {
       */
       editor.setStartNote = function(_uid) {
         //console.log('setStartNote = '+_uid);
-        if (editor.game.startNote != null) {
+        if (editor.game.startNote != null && editor.getNote(editor.game.startNote) != null) {
           //remove startNote visualation
           getElement('con_menu_'+editor.game.startNote).removeChild(
                       getElement('con_start_'+editor.game.startNote) );
@@ -2369,10 +2388,10 @@ var Base64 = {
       @since 2014-07-01
       */
       editor.alertContents = function () {
-        if (http_request.readyState == 4) {
-          if (http_request.status == 200) {
+        if (editor.http_request.readyState == 4) {
+          if (editor.http_request.status == 200) {
             // show contents of downloaded file
-            alert(http_request.responseText);
+            alert(editor.http_request.responseText);
           } else {
             alert('There was a problem with the request.');
           }

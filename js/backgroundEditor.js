@@ -134,7 +134,7 @@ editor.media_upload = function (eve, _uid, _media_type) {
  console.log(_uid+' -,- '+_media_type);
  var files = eve.target.files; // FileList object
  var f = files[0];
- if (!(f.type.match('image.*') && _media_type == 'background') ||  
+ if (!(f.type.match('image.*') && _media_type == 'background') &&  
    !(f.type.match('audio.*') && _media_type == 'audio') ) 
  {
   return;
@@ -173,6 +173,7 @@ editor.media_input = function (_uid, _media, _media_type) {
  selected.style.color = '#fff';
  //alert('background for note '+_uid);
  // 
+ console.log(editor.notes);
 };
 /**
 */
@@ -181,14 +182,17 @@ gameEngine.renderNote = function (uid) {
   var ele = document.getElementById('gameMainView');
   ele.innerHTML = '';
   if (note.background != null) {
-    ele.style.backgroundImage = 'url('+gameEngine.game.mediamanager.getMedia(note.background)+')';
+    ele.style.backgroundImage = 'url('+gameEngine.game.mediamanager.getMedia(note.background).value+')';
     ele.style.backgroundSize = '50% 50%';
-    ele.style.backgroundPosition = '50% 0%';
+    ele.style.backgroundColor = '#fff';
+    ele.style.backgroundPosition = '0% 100%';
     ele.style.backgroundRepeat = 'no-repeat';
+  } else {
+    ele.style.backgroundImage = 'none';
   }
   if (note.audio != null) {
     gameEngine.audio = document.createElement('audio');
-    gameEngine.audio.src = gameEngine.game.mediamanager.getMedia(note.audio);
+    gameEngine.audio.src = gameEngine.game.mediamanager.getMedia(note.audio).value;
     gameEngine.audio.play();
   }
   var child = document.createElement('h1');
@@ -214,8 +218,8 @@ gameEngine.renderNote = function (uid) {
     child.style.cursor = 'pointer';
     child.style.color = '#00c';
     child.style.textDecoration = 'underline';
-    child.setAttribute('onclick','function() { gameEngine.audio.pause();'+
-      ' gameEngine.audio = null; gameEngine.renderNote(\''+cons[i].to_uid+'\'); };');
+    child.setAttribute('onclick','if( gameEngine.audio != null ) {gameEngine.audio.pause();gameEngine.audio = null;}'+
+      ' gameEngine.renderNote(\''+cons[i].to_uid+'\'); ');
     child.appendChild(document.createTextNode(con_text));
     ele.appendChild(child);
     ele.appendChild(document.createElement('br'));
@@ -223,7 +227,7 @@ gameEngine.renderNote = function (uid) {
   }
 };
 //always as last?!
-//gameEngine.init();
+
 /** 
 */
 window.removeExtension_background_image = function() {
@@ -234,3 +238,9 @@ window.removeExtension_background_image = function() {
 window.removeExtension_mediae_for_note = function() {
   getElement('editorbar').removeChild(getElement('backgroundButton'));
 };
+
+setTimeout( function() {
+  try {
+    gameEngine.init();
+  } catch(e) {}
+}, 100);

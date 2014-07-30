@@ -956,8 +956,7 @@ var Base64 = {
           } else {
             console.log('func - test');
             editor.func = 
-              new Function('window,document', 'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +
-                  +'\n'+getElement('background_image').innerHTML);
+              new Function('window,document', 'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +'\n'+getElement('background_image').innerHTML);
             editor.func(window, document);
           }
           //
@@ -1390,7 +1389,7 @@ var Base64 = {
       @since 2014-07-11
       */
       editor.extensionsList = [
-          {name: 'simple test', path: '', description: 'simple none for test'},
+          {name: 'translator', path: 'js/translateEditor', description: 'translate texts to other languages'},
           {name: 'background image', path: 'js/backgroundEditor.js', description: 'upload an background image for a note'}
         ];
       /**
@@ -1615,10 +1614,13 @@ var Base64 = {
       */
       editor.createNoteMenu = function(note) {
         var child2 = createElement('div');
-        child2.appendChild(document.createTextNode('*'));
+        var child3 = createElement('span');
+        child3.className = 'fa fa-bars';
+        child3.appendChild(document.createTextNode(''));
+        child2.appendChild(child3);
         child2.className = 'note_menu_button';
         //
-        var child3 = createElement('div');
+        child3 = createElement('div');
         child3.className = 'note_menu';
           var child4 = createElement('div');
           child4.className = 'menu_element';
@@ -2682,9 +2684,20 @@ body {overflow: hidden;}
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  cursor: default;
+  cursor: pointer;
 }
-.fa-pencil:before { content: "\f040"; }
+.fa-pencil-square-o,
+.fa-edit:before { content: "\f044"; }
+.fa-bars:before { content: "\f0c9";}
+.fa-square:before { content: "\f040"; }
+.fa-gear:before { content: "\f013"; }
+.fa-wrench:before { content: "\f0ad"; }
+.fa-plus-square-o:before { content: "\f196"; }
+.fa-square-o:before { content: "\f096"; }
+.fa-arrow-circle-o-down:before { content: "\f01a"; }
+.fa-arrow-circle-o-up:before { content: "\f01b"; }
+.fa-flask:before { content: "\f0c3"; }/*test*/
+.fa-times:before { content: "\f00d"; }/*stop*/
 .fa-question-circle:before { content: "\f059";}
 .fa-code:before { content: "\f121";}
 .fa-search-plus:before { content: "\f00e";}
@@ -2693,7 +2706,7 @@ body {overflow: hidden;}
 .fa-upload:before { content: "\f093";}
 .fa-download:before { content: "\f019";}
 /*button {height: 22px; max-height: 22px; float: inherit;}*/
-button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
+button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; cursor: pointer; }
 button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
 button:active {color: #000; background: #fff;}
   .bcode {width: auto; text-align: center; color: #fff; background: #069;}
@@ -2725,7 +2738,7 @@ button:active {color: #000; background: #fff;}
 .closeBoxButton {position: absolute; color: white; background: #c00; top: 1px; right: 1px; width: 24px; max-width: 24px; min-width: 24px; font-size: 10px; font-weight: bold; padding: 0;}
 .note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: url(img/56line.png) #f9f9fd; background-position: 0px -2px; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
 .note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; }
-.note_menu_button {position: absolute; top: 0px; right: 5px; color: white; font-weight: bold; font-size: 25px; }
+.note_menu_button {position: absolute; top: 0px; right: 5px; color: white; font-weight: bold; font-size: 16px; cursor: pointer;}
 .eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
 .connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 10px;}
 .note_bar {position: relative; padding: 1px; background: #063; width: 98%; height: 15px; color: white;}
@@ -2763,7 +2776,7 @@ font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
 #cmtexteditor .CodeMirror {height: 100%;}
 #dropboxSpanButtons input, #dropboxSpanButtons button,
 #dropboxSpanButtons div, #dropboxSpanButtons span {float: left;}
-.separator {float: left; padding: 0 1px 0 1px; font-weight: bold; font-size: 24px; min-height: 24px; max-height: 24px; display: inline-block; line-height: 0.75; overflow: hidden;}
+.separator {float: left; margin: 0 1px 0 3px; width: 1px; font-weight: bold; font-size: 24px; min-height: 24px; max-height: 24px; background: #eee; display: inline-block; line-height: 0.75; overflow: hidden;}
 #editorMainBar {position: absolute; float: right; bottom: 90%; right: 0;}
 .mini{position: relative; top: -4px; left: -17px; font-size: 10px; color: white;}
 
@@ -2772,11 +2785,11 @@ font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
  <body>
  <div id="editor">
   <div id="editorbar">
-  <button onclick="editor.showPreferences();" style="float: left; margin-left: 1px;" title="project preferences">preferences</button>
-  <span class="separator">|</span>
+  <button onclick="editor.showPreferences();" style="float: left; margin-left: 1px;" title="project preferences" class="fa fa-gear"><span>preferences</span></button>
+  <span class="separator"></span>
   <span id="saveLoadButtons">
-    <button onclick="editor.saveCodeAndGame();" style="float: left;">save code and game</button>
-    <button onclick="editor.loadCodeAndGame();" style="float: left;">load code and game</button>
+    <button onclick="editor.saveCodeAndGame();" style="float: left;" class="fa fa-arrow-circle-o-down"><span>save project</span></button>
+    <button onclick="editor.loadCodeAndGame();" style="float: left;" class="fa fa-arrow-circle-o-up"><span>load project</span></button>
   </span>
   <span id="exImportButtons">
     <button onclick="editor.importEditor();" style="float: left;" class="fa fa-upload"><span>import</span></button>
@@ -2790,19 +2803,20 @@ font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
       <input id="dropboxName" type="text" placeholder="editor is the file name" />
     </div>
   </span>
-  <button onclick="editor.buildGame();" style="float: left;">build</button>
-  <span class="separator">|</span>
-  <button onclick="editor.testGame();" style="float: left;">test game</button>
-  <button onclick="editor.stopTest();" style="float: left;">stop test</button>
-  <span class="separator">|</span>
+  <span class="separator"></span>
+  <button onclick="editor.buildGame();" style="float: left;" class="fa fa-wrench"><span>build</span></button>
+  <!--span class="separator"></span-->
+  <button onclick="editor.testGame();" style="float: left;" class="fa fa-flask"><span>test game</span></button>
+  <button onclick="editor.stopTest();" style="float: left;" class="fa fa-times"><span>stop test</span></button>
+  <span class="separator"></span>
   <button onclick="editor.zoom();" style="float: left;" class="fa fa-search-minus"><span>zoom</span></button>
-  <span class="separator">|</span>
-  <button onclick="editor.addNote();" style="float: left;">add note</button>
-  <span class="separator">|</span>
+  <span class="separator"></span>
+  <button onclick="editor.addNote();" style="float: left;" class="fa fa-plus-square-o"><span>add note</span></button>
+  <span class="separator"></span>
   </div>
   <div id="editorMainBar">
   <button onclick="editor.toggleEditor('code');editor.setActive(this);" name="oct" style="float: left;" class="bcode fa fa-code"><span>code</span></button>
-  <button onclick="editor.toggleEditor('notes');editor.setActive(this);" name="oct" style="float: left;" class="bnote fa fa-pencil"><span>notes</span></button>
+  <button onclick="editor.toggleEditor('notes');editor.setActive(this);" name="oct" style="float: left;" class="bnote fa fa-edit"><span>notes</span></button>
   <button onclick="editor.help();" style="float: left;" class="bhelp fa fa-question-circle"><span>help</span></button>
   <!--button onclick="install();" style="float: left;">install</button-->
   <!--br style="clear: both;"-->

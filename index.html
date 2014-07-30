@@ -2696,17 +2696,17 @@ body {overflow: hidden;}
 button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
 button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
 button:active {color: #000; background: #fff;}
-  .bcode {width: auto; text-align: center; color: #fff; background: #09c;}
+  .bcode {width: auto; text-align: center; color: #fff; background: #069;}
   .bhelp {width: auto; text-align: center; color: #fff; background: #fc0;}
-  .bnote{width: auto; text-align: center; color: #fff; background: #009;}
+  .bnote{width: auto; text-align: center; color: #fff; background: #063;}
   .closeBoxButton{color: #fff; background: #b00; outline: 0px;}
   button span, .bcode span,.bnote span,.bhelp span {font-family: sans-serif; font-size: 13px; margin-left: 5px; color: inherit;}
   /*.bcode.active,.bcode:active,.bcode:focus {background: #09c;}
   .bhelp.active,.bhelp:active,.bhelp:focus {background: #fc0;}
-  .bnote.active,.bnote:active,.bnote:focus {background: #009;}*/
+  .bnote.active,.bnote:active,.bnote:focus {background: #063;}*/
   .bcode:hover {background: #0bd;}
-  .bhelp:hover {background: #fd0;}
-  .bnote:hover {background: #32f;}
+  .bhelp:hover {background: #fd6;}
+  .bnote:hover {background: #0c9;}
   .closeBoxButton:hover {background: #e00;color:#fff;}
   .closeBoxButton.active,.closeBoxButton:active,.closeBoxButton:focus {background: #e00;}
 #editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
@@ -2728,7 +2728,7 @@ button:active {color: #000; background: #fff;}
 .note_menu_button {position: absolute; top: 0px; right: 5px; color: white; font-weight: bold; font-size: 25px; }
 .eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
 .connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 10px;}
-.note_bar {position: relative; padding: 1px; background: #009; width: 98%; height: 15px; color: white;}
+.note_bar {position: relative; padding: 1px; background: #063; width: 98%; height: 15px; color: white;}
 .note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
 .note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
 .note_text {width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;}
@@ -2736,18 +2736,20 @@ button:active {color: #000; background: #fff;}
 .note_menu{z-index: 15; position: absolute; right: 0px; top: 0px; width: auto; max-width: 150px; display: none; text-align: right; border: 1px #999 solid; background: #ddd; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;}
 .note_menu_button:hover .note_menu{display: block;}
 .menu_element{font-weight: bold; color: #333; font-size: 13px; font-family: sans-serif; white-space: pre;}
-.menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #009; }
+.menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #063; }
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
 #notelist .con_start {margin-right: 3px;}
 #help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto; overflow-y: scroll;}
-#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px;
+#help h1 {background: #fc0; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px;
 font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
-#help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px; width: 335px;}
+#help h1:hover {background: #fd6; color: #000; box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000;}
+#help h2 {color: #063; margin: 0 0 5px 0; font-size: 14px; width: 335px;}
 #help div div {display: none;}
 #help div:hover div {display: block;}
 #help .divHelp div {display: block;}
+#help .divHelp h1 {color: #000;}
 .offZoom {font-size: 50%;}
 #noteeditor.offZoom .note {font-size: 7.5px;}
 #noteeditor.offZoom .note .note_title{font-size: 7.5px;}

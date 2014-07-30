@@ -7,8 +7,8 @@
   <meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">
   <meta name="description" content="Drafter, hogventure.com's twine like game and story editor in javascript">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<link rel="shortcut icon" href="http://hogventure.com/draft/favicon.gif" />
-<link rel="icon" type="image/x-icon" href="http://hogventure.com/draft/favicon.ico" />
+<link rel="shortcut icon" href="https://hogventure.com/draft/favicon.gif" />
+<link rel="icon" type="image/x-icon" href="https://hogventure.com/draft/favicon.ico" />
 <link rel="stylesheet" href="cm/lib/codemirror.css">
 <script src="cm/lib/codemirror.js"></script>
 <script src="cm/mode/javascript/javascript.js"></script>
@@ -2595,7 +2595,7 @@ var Base64 = {
         try {
          if (console.log((navigator.userAgent.toLowerCase()).indexOf('firefox') > 0)) {
          var request = window.navigator.mozApps.install(
-                        'http://hogventure.com/draft/manifest.webapp');
+                        'https://hogventure.com/draft/manifest.webapp');
          } else {
           alert('Please use the firefox browser for this feature.');
          }
@@ -2607,17 +2607,25 @@ var Base64 = {
       /***/
       _win.editor = editor;
       _win.onload = function() {
-         window.applicationCache.addEventListener('updateready', function(e) {
-           if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
-             // Browser downloaded a new app cache.
-             if (confirm('A new version of this site is available. Load it?')) {
-               window.location.reload();
-             }
-           } else {
-             // Manifest didn't changed. Nothing new to server.
-           }
-         }, false);
-         setTimeout(editor.init, 250);
+        //forcing https first (accept file)
+        //may be comment
+        if (window.location.protocol != 'https:' && window.location.protocol != 'file:') {
+          //alert('Please, accept the self certified ssl.');
+          window.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+          return;
+        }
+        //looking for changes in the app cache
+        window.applicationCache.addEventListener('updateready', function(e) {
+          if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+            // Browser downloaded a new app cache.
+            if (confirm('A new version of this site is available. Load it?')) {
+              window.location.reload();
+            }
+          } else {
+            // Manifest didn't changed. Nothing new to server.
+          }
+        }, false);
+        setTimeout(editor.init, 250);
       };
     }
 
@@ -2655,7 +2663,7 @@ function setHighlighter() {
  <style type="text/css" id="styles">
 body {margin: 0; padding: 0; background: #333; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
-
+body {overflow: hidden;}
 @font-face {
   font-family: 'FontAwesome';
   src: url('fnt/fontawesome-webfont.eot?v=4.1.0');
@@ -2681,16 +2689,18 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 .fa-code:before { content: "\f121";}
 .fa-search-plus:before { content: "\f00e";}
 .fa-search-minus:before { content: "\f010";}
+.fa-dropbox:before { content: "\f16b";}
+.fa-upload:before { content: "\f093";}
+.fa-download:before { content: "\f019";}
 /*button {height: 22px; max-height: 22px; float: inherit;}*/
 button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
 button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
-button:hover .mini { color: #000; }
-button:active, button:active .mini {color: #000; background: #fff;}
+button:active {color: #000; background: #fff;}
   .bcode {width: auto; text-align: center; color: #fff; background: #09c;}
   .bhelp {width: auto; text-align: center; color: #fff; background: #fc0;}
   .bnote{width: auto; text-align: center; color: #fff; background: #009;}
   .closeBoxButton{color: #fff; background: #b00; outline: 0px;}
-  .bcode span,.bnote span,.bhelp span {font-family: sans-serif; font-size: 13px; margin-left: 5px; color: inherit;}
+  button span, .bcode span,.bnote span,.bhelp span {font-family: sans-serif; font-size: 13px; margin-left: 5px; color: inherit;}
   /*.bcode.active,.bcode:active,.bcode:focus {background: #09c;}
   .bhelp.active,.bhelp:active,.bhelp:focus {background: #fc0;}
   .bnote.active,.bnote:active,.bnote:focus {background: #009;}*/
@@ -2731,8 +2741,9 @@ button:active, button:active .mini {color: #000; background: #fff;}
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
 #notelist .con_start {margin-right: 3px;}
-#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto;}
-#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px; font-size: 15px; width: 335px;}
+#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto; overflow-y: scroll;}
+#help h1 {background: #009; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px;
+font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
 #help h2 {color: #33c; margin: 0 0 5px 0; font-size: 14px; width: 335px;}
 #help div div {display: none;}
 #help div:hover div {display: block;}
@@ -2766,14 +2777,14 @@ button:active, button:active .mini {color: #000; background: #fff;}
     <button onclick="editor.loadCodeAndGame();" style="float: left;">load code and game</button>
   </span>
   <span id="exImportButtons">
-    <button onclick="editor.importEditor();" style="float: left;">import</button>
-    <button onclick="editor.exportEditor();" style="float: left;">export</button>
+    <button onclick="editor.importEditor();" style="float: left;" class="fa fa-upload"><span>import</span></button>
+    <button onclick="editor.exportEditor();" style="float: left;" class="fa fa-download"><span>export</span></button>
   </span>
    <span id="dropboxSpanButtons" style="display: none; float: left;">
-    <button onclick="editor.dropboxLogin();" class="dpbutton"><span>&nbsp;login&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
+    <button onclick="editor.dropboxLogin();" class="fa fa-dropbox"><span>&nbsp;login&nbsp;</span></button>
     <div id="dropboxButtons" style="display: none;">
-      <button id="dropboxWriteButton" class="dpbutton"><span>&nbsp;upload&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
-      <button id="dropboxReadButton" class="dpbutton"><span>&nbsp;download&nbsp;</span><img src="img/dropbox-logo-blue.png" /></button>
+      <button id="dropboxWriteButton" class="fa fa-dropbox"><span>&nbsp;upload&nbsp;</span></button>
+      <button id="dropboxReadButton" class="fa fa-dropbox"><span>&nbsp;download&nbsp;</span></button>
       <input id="dropboxName" type="text" placeholder="editor is the file name" />
     </div>
   </span>
@@ -2782,7 +2793,7 @@ button:active, button:active .mini {color: #000; background: #fff;}
   <button onclick="editor.testGame();" style="float: left;">test game</button>
   <button onclick="editor.stopTest();" style="float: left;">stop test</button>
   <span class="separator">|</span>
-  <button onclick="editor.zoom();" style="float: left;" class="fa fa-minus-search"><span>zoom</span></button>
+  <button onclick="editor.zoom();" style="float: left;" class="fa fa-search-minus"><span>zoom</span></button>
   <span class="separator">|</span>
   <button onclick="editor.addNote();" style="float: left;">add note</button>
   <span class="separator">|</span>
@@ -2790,7 +2801,7 @@ button:active, button:active .mini {color: #000; background: #fff;}
   <div id="editorMainBar">
   <button onclick="editor.toggleEditor('code');editor.setActive(this);" name="oct" style="float: left;" class="bcode fa fa-code"><span>code</span></button>
   <button onclick="editor.toggleEditor('notes');editor.setActive(this);" name="oct" style="float: left;" class="bnote fa fa-pencil"><span>notes</span></button>
-  <button onclick="editor.help();" style="float: left;" class="bhelp fa fa-question"><span>help</span></button>
+  <button onclick="editor.help();" style="float: left;" class="bhelp fa fa-question-circle"><span>help</span></button>
   <!--button onclick="install();" style="float: left;">install</button-->
   <!--br style="clear: both;"-->
   </div>
@@ -2992,7 +3003,21 @@ button:active, button:active .mini {color: #000; background: #fff;}
  <h1>The Preferences dialog</h1>
   <div>
  <h2>What preferences can you use?</h2>
- <br><br><br><br><br><br><br>
+ <ul>
+ <li><b>install</b> in firefox and do not save, just close</li>
+  <li><b>extensions</b> do not save, just close</li>
+  <li><b>how to store</b> <ul>
+  <li>in the browser local store</li>
+  <li>on your computer</li>
+  <li>with dropbox, if you have a dropbox account</li>
+  </ul></li>
+  <li><b>source codes</b> in in the code editor and to use in builds</li>
+  <li><b>game title</b> in firefox and do not save, just close</li>
+ </ul>
+ <img src="img/Screenshot pref.png" style="width: 345px;"/>
+ <br>The media extension is the only avaiable and <br>
+ working one.<br>
+ Other will come.<br>
  <br>  
   </div>
 </div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
@@ -3000,7 +3025,11 @@ button:active, button:active .mini {color: #000; background: #fff;}
   <div>
  <h2>Currently the extensions are experimental</h2>
  You activate the usage of extensions in the preferences<br>
- dialoy box.<br><br><br><br><br><br>
+ dialoy box.<br>
+ <img src="img/Screenshot mediaext.png" style="width: 345px;"/><br>
+ The media extension is the only avaiable and <br>
+ working one.<br>
+ Other will come.<br><br>
  <br>  
   </div>
 </div>

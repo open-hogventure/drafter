@@ -915,7 +915,11 @@ var Base64 = {
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         editor.game.load(JSON.parse(data));
         editor.uidcounter =  JSON.parse(_win.localStorage.getItem('uidcounter'));
-        editor.preferences =  JSON.parse(_win.localStorage.getItem('preferences'));
+        try {
+          editor.preferences =  JSON.parse(_win.localStorage.getItem('preferences'));
+        } catch (ex) {
+          console.log(_win.localStorage.getItem('preferences'));
+        }
         getElement('noteeditor').innerHTML = '';
         getElement('notelist').innerHTML = '';
         for (var i = 0; i < editor.game.notes.length; i++) {
@@ -934,9 +938,9 @@ var Base64 = {
       @since 2014-05-17
       */
       editor.testGame = function() {
-          code = getElement('texteditor').value;
-          code = codemirror.getValue();
-          console.log(code);
+        code = getElement('texteditor').value;
+        code = codemirror.getValue();
+        console.log(code);
         try {
           editor.func = null;
           var cache = [];
@@ -2753,7 +2757,7 @@ button:active {color: #000; background: #fff;}
 .addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
 .arrow {z-index: 1;}
 .con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
-#notelist .con_start {margin-right: 3px;}
+.list_start {position: absolute; right: 3%; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px; margin-right: 0px;}
 #help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto; overflow-y: scroll;}
 #help h1 {background: #fc0; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px;
 font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }

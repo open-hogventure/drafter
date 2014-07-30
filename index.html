@@ -1127,7 +1127,7 @@ var Base64 = {
         }
         //make the arrows smaller or bigger
         getElement('noteeditor').className = editor.offZoom ? 'offZoom': '';
-        getElement('zoom').className = editor.offZoom ? 'mini octicon octicon-plus' : 'mini octicon octicon-dash';
+        getElement('zoom').className = editor.offZoom ? 'fa fa-search-plus' : 'fa fa-search-minus';
       };
       /**
       @property preferences
@@ -2655,20 +2655,18 @@ function setHighlighter() {
  <style type="text/css" id="styles">
 body {margin: 0; padding: 0; background: #333; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
+
 @font-face {
-  font-family: 'octicons';
-  src: url('img/octicons.woff') format('woff'),
-       url('img/octicons.ttf') format('truetype');
+  font-family: 'FontAwesome';
+  src: url('fnt/fontawesome-webfont.eot?v=4.1.0');
+  src: url('fnt/fontawesome-webfont.eot?#iefix&v=4.1.0') format('embedded-opentype'), url('fnt/fontawesome-webfont.woff?v=4.1.0') format('woff'), url('fnt/fontawesome-webfont.ttf?v=4.1.0') format('truetype'), url('fnt/fontawesome-webfont.svg?v=4.1.0#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }
-/*
-.octicon is optimized for 16px.
-*/
-.octicon {
-  font: normal normal 16px octicons;
-  line-height: 1;
+.fa {
   display: inline-block;
+  font: normal normal 16px FontAwesome;
+  line-height: 1;
   text-decoration: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -2678,12 +2676,11 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
   user-select: none;
   cursor: default;
 }
-.octicon-pencil:before { content: '\f058'}
-.octicon-question:before { content: '\f02c'}
-.octicon-code:before { content: '\f05f'}
-.octicon-search:before { content: '\f02e'}
-.octicon-plus:before { content: '\f05d'}
-.octicon-dash:before { content: '\f0ca'}
+.fa-pencil:before { content: "\f040"; }
+.fa-question-circle:before { content: "\f059";}
+.fa-code:before { content: "\f121";}
+.fa-search-plus:before { content: "\f00e";}
+.fa-search-minus:before { content: "\f010";}
 /*button {height: 22px; max-height: 22px; float: inherit;}*/
 button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; }
 button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
@@ -2785,15 +2782,15 @@ button:active, button:active .mini {color: #000; background: #fff;}
   <button onclick="editor.testGame();" style="float: left;">test game</button>
   <button onclick="editor.stopTest();" style="float: left;">stop test</button>
   <span class="separator">|</span>
-  <button onclick="editor.zoom();" style="float: left;" class="octicon octicon-search"><span id="zoom" class="mini octicon octicon-dash"></span><span>zoom</span></button>
+  <button onclick="editor.zoom();" style="float: left;" class="fa fa-minus-search"><span>zoom</span></button>
   <span class="separator">|</span>
   <button onclick="editor.addNote();" style="float: left;">add note</button>
   <span class="separator">|</span>
   </div>
   <div id="editorMainBar">
-  <button onclick="editor.toggleEditor('code');editor.setActive(this);" name="oct" style="float: left;" class="bcode octicon octicon-code"><span>code</span></button>
-  <button onclick="editor.toggleEditor('notes');editor.setActive(this);" name="oct" style="float: left;" class="bnote octicon octicon-pencil"><span>notes</span></button>
-  <button onclick="editor.help();" style="float: left;" class="bhelp octicon octicon-question"><span>help</span></button>
+  <button onclick="editor.toggleEditor('code');editor.setActive(this);" name="oct" style="float: left;" class="bcode fa fa-code"><span>code</span></button>
+  <button onclick="editor.toggleEditor('notes');editor.setActive(this);" name="oct" style="float: left;" class="bnote fa fa-pencil"><span>notes</span></button>
+  <button onclick="editor.help();" style="float: left;" class="bhelp fa fa-question"><span>help</span></button>
   <!--button onclick="install();" style="float: left;">install</button-->
   <!--br style="clear: both;"-->
   </div>

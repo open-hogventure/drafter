@@ -308,6 +308,20 @@ function Game() {
    return false;
   },
   /**
+  @method getLanguage
+  @since 2014-07-31
+  @param _lan a language key like 'en','de',...
+  @return {MediaLanguage} a mediaLanguage or null
+  */
+  getLanguage : function(_lan) {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    if (this.mediaLanguages[i].language == _lan) {
+     return this.mediaLanguages[i];
+    }
+   }
+   return null;
+  },
+  /**
   @method getCurrentLanguage
   */
   getCurrentLanguage : function() {
@@ -321,6 +335,20 @@ function Game() {
    this.mediaLanguages.push( language );
    this.languages.push(this.currentLanguage);
    return language;
+  },
+  /**
+  returns the keys, defined by the default language
+  @method getKeys
+  @since 2914-07-31
+  @return {Array} keys 
+  */
+  getKeys : function () {
+    var d_lan = this.getLanguage(this.defaultLanguage);
+    var keys = [];
+    for (var i = 0; i < d_lan.medias.length; i++) {
+      keys.push(d_lan.medias[i].key);
+    }
+    return keys;
   },
   /**
   use getTextMedia too get the decoded media value

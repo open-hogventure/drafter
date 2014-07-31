@@ -125,6 +125,13 @@ window.translator = {
       this.mediamanager.languages[i]+'</option>';
   }
   element.innerHTML = htm;
+  element = getElement('translator_key_select');
+  htm = '';
+  var keys = this.mediamanager.getKeys();
+  for (var i = 0; i < keys.length; i++) {
+
+  }
+  element.innerHTML = element.innerHTML + htm;
 
   getElement('translator_available_languages').addEventListener('change', translator.addLanguage, false);
   getElement('translator_language_choose').addEventListener('change', translator.setCurrentLanguage, false);

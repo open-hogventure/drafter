@@ -1,0 +1,18 @@
+{
+  "name": "Hogventure Draftercraft",
+  "description": "Hogventure Draftercraft Chromium platform app.",
+  "version": "0.1.2",
+  "main": "index.html",
+  "window": {
+    "title": "Hogventure Draftercraft",
+    "icon": "icon_logo64.png",
+    "show": false,
+    "toolbar": false,
+    "frame": false,
+    "position": "center",
+    "width": 800,
+    "height": 600,
+    "min_width": 480,
+    "min_height": 360
+  }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Frameless Window</title>
+<!--link rel="stylesheet" type="text/css" href="style.css" />
+<script src="titlebar.js"></script-->
+<script src="DraftWindow.js"></script>
+<link rel="stylesheet" href="mini-fnt.css">
+<style type="text/css">
+button {color: #fff;font-weight: bold; font-size: 13px; font-family:sans-serif; border: 0; width: 24px; height: 20px; margin: 0; background: transparent; text-align: center; -webkit-app-region: no-drag;}
+
+button:hover{background: #00c;}
+button:active{background: #009;outline: 0; border: 0;}
+button:focus{outline: 0; border: 0;}
+
+.iframe { -webkit-app-region: no-drag; }
+
+#mac-button-group {font-size: 12px; display: block; float: left; margin: 3px; margin-bottom: 1px;}
+#mac-button-group button {position: relative; font-size: 12px; margin: 0; margin-left: 5px; color: #000; border-radius: 14px; border: 1px solid #333; width: 12px; height: 14px; max-width: 12px; max-height: 14px; min-height: 14px; outline: 0;}
+#mac-button-group span {display: none; font-size: 12px; margin: 0; border: 0; padding: 0; line-height: 1; position: relative; top: -1px; left: -5px;}
+
+#mac-close {background: #d00; font-size: 12px;}
+#mac-mini {background: #fe0; font-size: 12px;}
+#mac-maxi {background: #0c0; font-size: 12px;}
+
+#mac-button-group button:hover, #mac-button-group:hover button { background: #000; outline: 0; border: 1px solid #000; }
+#mac-close:active, #mac-close:focus {background: #d00;}
+#mac-mini:active, #mac-mini:focus {background: #fe0;}
+#mac-maxi:active, #mac-maxi:focus {background: #0c0;}
+#mac-button-group:hover span { display: block; }
+
+#close-window-button{background: #b00; outline: 0px; font-weight: bold; width: 24px; font-size: 13px; font-family:sans-serif;}
+#close-window-button:hover {background: #e00;color:#fff;}
+#close-window-button.active,#close-window-button:active,#close-window-button:focus {background: #e00;}
+#mac-fullsize {display: none; color: #999; float: right;}
+#mac-fullsize:hover {color: #eee; background: transparent;}
+</style>
+</head>
+<body style="background: #333; -webkit-app-region: drag;">
+<div style="width: 100%; text-align: center; font-family: sans-serif; font-size: 15px; font-weight: bold; color: white; height: 25px;"><div id="mac-button-group">
+<button id="mac-close"><span class="icon-cancel-circled"></span></button>
+<button id="mac-mini"><span class="icon-minus-circled"></span></button>
+<button id="mac-maxi"><span class="icon-plus-circled"></span></button>
+</div>
+<img id="icon_logo" src="icon_logo24.png" style="float:left; width: 20px; height: 20px;"/>
+<span sytle="-webkit-user-select: none; -webkit-app-region: drag;">Hogventure Draftercraft</span>
+<div style="float: right;" id="window-button-group">
+  <button id="mini-window-button"><span class="icon-minus" style="position: relative; top: 5px;"></span></button>
+  <button id="maxi-window-button" class="icon-doc-landscape"></button>
+  <button id="close-window-button"><span class="icon-cancel"></span></button>
+</div>
+<button id="mac-fullsize" class="icon-resize-full"></button>
+
+</div>
+<iframe src="https://hogventure.com/draft" style="width: 100%; height: 100%; -webkit-app-region: no-drag;"></iframe>
+</body>
+</html>

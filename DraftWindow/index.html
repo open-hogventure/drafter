@@ -34,6 +34,9 @@ button:focus{outline: 0; border: 0;}
 #close-window-button.active,#close-window-button:active,#close-window-button:focus {background: #e00;}
 #mac-fullsize {display: none; color: #999; float: right;}
 #mac-fullsize:hover {color: #eee; background: transparent;}
+#mac-window-debug.mac {color: #999; float: right; margin-right: 3px;}
+#mac-window-debug.mac:hover {color: #eee; background: transparent; }
+#mac-window-debug.windows { float: right; margin-right: 3px; }/*behave like a normal button!*/
 </style>
 </head>
 <body style="background: #333; -webkit-app-region: drag;">
@@ -46,10 +49,11 @@ button:focus{outline: 0; border: 0;}
 <span sytle="-webkit-user-select: none; -webkit-app-region: drag;">Hogventure Draftercraft</span>
 <div style="float: right;" id="window-button-group">
   <button id="mini-window-button"><span class="icon-minus" style="position: relative; top: 5px;"></span></button>
-  <button id="maxi-window-button" class="icon-doc-landscape"></button>
+  <button id="maxi-window-button"><span class="icon-doc-landscape"><span></button>
   <button id="close-window-button"><span class="icon-cancel"></span></button>
 </div>
 <button id="mac-fullsize" class="icon-resize-full"></button>
+<button id="mac-window-debug" class="windows" onclick="dev();"><span class="icon-eye"></span></button>
 
 </div>
 <iframe src="https://hogventure.com/draft" style="width: 100%; height: 100%; -webkit-app-region: no-drag;" nwdisable nwfaketop></iframe>

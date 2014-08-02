@@ -19,13 +19,21 @@
  </center>
 
     <script>
-    var client = new Dropbox.Client({ key: 'YOUR-API-KEY-GOES-HERE' });
-
-    function writeHelloWorld(name, data) {
+    var dropclient = null; //new Dropbox.Client({ key: 'jyttdaiqfuz7drb' });
+    /*
+    // Try to complete OAuth flow.
+    dropclient.authenticate({ interactive: false }, function (error, client) {
+      console.log(client);
+      if (error) {
+          alert('Error: ' + error);
+      }
+    });
+    */
+    function writeDropboxData(name, data) {
       if (name == '' || name == null) {
         name = 'editor';
       }
-      client.writeFile(name+'.json', ''+data, function (error) {
+      dropclient.writeFile(name+'.json', ''+data, function (error) {
         if (error) {
           alert('Error: ' + error);
         } else {
@@ -33,11 +41,11 @@
         }
       });
     }
-    function readHelloWorld(name) {
+    function readDropboxData(name) {
       if (name == '' || name == null) {
         name = 'editor';
       }
-      client.readFile(name+'.json', function(error, data) {
+      dropclient.readFile(name+'.json', function(error, data) {
         if (error) {
           alert('Error: ' + error);
         } else {
@@ -46,41 +54,37 @@
       });
     };
 
-    // Try to complete OAuth flow.
-    client.authenticate({ interactive: false }, function (error, client) {
-      if (error) {
-          alert('Error: ' + error);
-      }
-    });
     //
     var loginToDropbox = function() {
-      client.authenticate(function (error, client) {
+      dropclient = new Dropbox.Client({ key: 'jyttdaiqfuz7drb' });
+      dropclient.authenticate({ interactive: false },function (error, client) {
         if (error) {
           alert('Error: ' + error);
         } else {
+          document.getElementById('writeButton').onclick = function () {
+            if (dropclient.isAuthenticated()) {
+              writeDropboxData(document.getElementById('nameInput').value, document.getElementById('writeInput').value);
+            } else {
+              alert('Error: please, login to dropbox.');
+            }
+          };
+          document.getElementById('readButton').onclick = function () {
+            if (dropclient.isAuthenticated()) {
+              readDropboxData(document.getElementById('nameInput').value);
+            } else {
+              alert('Error: please, login to dropbox.');
+            }
+          };
           document.getElementById('dropButtons').style.display = 'block';
         }
       });
     };
 
     /*if (client.isAuthenticated()) {
-      writeHelloWorld();
+      writeDropboxData();
     }*/
 
-    document.getElementById('writeButton').onclick = function () {
-      if (client.isAuthenticated()) {
-        writeHelloWorld(document.getElementById('nameInput').value, document.getElementById('writeInput').value);
-      } else {
-        alert('Error: please, login to dropbox.');
-      }
-    };
-    document.getElementById('readButton').onclick = function () {
-      if (client.isAuthenticated()) {
-        readHelloWorld(document.getElementById('nameInput').value);
-      } else {
-        alert('Error: please, login to dropbox.');
-      }
-    };
+   
     document.getElementById('loginButton').onclick = function () {
       loginToDropbox();
     };

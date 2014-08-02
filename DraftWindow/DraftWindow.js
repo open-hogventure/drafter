@@ -47,7 +47,7 @@ window.onload = function() {
   }
   tray = new gui.Tray({ title: 'Tray', icon: 'icon_logo24.png' });
   win.show();
-  
+  win.focus();
 };  
 
 function closeWindow() {

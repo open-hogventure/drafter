@@ -14,5 +14,6 @@
     "height": 600,
     "min_width": 480,
     "min_height": 360
-  }
+  },
+  "node-remote": "localhost,https://hogventure.com/draft"
 }

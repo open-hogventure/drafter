@@ -29,7 +29,7 @@ window.onload = function() {
     document.getElementById("mac-fullsize").onclick = function() {
       fullscreen();
     }
-    document.getElementById("mac-windows-debug").className = "mac";
+    document.getElementById("mac-window-debug").className = "mac";
     document.getElementById("icon_logo").style.display = "none";
     document.getElementById("window-button-group").style.display = "none";
     document.getElementById("mac-fullsize").style.display = "block";

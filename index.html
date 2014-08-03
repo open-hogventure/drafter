@@ -346,7 +346,12 @@ function Game() {
     var d_lan = this.getLanguage(this.defaultLanguage);
     var keys = [];
     for (var i = 0; i < d_lan.medias.length; i++) {
-      keys.push(d_lan.medias[i].key);
+      //console.log(d_lan.getMedia(d_lan.medias[i].key).value.substr(0, 20));
+      if (!(d_lan.getMedia(d_lan.medias[i].key).value.indexOf('data:') == 0 &&
+          d_lan.getMedia(d_lan.medias[i].key).value.indexOf('base64') > 0))
+      {
+        keys.push(d_lan.medias[i].key);
+      }
     }
     return keys;
   },
@@ -1421,47 +1426,16 @@ var Base64 = {
       @since 2014-07-11
       */
       editor.extensionsList = [
-          {name: 'translator', path: 'js/translateEditor', description: 'translate texts to other languages'},
+          {name: 'translator', path: 'js/translateEditor.js', description: 'EXPERIMENTAL translate texts to other languages'},
           {name: 'background image', path: 'js/backgroundEditor.js', description: 'upload an background image for a note'}
         ];
       /**
-      laods the extensionsList and show a select in a box
+      loads the extensionsList and show a select in a box
       @method showExtensions
       @since 2014-07-11
       */
       editor.showExtensions = function () {
-        /*var child = createElement('div');
-        child.setAttribute('id', 'extensionBox');
-        child.className = 'connectionBox';
-        child.appendChild(createTextNode('Select one of theese Extensions:'));
-        child.appendChild(createElement('br'));
-        var select = createElement('select');
-        select.setAttribute('name','extension');
-        select.setAttribute('id','extension');
-        select.addEventListener('change',
-        function(eve) {
-          editor.loadExtension(getElement('extension').value);
-        }, true);
-        for (var i = 0; i < editor.extensionsList.length; i++) {
-          child2 = createElement('option');
-          child2.setAttribute('value',editor.extensionsList[i].name);
-          child2.appendChild(createTextNode(editor.extensionsList[i].description));
-          select.appendChild(child2);
-        }
-        child.appendChild(select);
-        child.appendChild(createElement('br'));
-        //the close button
-        child2 = createElement('button');
-        child2.className = ('closeBoxButton');
-        child2.appendChild(createTextNode('X'));
-        child2.setAttribute('onclick', 'editor.loadExtension(null);');
-        child.appendChild(child2);
-        //the done button without select
-        child2 = createElement('button');
-        child2.appendChild(createTextNode('done'));
-        child2.setAttribute('onclick', 'editor.loadExtension(null);');
-        child.appendChild(child2);
-        getElement('editor').appendChild(child);*/
+        /**/
       };
       /**
       @method loadExtension
@@ -1496,6 +1470,7 @@ var Base64 = {
             script = createElement('script');
             script.setAttribute('id', value.replace(/ /g, '_'));
             script.setAttribute('type','text/javascript');
+            try {  
             editor.makeRequest(extension.path, function() {
               if (editor.http_request.readyState == 4) {
                 if (editor.http_request.status == 200) {
@@ -1507,6 +1482,9 @@ var Base64 = {
               }
               //editor.storage.setItem('ext_'+value.replace(/ /g, '_'),result);
             });
+            } catch (ex) {
+              script.src = extension.path;
+            }
             //script.src = extension.path;
             console.log(script.id);
             document.body.appendChild(script);

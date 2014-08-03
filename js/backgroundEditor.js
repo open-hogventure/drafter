@@ -118,7 +118,7 @@ setTimeout( function() {
  child.setAttribute('id','backgroundButton');
  child.setAttribute('onclick','editor.openNoteToBackground();');
  getElement('editorbar').appendChild(child);
-}, 2500);
+}, 500);
 }
 /** 
 */

@@ -1,42 +1,33 @@
-var body = 'show available languages<select id="translator_available_languages"></select><br>'+
-
- 'select / set new language<select id="translator_language_choose"></select><br>'+
- 'current key <b><span id="translator_key_current">no key selected</span></b> <button id="translator_add_key_value">add</button><br>'+
-'<textarea id="translator_current_language" style="float: left; width: 400px; height: 300px; border: 1px solid #000;" placeholder="into current language"></textarea>'+
-'<textarea id="translator_default_language" style="float: left; width: 400px; height: 300px; border: 1px solid #999; background: #ccc;" disabled="disabled"'+
-   ' placeholder="from default language"></textarea><br style="clear: both;">'+
-'  <br>'+
-'  Keys<br>'+
-'  <select id="translator_key_select" name="key_select"><option value="">---</option></select> / <input type="text" value=""'+
-    ' name="key_input" id="translator_key_input"/><button id="translator_key_create">create</button> text<br><br>'+
-'  MEDIA<br>'+
-'  <label><input type="file" id="translator_image_files" name="files[]" />upload</label> / <button id="translator_">show</button> image<br>'+
-
-'  <label><input type="file" id="translator_audio_files" name="files[]" />upload</label> / <button id="translator_">play</button> audio -> show length in milliseconds<br>'+
-'  ¿video? as file -> show length in milliseconds<br>'+
-'  <label><input type="button" value="export" name="export_button" id="translator_export_button" onclick="exportMedia();" />export</label>'+
-'<div id="translator_list"></div>';
-  
-var transDiv = document.createElement('div');
-  transDiv.style.width = '100%';
-  transDiv.style.height = '90%';
-  transDiv.style.position = 'absolute';
-  transDiv.style.top = '10%';
-  transDiv.style.zIndex = '1000';
-  transDiv.style.background='white';
-//console.log(transDiv);
-document.body.appendChild(transDiv);
-transDiv.innerHTML = body;
-
 /** 
 */
 window.removeExtension_translator = function() {
-  getElement('translator_editorbar').removeChild(getElement('translator_translatorButton'));
+  getElement('editorbar').removeChild(getElement('translatorButton'));
 };
 
 window.translator = {
   default_language : 'en',
   current_language : this.default_language,
+  body : 'show available languages<select id="translator_available_languages"></select><br>'+
+ 'select / set new language<select id="translator_language_choose"></select><br>'+
+ 'current key <b><span id="translator_key_current">no key selected</span></b> <button '+ 
+ 'id="translator_add_key_value">add</button><br>'+
+ '<textarea id="translator_current_language" style="float: left; width: 49%; height: '+
+ '100px; border: 1px solid #000;" placeholder="into current language"></textarea>'+
+ '<textarea id="translator_default_language" style="float: left; width: 49%; height: '+
+ '100px; border: 1px solid #999; background: #ccc;" disabled="disabled"'+
+ ' placeholder="from default language"></textarea><br style="clear: both;">'+
+ '  <br>'+'  Keys<br>'+'  <select id="translator_key_select" name="key_select" style="width: 49%; max-width: 49%;">'+
+ '<option value="">---</option></select> / <input type="text" value=""'+
+ ' name="key_input" id="translator_key_input"/><button id="translator_key_create">'+
+ 'create</button> text<br><br>  MEDIA<br>  <label><input '+
+ 'type="file" id="translator_image_files" name="files[]" />upload</label> / '+
+ '<button id="translator_">show</button> image<br>'+
+ '  <label><input type="file" id="translator_audio_files" name="files[]" />'+
+ 'upload</label> / <button id="translator_">play</button> audio -> show length in '+
+ 'milliseconds<br>  ¿video? as file -> show length in milliseconds<br>'+
+ '  <label><input type="button" value="export" name="export_button" '+
+ 'id="translator_export_button" onclick="exportMedia();" />export</label>'+
+ '<div id="translator_list"></div>',
   available_languages : [
 {'af': 'Afrikaans'}, {'sq': 'Albanian'},
 {'ar-sa': 'Arabic (Saudi Arabia)'}, {'ar-iq': 'Arabic (Iraq)'},
@@ -109,6 +100,17 @@ window.translator = {
 
  */
   init : function () {
+  var transDiv = document.createElement('div');
+  transDiv.setAttribute('id','translator_div');
+  transDiv.style.width = '100%';
+  transDiv.style.height = '90%';
+  transDiv.style.position = 'absolute';
+  transDiv.style.top = '10%';
+  transDiv.style.zIndex = '1000';
+  transDiv.style.background='white';
+  //console.log(transDiv);
+  document.body.appendChild(transDiv);
+  transDiv.innerHTML = this.body;
   var element = getElement('translator_available_languages');
   var htm = '';
   for (var i = 0; i < this.available_languages.length; i++) {
@@ -119,6 +121,7 @@ window.translator = {
   element.innerHTML = htm;
   element = getElement('translator_language_choose');
   htm = '';
+  this.mediamanager = (new Game()).mediamanager;
   this.mediamanager.load(JSON.parse(JSON.stringify(editor.game.mediamanager) ) );
   for (var i = 0; i < this.mediamanager.languages.length; i++) {
     htm = htm + '<option value="'+this.mediamanager.languages[i]+'">'+
@@ -127,9 +130,14 @@ window.translator = {
   element.innerHTML = htm;
   element = getElement('translator_key_select');
   htm = '';
+  console.log('get keys');
   var keys = this.mediamanager.getKeys();
-  for (var i = 0; i < keys.length; i++) {
+  var defaultLanguage = this.mediamanager.getLanguage(this.mediamanager.defaultLanguage);
+  console.log(keys.length);
 
+  for (var i = 0; i < keys.length; i++) {
+    htm = htm + '<option value="'+keys[i]+'">'+
+      defaultLanguage.getTextMedia(keys[i])+'</option>';
   }
   element.innerHTML = element.innerHTML + htm;
 
@@ -228,11 +236,30 @@ createKey : function (evt) {
   }
 };
 
-setTimeout( function() {
-  try {
-    translator.init();
-    console.log('translator started');
-  } catch(e) {
-    console.log(e);
+editor.openTranslator = function() {
+  if (document.getElementById('translator_div') == null) {  
+    try {
+      translator.init();
+      console.log('translator started');
+      //document.getElementById('translatorButton').setAttribute('onclick','');
+    } catch(e) {
+      console.log(e);
+    }
+  } else {
+    document.body.removeChild(document.getElementById('translator_div'));
   }
-}, 1000);
+};
+/*editor.closeTranslator = function() {
+  document.body.removeChild(getElement('translator_div'));
+}*/
+
+if (getElement('translatorButton') == null) {
+setTimeout( function() {
+ var child = createElement('button');
+ child.appendChild(createTextNode('translate'));
+ child.style.cssFloat = 'left';
+ child.setAttribute('id','translatorButton');
+ child.setAttribute('onclick','editor.openTranslator();');
+ getElement('editorbar').appendChild(child);
+}, 500);
+};

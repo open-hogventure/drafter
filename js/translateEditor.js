@@ -25,8 +25,7 @@ window.translator = {
  '  <label><input type="file" id="translator_audio_files" name="files[]" />'+
  'upload</label> / <button id="translator_">play</button> audio -> show length in '+
  'milliseconds<br>  ¿video? as file -> show length in milliseconds<br>'+
- '  <label><input type="button" value="export" name="export_button" '+
- 'id="translator_export_button" onclick="exportMedia();" />export</label>'+
+ '  <button name="export_button" id="translator_export_button" onclick="exportMedia();">export</button>'+
  '<div id="translator_list"></div>',
   available_languages : [
 {'af': 'Afrikaans'}, {'sq': 'Albanian'},
@@ -183,7 +182,7 @@ editKeyValue : function (evt) {
 
   @param {Event} evt
   */
-createKey : function (evt) {
+  createKey : function (evt) {
     console.log('createKey -> ' + evt.keyIdentifier + ' ' + evt.target.id);
     if((evt.keyIdentifier && evt.keyIdentifier.toLowerCase() == 'enter')
         || event.target.id == 'key_create')
@@ -216,17 +215,19 @@ createKey : function (evt) {
     var currentKey = evt.target.value;
     getElement('translator_key_current').innerHTML = currentKey;
   },
-
-    setCurrentLanguage : function (evt) {
-    console.log('setCurrentMediaLanguage -> '+evt.target.value);
-    translator.mediamanager.setCurrentMediaLanguage( evt.target.value );
+  /**
+  @method setCurrentLanguage
+  */
+  setCurrentLanguage : function (evt) {
+    console.log('setCurrentLanguage -> '+evt.target.value);
+    translator.mediamanager.setCurrentLanguage( evt.target.value );
   },
   /**
   @method addlanguage
 
   @param {Event} evt
   */
- addLanguage : function (evt) {
+  addLanguage : function (evt) {
     console.log('addLanguage -> '+evt.target.value);
     var element = getElement('translator_language_choose');
     var ele = document.createElement('option');
@@ -249,17 +250,15 @@ editor.openTranslator = function() {
     document.body.removeChild(document.getElementById('translator_div'));
   }
 };
-/*editor.closeTranslator = function() {
-  document.body.removeChild(getElement('translator_div'));
-}*/
+
 
 if (getElement('translatorButton') == null) {
-setTimeout( function() {
- var child = createElement('button');
- child.appendChild(createTextNode('translate'));
- child.style.cssFloat = 'left';
- child.setAttribute('id','translatorButton');
- child.setAttribute('onclick','editor.openTranslator();');
- getElement('editorbar').appendChild(child);
-}, 500);
+  setTimeout( function() {
+   var child = createElement('button');
+   child.appendChild(createTextNode('translate'));
+   child.style.cssFloat = 'left';
+   child.setAttribute('id','translatorButton');
+   child.setAttribute('onclick','editor.openTranslator();');
+   getElement('editorbar').appendChild(child);
+  }, 500);
 };

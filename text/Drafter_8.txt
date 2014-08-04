@@ -4,6 +4,9 @@ The secret of new things to explore and develope.
 
 Do you know those days, when achieve more than you exspected?
 Those days, when you stumble upon new possiblities.
+These special days, when you rush development over the limits of the possible speed?
+I name those days 'The Developer Rush Days'*. So how they come?
+Here you are:
 
 You wanted that feature anyway, didn't you?
 But you never have known a simple easy solution for this problem!
@@ -30,5 +33,20 @@ solve the unsolved old, older ones and fix the bugs, clear the unneeded - probab
 obsolent - features on the way of development. Keep yourself on the trek, even if or
 especially because you can reach the stars.
 
-Those are the ruch days and now back to the solve issue by issue moments.
+Those are days awesome endrophine rich and unbelievable. 
+
+Now back to the solve issue by issue moments.
 Avoid the pressure by meassuring. It's done, when it's done.
+
+*You might fear those rush days, because it is not gold but worthless pinchbeck -
+sham, but I focused on the real golden moments, because you really wanted the feature 
+and noticed you will need this feature anyway.
+
+After a long golden day I've finished the 'native' node-webkit based
+Application of hogventure's Draftercraft for 
+Windows in a 32bit version,
+mac OSX 10.7+ 64bit version, 
+Linux32 and Linux64.
+If node-webkit isn’t able to run on newer distributions such as Ubuntu 13.04+,
+Fedora 18+, Arch, Gentoo, derivatives of the above or so, you might follow this link for help.
+https://github.com/rogerwang/node-webkit/wiki/The-solution-of-lacking-libudev.so.0

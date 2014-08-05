@@ -50,3 +50,5 @@ Linux32 and Linux64.
 If node-webkit isn’t able to run on newer distributions such as Ubuntu 13.04+,
 Fedora 18+, Arch, Gentoo, derivatives of the above or so, you might follow this link for help.
 https://github.com/rogerwang/node-webkit/wiki/The-solution-of-lacking-libudev.so.0
+Although I hope, you won't need this link, becuase I added the scrpt 'hdc' to start the app.
+You may link this to the desktop. Have fun and create greate games.

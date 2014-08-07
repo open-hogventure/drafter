@@ -1044,6 +1044,13 @@ var Base64 = {
         //var datamodel_source = getElement('datamodel_source').innerHTML;
         //getElement('texteditor').value
         setHighlighter();
+        try {
+          editor.preferences = JSON.parse(_win.localStorage.getItem('preferences'));
+        }
+        catch (ex) {
+          //might be null - exspected exception - no handle needed
+        }
+        
         editor.usePreferences();
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
@@ -1308,8 +1315,8 @@ var Base64 = {
         child2.setAttribute('type','text');
         child2.setAttribute('title', 'only letters, digits, spaces');
         child2.setAttribute('placeholder','project title only letters, digits, spaces');
-        var filename = editor.getPreference('p_projectTitle') != null ?
-                                                editor.getPreference('p_projectTitle').value : '';
+        var filename = editor.getPreference('p_projectTitle') != null ? 
+                                          editor.getPreference('p_projectTitle').value : '';
         //child2.value = filename;
         child2.setAttribute('value', filename);
         child2.setAttribute('id','p_projectTitle');
@@ -1367,6 +1374,7 @@ var Base64 = {
         tmpreferences.push(editor.createPreference('p_projectTitle',title));
         console.log(tmpreferences);
         editor.preferences = tmpreferences;
+        _win.localStorage.setItem('preferences', JSON.stringify(editor.preferences));
         editor.usePreferences();
         getElement('editor').removeChild(getElement('preferencesBox'));
       };

@@ -1046,12 +1046,11 @@ var Base64 = {
         setHighlighter();
         try {
           editor.preferences = JSON.parse(_win.localStorage.getItem('preferences'));
+          editor.usePreferences();
         }
         catch (ex) {
           //might be null - exspected exception - no handle needed
-        }
-        
-        editor.usePreferences();
+        }        
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);

@@ -1031,16 +1031,18 @@ var Base64 = {
       editor.resize = function() {
         editor.width = window.innerWidth;
         editor.height = window.innerHeight;
-      }
+        document.body.style.width = editor.width+'px';
+        document.body.style.height = editor.height+'px';
+        var ele = getElement('editor');
+        ele.style.height = (editor.height - 5) + 'px';
+        ele.style.width = (editor.width - 5) + 'px';
+      };
       /**
       @method init
       @since 2014-05-28
       */
       editor.init = function() {
         editor.resize();
-        var ele = getElement('editor');
-        ele.style.height = (editor.height - 5) + 'px';
-        ele.style.width = (editor.width - 5) + 'px';
         //var datamodel_source = getElement('datamodel_source').innerHTML;
         //getElement('texteditor').value
         setHighlighter();
@@ -1163,7 +1165,6 @@ var Base64 = {
           var cons = editor.game.notes[i].connections;
           //console.log(cons);
           for (var j = 0; j < cons.length; j++) {
-            //editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
             editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
@@ -2658,7 +2659,7 @@ var Base64 = {
         catch (e) {
          alert('Please use the firefox browser for this feature. Automatic installation failed: '+e.message);
         }
-      }
+      };
       /***/
       _win.editor = editor;
       _win.onload = function() {
@@ -2681,6 +2682,11 @@ var Base64 = {
           }
         }, false);
         setTimeout(editor.init, 250);
+      };
+      _win.onresize = function() {
+        editor.resize();
+        document.body.style.width = editor.width+'px';
+        document.body.style.height = editor.height+'px';
       };
     }
 
@@ -2828,7 +2834,7 @@ font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
 .dpbutton span {float: left; display: inline-block;}
 #cmtexteditor .CodeMirror {height: 100%;}
 #dropboxSpanButtons {float: left;}
-.separator {float: left; margin: 0 1px 0 3px; width: 1px; font-weight: bold; font-size: 22px; min-height: 22px; max-height: 22px; background: #eee; display: inline-block; line-height: 0.75; overflow: hidden;}
+.separator {float: left; margin: 0 1px 2px 3px; width: 1px; font-weight: bold; font-size: 22px; min-height: 22px; max-height: 22px; background: #eee; display: inline-block; line-height: 0.75; overflow: hidden;}
 #editorMainBar {position: absolute; float: right; bottom: 90%; right: 0;}
 .mini{position: relative; top: -4px; left: -17px; font-size: 10px; color: white;}
 

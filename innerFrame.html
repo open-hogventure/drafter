@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script>
+	window.onload = function() {
+		var w = window.innerWidth;
+		var h = window.innerHeight;
+		document.body.style.width = w+'px';
+		document.body.style.height = h+'px';
+		document.body.style.margin = 0;
+		document.body.style.padding = 0;
+	}
+
+	window.addEventListener('resize' , function() {
+		var w = window.innerWidth;
+		var h = window.innerHeight;
+		document.body.style.width = w+'px';
+		document.body.style.height = h+'px';
+		document.getElementById('out').innerHTML = w+','+h;
+	}, true);
+
+	function addChild() {
+		var w = window.innerWidth;
+		var h = window.innerHeight;
+		var div = document.createElement('div');
+		div.style.background='#999';
+		div.style.width = '100px';
+		div.style.height = '70px';
+		div.style.position = 'absolute';
+		div.style.top = Math.floor(Math.random()*(h-100))+'px';
+		div.style.left = Math.floor(Math.random()*(w-140))+'px';
+		document.body.appendChild(div);
+	}
+  </script>
+ </head>
+ <body style="background: #ff9;">
+  <button id="out" onclick="addChild();">add child</button>
+ </body>
+</html>

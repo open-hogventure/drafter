@@ -2,7 +2,9 @@ var gui = require("nw.gui");
 var win = null;
 var isMaximum = false; 
 var tray = null;
-
+/**
+@method window.onload
+*/
 window.onload = function() { 
   gui = require("nw.gui");
   win = gui.Window.get();
@@ -50,13 +52,21 @@ window.onload = function() {
   win.show();
   win.focus();
 };  
-
+/**
+@method closeWindow
+*/
 function closeWindow() {
   win.close();
 };
+/**
+@method minimizeWindow
+*/
 function minimizeWindow() {
   win.minimize();
 }
+/**
+@method maximizeWindow
+*/
 function maximizeWindow() {
   if (isMaximum) {
     isMaximum = false;
@@ -68,16 +78,26 @@ function maximizeWindow() {
     win.maximize();
   }
 }
-
+/**
+@method window.onfocus
+*/
 window.onfocus = function() { 
   console.log("focus");
 };
-
+/**
+@method window.onblur
+*/
 window.onblur = function() { 
   console.log("blur");
 };
+/**
+@method window.onrize
+*/
 window.onresize = onResize;
-  
+/**
+@method onResize
+@param {Event} eve
+*/
 function onResize(eve) {
   var w = window.innerWidth;
   var h = window.innerHeight;
@@ -86,11 +106,11 @@ function onResize(eve) {
   e.style.margin = '0';
   e.style.padding = '0';
   e.style.width = w + 'px';
-  //e.style.height = h + 'px';
   e.style.height = (h - 25) + 'px';
-  e.src = e.src;
 };
-
+/**
+@method dev
+*/
 function dev() {
   if (win.isDevToolsOpen()) {
     win.closeDevTools();
@@ -98,7 +118,9 @@ function dev() {
     win.showDevTools(document.querySelector('iframe'));
   }
 }
-
+/**
+@method fullscreen
+*/
 function fullscreen() {
   win.toggleFullscreen();
 }

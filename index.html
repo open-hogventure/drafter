@@ -365,7 +365,9 @@ function Game() {
   setTextMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
    for (var i = 0; i < this.mediaLanguages.length; i++) {
-    this.mediaLanguages[i].setMedia(_k, _v, true);
+    if (this.mediaLanguages[i].getMedia(_k) == null) {
+     this.mediaLanguages[i].setMedia(_k, _v, true);
+    } 
    }
   },
   /**
@@ -381,7 +383,9 @@ function Game() {
   setMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
    for (var i = 0; i < this.mediaLanguages.length; i++) {
-    this.mediaLanguages[i].setMedia(_k, _v, false);
+    if (this.mediaLanguages[i].getMedia(_k) == null) {
+     this.mediaLanguages[i].setMedia(_k, _v, false);
+    }
    }
   },
   deleteMedia : function(_k) {

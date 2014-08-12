@@ -10,7 +10,7 @@ window.translator = {
   body : 'show available languages<select id="translator_available_languages"></select><br>'+
  'select / set new language<select id="translator_language_choose"></select><br>'+
  'current key <b><span id="translator_key_current">no key selected</span></b> <button '+ 
- 'id="translator_add_key_value">add</button><br>'+
+ 'id="translator_add_key_value" onclick="translator.editKeyValue(null);">add</button><br>'+
  '<textarea id="translator_current_language" style="float: left; width: 49%; height: '+
  '100px; border: 1px solid #000;" placeholder="into current language"></textarea>'+
  '<textarea id="translator_default_language" style="float: left; width: 49%; height: '+
@@ -18,12 +18,12 @@ window.translator = {
  ' placeholder="from default language"></textarea><br style="clear: both;">'+
  '  <br>'+'  Keys<br>'+'  <select id="translator_key_select" name="key_select" style="width: 49%; max-width: 49%;">'+
  '<option value="">---</option></select> / <input type="text" value=""'+
- ' name="key_input" id="translator_key_input"/><button id="translator_key_create">'+
+ ' name="key_input" id="translator_key_input" disabled="disabled"/><button id="translator_key_create" disabled="disabled">'+
  'create</button> text<br><br>  MEDIA<br>  <label><input '+
- 'type="file" id="translator_image_files" name="files[]" />upload</label> / '+
- '<button id="translator_">show</button> image<br>'+
- '  <label><input type="file" id="translator_audio_files" name="files[]" />'+
- 'upload</label> / <button id="translator_">play</button> audio -> show length in '+
+ 'type="file" id="translator_image_files" name="files[]" disabled="disabled"/>upload</label> / '+
+ '<button id="translator_" disabled="disabled">show</button> image<br>'+
+ '  <label><input type="file" id="translator_audio_files" name="files[]" disabled="disabled"/>'+
+ 'upload</label> / <button id="translator_" disabled="disabled">play</button> audio -> show length in '+
  'milliseconds<br>  ¿video? as file -> show length in milliseconds<br>'+
  '  <button name="export_button" id="translator_export_button" onclick="exportMedia();">export</button>'+
  '<div id="translator_list"></div>',
@@ -94,11 +94,11 @@ window.translator = {
  /**
 
  */
-  mediamanager : (new Game()).mediamanager,
+ mediamanager : (new Game()).mediamanager,
  /**
-
+ @method init
  */
-  init : function () {
+ init : function () {
   var transDiv = document.createElement('div');
   transDiv.setAttribute('id','translator_div');
   transDiv.style.width = '100%';
@@ -109,29 +109,29 @@ window.translator = {
   transDiv.style.background='white';
   //console.log(transDiv);
   document.body.appendChild(transDiv);
-  transDiv.innerHTML = this.body;
+  transDiv.innerHTML = translator.body;
   var element = getElement('translator_available_languages');
   var htm = '';
-  for (var i = 0; i < this.available_languages.length; i++) {
-    for (key in this.available_languages[i]) {
-      htm = htm + '<option value="'+key+'">'+key+' '+this.available_languages[i][key]+'</option>';
+  for (var i = 0; i < translator.available_languages.length; i++) {
+    for (key in translator.available_languages[i]) {
+      htm = htm + '<option value="'+key+'">'+key+' '+translator.available_languages[i][key]+'</option>';
     }
   }
   element.innerHTML = htm;
   element = getElement('translator_language_choose');
   htm = '';
-  this.mediamanager = (new Game()).mediamanager;
-  this.mediamanager.load(JSON.parse(JSON.stringify(editor.game.mediamanager) ) );
-  for (var i = 0; i < this.mediamanager.languages.length; i++) {
-    htm = htm + '<option value="'+this.mediamanager.languages[i]+'">'+
-      this.mediamanager.languages[i]+'</option>';
+  translator.mediamanager = (new Game()).mediamanager;
+  translator.mediamanager.load(JSON.parse(JSON.stringify(editor.game.mediamanager) ) );
+  for (var i = 0; i < translator.mediamanager.languages.length; i++) {
+    htm = htm + '<option value="'+translator.mediamanager.languages[i]+'">'+
+      translator.mediamanager.languages[i]+'</option>';
   }
   element.innerHTML = htm;
   element = getElement('translator_key_select');
   htm = '';
   console.log('get keys');
-  var keys = this.mediamanager.getKeys();
-  var defaultLanguage = this.mediamanager.getLanguage(this.mediamanager.defaultLanguage);
+  var keys = translator.mediamanager.getKeys();
+  var defaultLanguage = translator.mediamanager.getLanguage(translator.mediamanager.defaultLanguage);
   console.log(keys.length);
 
   for (var i = 0; i < keys.length; i++) {
@@ -143,38 +143,36 @@ window.translator = {
   getElement('translator_available_languages').addEventListener('change', translator.addLanguage, false);
   getElement('translator_language_choose').addEventListener('change', translator.setCurrentLanguage, false);
   getElement('translator_key_select').addEventListener('change', translator.selectKey, false);
-  getElement('translator_image_files').addEventListener('change', translator.handleFileSelect, false);
-  getElement('translator_audio_files').addEventListener('change', translator.handleFileSelect, false);
-  getElement('translator_key_create').addEventListener('click', translator.createKey, false);
+  //getElement('translator_image_files').addEventListener('change', translator.handleFileSelect, false);
+  //getElement('translator_audio_files').addEventListener('change', translator.handleFileSelect, false);
+  //getElement('translator_key_create').addEventListener('click', translator.createKey, false);
   getElement('translator_current_language').addEventListener('keyup', translator.editKeyValue, false);
-  getElement('translator_key_input').addEventListener('keyup', translator.createKey, false);
-  //this.mediamanager.load(JSON.parse(JSON.stringify(editor.game.mediamanager) ) );
+  //getElement('translator_key_input').addEventListener('keyup', translator.createKey, false);
+  
  },
+ /**
+ @method editKeyValue
 
-    /**
-  @method editKeyValue
+ @param {Event} evt
+ */
+ editKeyValue : function (evt) {
+   console.log(getElement('translator_language_choose').value);
+   var key = getElement('translator_key_current').innerHTML;
+   var value = getElement('translator_current_language').value;
+   console.log(key + ' -> ' + value);
+   translator.mediamanager.setTextMedia(key, value);
+ },
+ /**
+ @method addKeyValue
 
-  @param {Event} evt
-  */
-editKeyValue : function (evt) {
-    console.log(getElement('translator_language_choose').value);
-    var key = getElement('translator_key_current').innerHTML;
-    var value = getElement('translator_current_language').value;
-    console.log(key + ' -> ' + value);
-    translator.mediamanager.addMedia(Base64.encode(key), Base64.encode(value), 'text');
-    getElement('translator_default_language').value = value;
-  },
-  /**
-  @method addKeyValue
-
-  @param {Event} evt
-  */
+ @param {Event} evt
+ */
  addKeyValue : function (evt) {
     var key = getElement('translator_key_current').innerHTML;
     var value = getElement('translator_current_language').value;
     console.log(key + ' -> ' + value);
     console.log(key + ' -> ' + value);
-    translator.mediamanager.addMedia(Base64.encode(key), Base64.encode(value), 'text');
+    translator.mediamanager.setMedia(key, Base64.encode(value));
     getElement('translator_default_language').value = value;
   },
   /**
@@ -204,22 +202,30 @@ editKeyValue : function (evt) {
       element.appendChild(ele);
     }
   },
-  
   /**
   @method selectKey
 
   @param {Event} evt
   */
-    selectKey : function (evt) {
+  selectKey : function (evt) {
     console.log('selectKey -> '+evt.target.value);
     var currentKey = evt.target.value;
     getElement('translator_key_current').innerHTML = currentKey;
+    translator.mediamanager.setCurrentLanguage(translator.default_language);
+    var text = translator.mediamanager.getTextMedia(currentKey);
+    translator.mediamanager.setCurrentLanguage(translator.current_language);
+    var ctxt = translator.mediamanager.getTextMedia(currentKey);
+    console.log(translator.default_language, text, translator.current_language, ctxt);
+    getElement('translator_default_language').value = text;
+    getElement('translator_current_language').value = ctxt == null ? text : ctxt;
   },
   /**
   @method setCurrentLanguage
   */
   setCurrentLanguage : function (evt) {
     console.log('setCurrentLanguage -> '+evt.target.value);
+    translator.current_language = evt.target.value;
+    translator.default_language = translator.mediamanager.defaultLanguage;
     translator.mediamanager.setCurrentLanguage( evt.target.value );
   },
   /**

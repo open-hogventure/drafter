@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+<div id="objectmenu" style="width: 200px;">
+  <fieldset>
+<legend>object menu</legend>
+<span id="p_c_s" style="margin-bottom: 2px; display: block; padding: 2px 5px 2px 5px;background: firebrick ; color: white;"><input type="checkbox" id="p_c" name="collectable" onchange="document.getElementById(this.id+'_s').style.background = this.checked ? 'green':'firebrick ';">collectable</span>
+<span id="p_f_s" style="margin-bottom: 2px; display: block; padding: 2px 5px 2px 5px;background: firebrick ; color: white;"><input type="checkbox" id="p_f" name="figure" onchange="document.getElementById(this.id+'_s').style.background = this.checked ? 'green':'firebrick ';">figure</span>
+<span id="p_p_s" style="margin-bottom: 2px; display: block; padding: 2px 5px 2px 5px;background: firebrick ; color: white;"><input type="checkbox" id="p_p" name="playable" onchange="document.getElementById(this.id+'_s').style.background = this.checked ? 'green':'firebrick ';">playable</span>
+<span id="p_eoc_s" style="margin-bottom: 2px; display: block; padding: 2px 5px 2px 5px;background: firebrick ; color: white;"><input type="checkbox" id="p_eoc" name="enteronclick" onchange="document.getElementById(this.id+'_s').style.background = this.checked ? 'green':'firebrick ';">enter on click</span>
+<button onclick="var properties = []; var ins = objectmenu.querySelectorAll('input'); for (var i = 0; i < ins.length; i++) { properties.push({k: ins[i].name, v: ins[i].checked}); }; console.log(properties); return false;">done</button>
+</fieldset>
+</div>
+ </body>
+</html>

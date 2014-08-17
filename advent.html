@@ -7,6 +7,7 @@
   <meta name="Keywords" content="">
   <meta name="Description" content="">
   <title>Hidden Object & Adventure Editor</title>
+  <script type="text/javascript" src="js/base64.js"></script>
   <!--s cript type="text/javascript" src="js/itemstorage.js"></sc ript-->
   <script type="text/javascript" src="js/painter.js"></script>
   <script type="text/javascript" id="datamodel_source">
@@ -31,11 +32,35 @@ function Note (_uid) {
  this.connections = [];
  /***/
  this.load = function(data) {
-  console.log(data);
+  //console.log(data);
   for (var key in data) {
-    //garanties that primitive values are loaded
-    this[key] = data[key];
-    //console.log(key+' '+data[key]);
+    if (key != 'connections' && key != null) {
+    //console.log(key);
+    if (typeof data[key] == 'Array') {
+      //console.log('array'+ key+', '+data[key]);
+      for (var i = 0; i < data[key]; i++) {
+        if (typeof data[key][i].INSTANCE != 'undefined') {
+          var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key][i]['uid']+');');
+          var obj = func();
+          obj.load(data[key][i]);
+          this[key][i] = obj;
+        } else {
+          this[key][i] = data[key][i];
+        }
+      } 
+    } else {
+      if (typeof data[key].INSTANCE != 'undefined') {
+        //console.log(data[key].INSTANCE +'+'+ data[key]);
+        var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key]['uid']+');');
+        var obj = func();
+        obj.load(data[key][i]);
+        this[key][i] = obj;
+      } else if (data[key] != null) {
+        //console.log(key +'-'+ (typeof data[key]));
+        this[key] = data[key];
+      }
+    }
+   }
   }
   //this.uid = data['uid'];
   this.connections = [];
@@ -222,7 +247,7 @@ function Game() {
  @since 2014-05-17
  */
  this.load = function(data) {
-  if (data == null) {
+   if (data == null) {
     data = window.localStorage.getItem('game_data');
     data = JSON.parse(data);
     if (data == null) {
@@ -230,28 +255,62 @@ function Game() {
      //
      return;
     }
-  }
-  console.log('');
-  console.log(data);
-  this.mediamanager.load(data['mediamanager']);
-  this.startNote = data['startNote'];
-  this.notes = [];
-  for (var i = 0; i < data['notes'].length;i++) {
-   var note = new Note(data['notes'][i]['uid']);
-   note.load(data['notes'][i]);
-   this.notes.push(note);
-  }
+   }
+   console.log('game-load');
+   //console.log(data);
+   for (var key in data) {
+    //console.log(key, data[key]);
+    if (key != null && data[key] != null && 
+        key != 'mediamanager' && 
+        key != 'startNote' && 
+        key != 'notes') 
+    {
+     if (typeof data[key] == 'Array') {
+      //console.log('array'+ key+', '+data[key]);
+      for (var i = 0; i < data[key]; i++) {
+        if (typeof data[key][i].INSTANCE != 'undefined') {
+          var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key][i]['uid']+');');
+          var obj = func();
+          obj.load(data[key][i]);
+          this[key][i] = obj;
+        } else {
+          this[key][i] = data[key][i];
+        }
+      } 
+     } else {
+      if (typeof data[key].INSTANCE != 'undefined') {
+        //console.log(data[key].INSTANCE +'+'+ data[key]);
+        var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key]['uid']+');');
+        var obj = func();
+        obj.load(data[key][i]);
+        this[key][i] = obj;
+      } else if (data[key] != null) {
+        //console.log(key +'-'+ (typeof data[key]));
+        this[key] = data[key];
+      }
+     }
+    }
+   }
+   this.mediamanager.load(data['mediamanager']);
+   this.startNote = data['startNote'];
+   this.notes = [];
+   for (var i = 0; i < data['notes'].length;i++) {
+    var note = new Note(data['notes'][i]['uid']);
+    note.load(data['notes'][i]);
+    this.notes.push(note);
+   }
  };
  /**
  @method save
  @since 2014-05-17
  */
  this.save = function() {
-  var data = JSON.stringify(game);
+  var data = JSON.stringify(this);
   console.log('save data:');
   console.log(data);
   console.log(':save data');
-  window.localStorage.setItem('game_data', data);
+  return data;
+  //window.localStorage.setItem('game_data', data);
  };
  /**
  @class mediamanager
@@ -413,6 +472,11 @@ function Game() {
 
   </script>
   <script>
+  /**
+  creates and stores unique ids
+  @class UidCounter
+  @since 2014-08-13
+  */
   function UidCounter() {
     this.counters = [];
     this.abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
@@ -439,20 +503,33 @@ function Game() {
     };
   };
 
+  /**
+  @class StoryGame
+  @since 2014-08-13
+  */
   function StoryGame() {
+    Game.call(this);
+    this.INSTANCE = 'StoryGame';
     this.title = null;//used for settings
     this.startScene = null; // a reference uid
     this.currentFigure = null; //possible start figure
     this.scenes = [];
     this.status = null;
     this.figures = [];
-    this.settings = [];//an array of functions, rules , scripts to perform?
-    this.code = null; //should be base64 encoded
+    //this.settings = [];//an array of functions, rules , scripts to perform?
+    //this.code = null; //should be base64 encoded
   }
-
   StoryGame.prototype = new Game();
+  StoryGame.prototype.INSTANCE = 'StoryGame';
 
+  /**
+  @class Scene
+  @since 2014-08-13
+  @param _uid
+  */
   function Scene(_uid) {
+    Note.call(this,_uid);
+    this.INSTANCE = 'Scene';
     this.uid = _uid;
     this.name = null;
     this.status = null;
@@ -460,8 +537,16 @@ function Game() {
     this.objects = [];
   };
   Scene.prototype = new Note();
+  //Scene.prototype.INSTANCE = 'Scene';
 
+  /**
+  @class GameObject
+  @since 2014-08-13
+  @param _uid
+  */
   function GameObject(_uid) {
+    Note.call(this,_uid);
+    this.INSTANCE = 'GameObject';
     this.uid = _uid;
     this.name = null;
     this.image = null;
@@ -494,11 +579,16 @@ function Game() {
       );
     };
   };
-  GameObject.prototype = new Note();
+
+  
   /**
   @class Figure
+  @since 2014-08-13
+  @param _uid
   */
   function Figure(_uid) {
+    GameObject.call(this,_uid);
+    this.INSTANCE = 'Figure';
     this.uid = _uid;
     this.bag = [];
     this.status = null;
@@ -516,6 +606,7 @@ function Game() {
 
   Figure.prototype = new GameObject();
   Figure.prototype.moveTo = function(x,y) { this.mx = x; this.my = y; this.oldX = this.posX;  this.oldY = this.posY;}
+  Figure.prototype.INSTANCE = 'Figure';
 
   var game = new StoryGame();
   var ctx = null;
@@ -527,7 +618,10 @@ function Game() {
   var backtexture = null;
   //var scenes = [];
   //var title = 'projectTitle';
-
+  /**
+  @method init
+  @since 2014-08-13
+  */
   function init() {
     uidcounter = new UidCounter();
     /*if (!window.localStorage) {
@@ -559,7 +653,10 @@ function Game() {
     }
     requestAnimationFrame(function() {updateCtx(Date.now())});
   };
-
+  /**
+  @method drawBackTexture
+  @since 2014-08-16
+  */
   function drawBackTexture() {
     var tvs = createElement('canvas');
     tvs.width = 20;
@@ -572,7 +669,12 @@ function Game() {
     tx.fillRect(10,10,10,10);
     backtexture = tvs.toDataURL('painter.image/png');
   }
-
+  /**
+  @method setImage
+  @since 2014-08-16
+  @param _uid
+  @param _mode
+  */
   function setImage(_uid, _mode) {
     if (_mode != 'normal') {
       switch (mode) {
@@ -588,7 +690,10 @@ function Game() {
     }
   }
   /**
+  @method mousePressed
   @since 2014-08-13
+  @param x
+  @param y
   */
   function mousePressed(x,y) {
     if (!pressed) {
@@ -614,7 +719,12 @@ function Game() {
       update = true;
     }
   };
-  /***/
+  /**
+  @method mouseMove
+  @since 2014-08-13
+  @param x
+  @param y
+  */
   function mouseMoved(x,y) {
     if (pressed) {
       if (mode != 'normal') {
@@ -636,6 +746,12 @@ function Game() {
     }
     update = true;
   };
+  /**
+  @method mouseReleased
+  @since 2014-08-13
+  @param x
+  @param y
+  */
   function mouseReleased(x,y) {
     if (pressed) {
       if (mode != 'normal') {
@@ -651,7 +767,11 @@ function Game() {
       update = true;
     }
   };
-
+  /**
+  @method addObject
+  @since 2014-08-15
+  @param _obj
+  */
   function addObject(_obj) {
     //adds the currentObject to the objects div-list
     //or all objects of the current scene + figures of the game.
@@ -663,7 +783,40 @@ function Game() {
     child.setAttribute('onclick','showObjectMenu(\''+_obj.uid+'\');');
     getElement('objects').appendChild(child);
   }
-
+  /**
+  @method deleteObject
+  @since 2014-08-17
+  @param _uid
+  */
+  function deleteObject(_uid) {
+    var scenes = game.scenes;
+    for (var j = 0; j < scenes.length; j++) {
+      var objects = scenes[j].objects;
+      for ( var i = 0; i < objects.length; i++) {
+        if (objects[i].uid == _uid) {
+          objects.splice(i, 1);
+        }
+      }
+    }
+  }
+  /**
+  @method editObject
+  @since 2014-08-17
+  @param _uid
+  */
+  function editObject(_uid, data) {
+    var obj = getObject(_uid);
+    if (data == null) {
+        
+    } else {
+    
+    }
+  }
+  /**
+  @method showObjectMenu
+  @since 2014-08-15
+  @param _uid
+  */
   function showObjectMenu(_uid) {
     //get the object from the current scene
     if (getElement('objectmenu') != null) {
@@ -675,7 +828,7 @@ function Game() {
     menu.style.left = '440px'; 
     menu.style.top = (getElement('obj_'+_uid).offsetTop-50)+'px'; 
     menu.style.background = '#fff';
-    menu.style.boxShadow = '0 0 1px #999, 15px 15px 15px #999;';
+    menu.style.boxShadow = '0 0 1px #999, 15px 15px 25px #999';
     menu.style.width = '200px';
     menu.style.zIndex = 1000;
     var field = createElement('fieldset');
@@ -683,15 +836,15 @@ function Game() {
     child.appendChild(createTextNode('object menu '+_uid));
     field.appendChild(child);
     child = createElement('button');
-    child.setAttribute('onclick','editObject('+_uid+');');
+    child.setAttribute('onclick','editObject(\''+_uid+'\');');
     child.appendChild(createTextNode('edit'));
     field.appendChild(child);
     child = createElement('button');
-    child.setAttribute('onclick','painter.drawObjectImage('+_uid+');');
+    child.setAttribute('onclick','painter.drawObjectImage(\''+_uid+'\');');
     child.appendChild(createTextNode('image'));
     field.appendChild(child);
     child = createElement('button');
-    child.setAttribute('onclick','deleteObject('+_uid+');');
+    child.setAttribute('onclick','deleteObject(\''+_uid+'\');');
     child.appendChild(createTextNode('delete'));
     field.appendChild(child);
     field.appendChild(createTextNode('set object\'s properties:'));
@@ -721,7 +874,12 @@ function Game() {
     menu.appendChild(field);
     document.body.appendChild(menu);	
   }
-
+  /**
+  @method setObjectProperties
+  @since 2014-08-16
+  @param _uid
+  @param _props
+  */
   function setObjectProperties(_uid, _props) {
     var obj = getObject(_uid);
     for (key in _props) {
@@ -736,7 +894,12 @@ function Game() {
     }
     setObject(_uid, obj);
   }
-
+  /**
+  @method setObject
+  @since 2014-08-16
+  @param _uid
+  @param _obj
+  */
   function setObject(_uid, _obj) {
     var scenes = game.scenes;
     for (var j = 0; j < scenes.length; j++) {    
@@ -749,7 +912,11 @@ function Game() {
     }
     return null;
   }
-
+  /**
+  @method getObject
+  @since 2014-08-15
+  @param _uid
+  */
   function getObject(_uid) {
     var scenes = game.scenes;
     for (var j = 0; j < scenes.length; j++) {    
@@ -762,7 +929,10 @@ function Game() {
     }
     return null;
   }
-
+  /**
+  @method newScene
+  @since 2014-08-14 
+  */
   function newScene() {
     //create a new scene
     //and add it to the scenes array
@@ -771,7 +941,11 @@ function Game() {
     addScene(currentScene);
     selectScene(currentScene.uid);
   }
-
+  /**
+  @method addScene
+  @since 2014-08-14
+  @param _scn
+  */
   function addScene(_scn) {
     //create the option
     var option = createElement('option');
@@ -780,14 +954,20 @@ function Game() {
     option.setAttribute('id', 'scn_'+_scn.uid);
     getElement('scenes').appendChild(option);
   };
-
+  /**
+  @method editScene
+  @since 2014-08-14
+  */
   function editScene() {
     //edit the currentScene
     //set the title or decription/text in mediamanger / reference -> Note
     //upload and set background image and reference
     //update the corresponding option for the current scene?
   };
-
+  /**
+  @method deleteScene
+  @since 2014-08-15
+  */
   function deleteScene() {
     //delete the currentScene
     if (currentScene != null) {
@@ -803,7 +983,11 @@ function Game() {
     }
     update = true;
   };
-
+  /**
+  @method selectScene
+  @since 2014-08-14
+  @param value
+  */
   function selectScene(value) {
     //get the selected value from id scenes
     if (value == null) {
@@ -822,7 +1006,11 @@ function Game() {
     }
     update = true;
   };
-
+  /**
+  @method getScene
+  @since 2014-08-15
+  @param _uid
+  */
   function getScene(_uid) {
     var scenes = game.scenes;
     for (var i = scenes.length-1; i >= 0; i--) {
@@ -832,20 +1020,172 @@ function Game() {
     }
     return null;
   };
-
-  function setSettings() {
-    //set the title of the game
-    //etc
+  /**
+  @method setGameSetting
+  @since 2014-08-17
+  @param data
+  */
+  function setGameSetting(data) {
+    if (data == null) {
+      //set the title of the game
+      //etc
+      var ele = createElement('div');
+      ele.setAttribute('id','propertiesBox');
+      ele.style.position = 'absolute';
+      ele.style.left = '10px';
+      ele.style.top = '10px';
+      ele.style.zIndex = '1000';
+      ele.style.width = '200px';
+      ele.style.background = '#eee';
+      ele.style.boxShadow = '0 0 2px #999, 15px 15px 25px #999';
+      document.body.appendChild(ele);
+      /*
+      this.title = null;//used for settings
+      this.startScene = null; // a reference uid
+      this.currentFigure = null; //possible start figure
+      this.scenes = [];
+      this.status = null;
+      this.figures = [];
+      */
+      ele.appendChild(createTextNode('game title:'));
+      var child = document.createElement('input');
+      child.value = game.mediamanager.getTextMedia(game.title);
+      child.setAttribute('id','game_title');
+      ele.appendChild(child);
+      child = createElement('button');
+      child.appendChild(createTextNode('done'));
+      child.setAttribute('onclick','setGameSetting(getElement(\'game_title\').value);');
+      ele.appendChild(child);
+    } else {
+      game.title = uidcounter.createNew();
+      game.mediamanager.setTextMedia(game.title ,data);
+      document.body.removeChild(getElement('propertiesBox'));
+    }
   };
-  function loadSetting() {
-  
+  /**
+  @method loadGameSetting
+  @since 2014-08-17
+  @param data
+  */
+  function loadGameSetting(data) {
+    if (window.localStorage)
+    if (data == null) {
+      try {
+        var pros = localStorage.getItem('projects');
+        if (pros == null) {
+          pros = [];
+        } else {
+          pros = JSON.parse(pros);
+        }
+        var ele = createElement('div');
+        ele.setAttribute('id','propertiesBox');
+        ele.style.position = 'absolute';
+        ele.style.width = '200px';
+        ele.style.left = '10px';
+        ele.style.top = '10px';
+        ele.style.zIndex = '1000';
+        ele.style.background = '#eee';
+        ele.style.boxShadow = '0 0 2px #999, 15px 15px 25px #999';
+        document.body.appendChild(ele);
+        var child = null;
+        for (var i = 0; i < pros.length; i++) {
+          if (pros[i] == title) {
+            pros.splice(i, 1);
+          } else {
+            child = createElement('div');
+            child.style.padding = '5px';
+            child.style.border = '1px solid #999';
+            child.appendChild(createTextNode(pros[i].title));
+            var title = pros[i].title;
+            //title = title.replace(/[^a-zA-Z0-9]+/g,'');
+            child.setAttribute('onclick', 'loadGameSetting(\''+pros[i].title+'\');');
+            ele.appendChild(child);
+          }
+        }
+        child = createElement('button');
+        child.appendChild(createTextNode('close'));
+        child.setAttribute('onclick','document.body.removeChild(getElement(\'propertiesBox\'));');
+        ele.appendChild(child);
+      } catch (ex) {
+        alert('nothing to load');
+      }
+    } else {
+      try {
+        var title = data;
+        console.log('title='+title);
+        data = JSON.parse(localStorage.getItem('project_'+title));
+        console.log(data);
+        game = new StoryGame();
+        game.load(data);
+        data = JSON.parse(localStorage.getItem('uidcounter_'+title));
+        uidcounter.counters = data.counters;
+        console.log(game);
+        currentScene = game.scenes[0];
+        selectScene(currentScene.uid);
+        update = true;
+        document.body.removeChild(getElement('propertiesBox'));
+      } catch (ex) {
+        console.log(game);
+        alert('loading failed '+data);
+      }
+    }
   };
-  function saveSetting() {
-  
+  /**
+  @method saveGameSetting
+  @since 2014-08-17
+  @param data
+  */
+  function saveGameSetting(data) {
+    if (window.localStorage) {    
+      try {
+        if (game.title == null || game.title == '') {
+          alert('set game title first');
+          setGameSetting();
+          return;
+        }
+        var title = game.mediamanager.getTextMedia(game.title);
+        title = title.replace(/[^a-zA-Z0-9]+/g,'');
+        console.log(game.save());
+        localStorage.setItem('project_'+title, game.save());
+        localStorage.setItem('uidcounter_'+title, JSON.stringify(uidcounter));
+        var pros = localStorage.getItem('projects');
+        if (pros == null) {
+          pros = [];
+        } else {
+          pros = JSON.parse(pros);
+        }
+        var b = false;
+        for (var i = 0; i < pros.length; i++) {
+          if (pros[i].title == title) {
+            b = true;
+            //pros.splice(i, 1);
+          }
+          if (pros[i] == title) {
+            pros.splice(i, 1);
+          }
+        }
+        if (!b) {
+          pros.push( {title: title, uid: game.title} );          
+        }
+        localStorage.setItem('projects', JSON.stringify(pros));
+      } catch (ex) {
+        alert('saving project '+data+' failed');
+      }
+    }
   };
+  /**
+  @method importSetting
+  @since 2014-08-17
+  @param data
+  */
   function importSetting() {
   
   };
+  /**
+  @method exportSetting
+  @since 2014-08-17
+  @param data
+  */
   function exportSetting() {
   
   };
@@ -859,7 +1199,11 @@ function Game() {
   function createTextNode(txt) {
     return document.createTextNode(txt);
   };
-
+  /**
+  @method updateCtx
+  @since 2014-08-14
+  @param _time
+  */
   function updateCtx(_time) {
     //console.log(mode);
     switch (mode) {
@@ -876,7 +1220,11 @@ function Game() {
     } 
     requestAnimationFrame(function() {updateCtx(Date.now());});
   }
-
+  /**
+  @method draw
+  @since 2014-08-14
+  @param _time
+  */
   function draw(_time) {
     if (backtexture == null) {
       drawBackTexture();
@@ -952,7 +1300,9 @@ function Game() {
  <body>
   <canvas id="canvas"></canvas>
   <div style="float: left; width: 200px; min-height: 360px;max-height360px;">
-  <button id="settings" onclick="setSettings();">settings</button>
+  <button id="setgame" onclick="setGameSetting();">set</button>
+  <button id="savegame" onclick="saveGameSetting();">save</button>
+  <button id="loadgame" onclick="loadGameSetting();">load</button>
   <button id="sceneimage" onclick="painter.init();">new img</button>
   <button id="painterpalette" onclick="painter.openPalette();">palette</button>
   <button id="painterpalette" onclick="painter.deactivate();">set img</button>

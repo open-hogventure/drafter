@@ -776,7 +776,8 @@ function Game() {
     //adds the currentObject to the objects div-list
     //or all objects of the current scene + figures of the game.
     var child = createElement('div');
-    child.style.borderBottom = '1px solid #999';
+    child.className = 'menuObject';
+    //child.style.borderBottom = '1px solid #999';
     child.appendChild(createTextNode(_obj.uid));
     child.setAttribute('id','obj_'+_obj.uid);
     child.setAttribute('data-uid',_obj.uid);//obsolete?!
@@ -798,6 +799,8 @@ function Game() {
         }
       }
     }
+    document.body.removeChild(getElement('objectmenu'));
+    update = true;
   }
   /**
   @method editObject
@@ -868,7 +871,7 @@ function Game() {
       child.appendChild(createTextNode(c[i]));
     }
     child = createElement('button');
-    child.setAttribute('onclick','var properties = {collectable:false, figure:false, playable:false, canleavescene:false, isclicked:false, intersects:false}; var ins = objectmenu.querySelectorAll(\'input\'); for (var i = 0; i < ins.length; i++) { properties[ins[i].name]=ins[i].checked; }; console.log(properties); setObjectProperties(\''+_uid+'\',properties); document.body.removeChild(getElement(\'objectmenu\')); return false;');
+    child.setAttribute('onclick','var properties = {collectable:false, figure:false, playable:false, canleavescene:false, isclicked:false, intersects:false}; var ins = objectmenu.querySelectorAll(\'input\'); for (var i = 0; i < ins.length; i++) { if (ins[i].checked)properties[ins[i].name]=ins[i].checked; }; /*console.log(properties);*/ setObjectProperties(\''+_uid+'\',properties); document.body.removeChild(getElement(\'objectmenu\')); return false;');
     child.appendChild(createTextNode('done'));
     field.appendChild(child);
     menu.appendChild(field);
@@ -882,17 +885,34 @@ function Game() {
   */
   function setObjectProperties(_uid, _props) {
     var obj = getObject(_uid);
-    for (key in _props) {
-      if (key != null && _props[key]) {
-        obj[key] = _props[key];
-      }
+    if (obj == null) {
+      document.body.removeChild(getElement('objectmenu'));
     }
+    //console.log(_props);   
     if (_props.figure) {
+      for (key in _props) {
+        if (key != null) {
+          obj[key] = _props[key];
+        }
+      }
       var fig = new Figure(_uid);
       fig.copyParentKeys(obj);
       obj = fig;
+    } else {
+      var o = new GameObject();
+      for (key in _props) {
+        if (key != null) {
+          o[key] = _props[key];
+        }
+      }
+      for (var key in o) {
+        o[key] = obj[key];
+      }
+      obj = o;
     }
+    console.log(obj);
     setObject(_uid, obj);
+    update = true;
   }
   /**
   @method setObject
@@ -1093,8 +1113,7 @@ function Game() {
             pros.splice(i, 1);
           } else {
             child = createElement('div');
-            child.style.padding = '5px';
-            child.style.border = '1px solid #999';
+            child.className = 'pb_game';
             child.appendChild(createTextNode(pros[i].title));
             var title = pros[i].title;
             //title = title.replace(/[^a-zA-Z0-9]+/g,'');
@@ -1120,6 +1139,9 @@ function Game() {
         data = JSON.parse(localStorage.getItem('uidcounter_'+title));
         uidcounter.counters = data.counters;
         console.log(game);
+        for (var i = 0; i < game.scenes.length; i++) {
+          addScene(game.scenes[i]);
+        }
         currentScene = game.scenes[0];
         selectScene(currentScene.uid);
         update = true;
@@ -1232,7 +1254,7 @@ function Game() {
     }    
     ctx.clearRect(0,0,cvs.width,cvs.height);
     ctx.fillStyle = '#09c';
-    ctx.font = '12px monospace';
+    ctx.font = '12px sans-serif';
     ctx.strokeStyle = '#09c';
     ctx.lineWidth = 2;
     if (currentScene != null) {
@@ -1282,7 +1304,7 @@ function Game() {
   window.onload = function() {setTimeout(init,100);};
   </script>
   <style>
-  body, div, canvas, button, span, p, br {margin: 0; padding: 0; font-family: monospace; font-size: 12px;}
+  body, div, canvas, button, span, p, br {margin: 0; padding: 0; font-family: sans-serif; font-size: 12px;}
   body, div, button, span, p, br {
     -moz-user-select: -moz-none;
     -khtml-user-select: none;
@@ -1290,11 +1312,16 @@ function Game() {
     -o-user-select: none;
     user-select: none;
   }
-  button {float: left; width: 33%;}
+  button {float: left; width: 33%;background:#333;color:#fff;border:1px solid #fff;}
+  button:hover {background:#eee;border:1px solid #999;color:#000;}
   #canvas {float: left; width: 640px; height: 360px; background: #000;}
   #settings {width: 200px;}
   #scenes {width: 200px;}
   #objects {width: 200px;overflow: scroll;}
+  .pb_game { background:#333;color:#fff;padding:5px;border:1px solid #fff;}
+  .pb_game:hover { background:#eee;border:1px solid #999;color:#000;}
+  .menuObject {background:#fff;color:#333;padding:5px;border:1px solid #999;}
+  .menuObject:hover {background:#eee;border:1px solid #999;color:#000;}
   </style>
  </head>
  <body>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+ </head>
+ <body>
+  <script id="advent3deditor">
+  (
+  //Light And Tragic Of The Night Heron 
+  function(_win) {
+	  //treborEditor -> Robert Woodhead
+	  //wrednaEngine -> Andrew C. Greenberg
+	var treborEditor = {};
+	treborEditor.sizeX = 5;
+	treborEditor.sizeY = 5;
+	treborEditor.map = [];
+	treborEditor.tileTypes = [];
+
+	treborEditor.createMap = function() {
+		
+	};
+
+	treborEditor.loadMap = function() {
+	
+	};
+
+	treborEditor.drawMap =function() {
+		if (cvs == null) {
+			cvs = document.querySelector('canvas');
+			cvs.width = 800;
+			cvs.height = 450;
+			ctx = cvs.getContext('2d');
+		}
+	};
+
+	treborEditor.addTileType = function() {
+		
+	}
+
+	treborEditor.createTileType = function(_type) {
+		window.TileType.prototype = new Note();
+		window.TileType = function(_uid, _type) {
+			Note.call(_uid);
+			this.type = _type;
+		};		
+		return new TileType(editor.uidcounter.createNew(), _type);
+	};
+
+	treborEditor.init = function() {
+		//set the two primary tile types
+		//empty tile and small cube
+	}
+
+	_win.treborEditor = treborEditor;
+
+  })(window);
+  </script>
+  <div id="buttonbar"></div>
+  <canvas></canvas>
+ </body>
+</html>

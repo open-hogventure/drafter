@@ -215,3 +215,13 @@ pip-log.txt
 .mr.developer.cfg
 
 cm/
+img/font-awesome-4.1.0/scss/_variables.scss
+*.scss
+*.less
+img/font-awesome-4.1.0/fonts/FontAwesome.otf
+img/font-awesome-4.1.0/fonts/fontawesome-webfont.woff
+img/font-awesome-4.1.0/fonts/fontawesome-webfont.ttf
+img/font-awesome-4.1.0/fonts/fontawesome-webfont.svg
+img/font-awesome-4.1.0/fonts/fontawesome-webfont.eot
+img/font-awesome-4.1.0/css/font-awesome.min.css
+img/font-awesome-4.1.0/css/font-awesome.css

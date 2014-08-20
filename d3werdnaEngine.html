@@ -225,34 +225,34 @@
       werdnaEngine.ctx.lineWidth = 1;
       var ii = 0;
       var jj = 0;
-      /*switch (werdnaEngine.direction) {
+      switch (werdnaEngine.direction) {
         case 1:
-          jj = werdnaEngine.dungeon.length-1;
           ii = werdnaEngine.dungeon.length-1;
+          jj = 0;
         break;
         case 2:
           ii = werdnaEngine.dungeon.length-1;
           jj = werdnaEngine.dungeon.length-1;
         break;
         case 3:
-          ii = werdnaEngine.dungeon.length-1;
           jj = werdnaEngine.dungeon.length-1;
+          ii = 0;
         break;
         default:
         break;
-      }*/
+      }
       //if (werdnaEngine.inArray(werdnaEngine.player.map,werdnaEngine.level)) {
       //
         console.log(ii,jj,werdnaEngine.direction % 2);
-        //if (werdnaEngine.direction % 2 == 0) {
+        if (werdnaEngine.direction % 2 == 0) {
           for (var i = 1; i < werdnaEngine.dungeon.length-1; i++) {
             werdnaEngine.ctx.fillStyle = '#000';
             werdnaEngine.ctx.strokeStyle = '#fff';
-            for (var j = 1; j < 10; j++) {
+            for (var j = 1; j < werdnaEngine.dungeon[i].length-1; j++) {
               werdnaEngine.ctx.fillStyle = '#000';
               werdnaEngine.ctx.strokeRect(
-                          werdnaEngine.canvas.width-Math.abs(jj-j)*10,
-                          -5+Math.abs(ii-i)*10, 8, 8);
+                  werdnaEngine.canvas.width-Math.abs(jj-j)*10,
+                  -5+Math.abs(ii-i)*10, 8, 8);
               var value = werdnaEngine.dungeon[i][j];
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
@@ -266,43 +266,42 @@
           }
           werdnaEngine.ctx.fillStyle = '#f00';
           werdnaEngine.ctx.fillRect(
-            werdnaEngine.canvas.width-Math.abs(ii-werdnaEngine.player.x)*10,
-            -5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);
-        /*} else if(werdnaEngine.direction == 1) {
+              werdnaEngine.canvas.width-Math.abs(ii-werdnaEngine.player.x)*10,
+              -5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);
+        } else if(werdnaEngine.direction == 1) {
           for (var i = 1; i < werdnaEngine.dungeon.length-1; i++) {
             werdnaEngine.ctx.fillStyle = '#000';
             werdnaEngine.ctx.strokeStyle = '#fff';
-            for (var j = 1; j < 10; j++) {
+            for (var j = 1; j < werdnaEngine.dungeon[i].length-1; j++) {
               werdnaEngine.ctx.fillStyle = '#000';
               werdnaEngine.ctx.strokeRect(
                           werdnaEngine.canvas.width-Math.abs(ii-i)*10,
                           -5+Math.abs(jj-j)*10, 8, 8);
-              var value = werdnaEngine.dungeon[i][j];
+              var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
               } else if ( value == 1) {
                 werdnaEngine.ctx.fillStyle = '#fff';
               }
               werdnaEngine.ctx.fillRect(
-                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
+                        werdnaEngine.canvas.width-Math.abs(i)*10,
                         -5+Math.abs(jj-j)*10, 8, 8);
             }
           }
-
-          werdnaEngine.ctx.fillStyle = '#666';
+          werdnaEngine.ctx.fillStyle = '#90f';
           werdnaEngine.ctx.fillRect(
-            werdnaEngine.canvas.width-Math.abs(jj-werdnaEngine.player.y)*10,
-            -5+Math.abs(ii-werdnaEngine.player.x)*10, 8, 8);
+              werdnaEngine.canvas.width-Math.abs(werdnaEngine.dungeon[i].length-1-werdnaEngine.player.y)*10,
+              -5+Math.abs(werdnaEngine.player.x)*10, 8, 8);
         } else {
           for (var i = 1; i < werdnaEngine.dungeon.length-1; i++) {
             werdnaEngine.ctx.fillStyle = '#000';
             werdnaEngine.ctx.strokeStyle = '#fff';
-            for (var j = 1; j < 10; j++) {
+            for (var j = 1; j < werdnaEngine.dungeon[i].length-1; j++) {
               werdnaEngine.ctx.fillStyle = '#000';
               werdnaEngine.ctx.strokeRect(
                           werdnaEngine.canvas.width-Math.abs(ii-i)*10,
                           -5+Math.abs(jj-j)*10, 8, 8);
-              var value = werdnaEngine.dungeon[i][j];
+              var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
               } else if ( value == 1) {
@@ -310,15 +309,14 @@
               }
               werdnaEngine.ctx.fillRect(
                         werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                        -5+Math.abs(jj-j)*10, 8, 8);
+                        -5+Math.abs(j)*10, 8, 8);
             }
           }
-
-          werdnaEngine.ctx.fillStyle = '#666';
+          werdnaEngine.ctx.fillStyle = '#f09';
           werdnaEngine.ctx.fillRect(
-            werdnaEngine.canvas.width-Math.abs(jj-werdnaEngine.player.y)*10,
-            -5+Math.abs(ii-werdnaEngine.player.x)*10, 8, 8);
-        }*/
+              werdnaEngine.canvas.width-Math.abs(werdnaEngine.player.y)*10,
+              -5+Math.abs(werdnaEngine.dungeon.length - 1 - werdnaEngine.player.x)*10, 8, 8);
+        }
       //
       //}
     };
@@ -431,8 +429,8 @@
         fields[1+3*i+2].push(1);
       }
       //console.log(fields);
-      var rnd = 2+ Math.floor(Math.random()*9);
-      var rnd2 = 2+ Math.floor(Math.random()*9);
+      var rnd = 1+ Math.floor(Math.random()*9);
+      var rnd2 = 1+ Math.floor(Math.random()*9);
       var rndOld2 = rnd2;
       var rndOld = rnd;
       var count2 = 0;
@@ -441,8 +439,8 @@
         rndOld2 = rnd2;
 
         while (rnd == rndOld && rnd2 == rndOld2) {
-          rnd = 2+ Math.floor(Math.random()*9);
-          rnd2 = 2+ Math.floor(Math.random()*9);
+          rnd = 1+ Math.floor(Math.random()*9);
+          rnd2 = 1+ Math.floor(Math.random()*9);
         }
         if (fields[rnd][rnd2] == 1) {
           count2++;

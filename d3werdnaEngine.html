@@ -245,14 +245,14 @@
       //
         console.log(ii,jj,werdnaEngine.direction % 2);
         if (werdnaEngine.direction % 2 == 0) {
-          for (var i = 1; i < werdnaEngine.dungeon.length-1; i++) {
+          for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
             werdnaEngine.ctx.fillStyle = '#000';
             werdnaEngine.ctx.strokeStyle = '#fff';
-            for (var j = 1; j < werdnaEngine.dungeon[i].length-1; j++) {
+            for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
               werdnaEngine.ctx.fillStyle = '#000';
               werdnaEngine.ctx.strokeRect(
-                  werdnaEngine.canvas.width-Math.abs(jj-j)*10,
-                  -5+Math.abs(ii-i)*10, 8, 8);
+                  werdnaEngine.canvas.width-15-Math.abs(jj-j)*10,
+                  5+Math.abs(ii-i)*10, 8, 8);
               var value = werdnaEngine.dungeon[i][j];
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
@@ -260,23 +260,23 @@
                 werdnaEngine.ctx.fillStyle = '#fff';
               }
               werdnaEngine.ctx.fillRect(
-                        werdnaEngine.canvas.width-Math.abs(jj-j)*10,
-                        -5+Math.abs(ii-i)*10, 8, 8);
+                        werdnaEngine.canvas.width-15-Math.abs(jj-j)*10,
+                        5+Math.abs(ii-i)*10, 8, 8);
             }
           }
           werdnaEngine.ctx.fillStyle = '#f00';
           werdnaEngine.ctx.fillRect(
-              werdnaEngine.canvas.width-Math.abs(ii-werdnaEngine.player.x)*10,
-              -5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);
+              werdnaEngine.canvas.width-15-Math.abs(ii-werdnaEngine.player.x)*10,
+              5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);
         } else if(werdnaEngine.direction == 1) {
-          for (var i = 1; i < werdnaEngine.dungeon.length-1; i++) {
+          for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
             werdnaEngine.ctx.fillStyle = '#000';
             werdnaEngine.ctx.strokeStyle = '#fff';
-            for (var j = 1; j < werdnaEngine.dungeon[i].length-1; j++) {
+            for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
               werdnaEngine.ctx.fillStyle = '#000';
               werdnaEngine.ctx.strokeRect(
-                          werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                          -5+Math.abs(jj-j)*10, 8, 8);
+                          werdnaEngine.canvas.width-15-Math.abs(ii-i)*10,
+                          5+Math.abs(jj-j)*10, 8, 8);
               var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
@@ -284,23 +284,23 @@
                 werdnaEngine.ctx.fillStyle = '#fff';
               }
               werdnaEngine.ctx.fillRect(
-                        werdnaEngine.canvas.width-Math.abs(i)*10,
-                        -5+Math.abs(jj-j)*10, 8, 8);
+                        werdnaEngine.canvas.width-15-Math.abs(i)*10,
+                        5+Math.abs(jj-j)*10, 8, 8);
             }
           }
           werdnaEngine.ctx.fillStyle = '#90f';
           werdnaEngine.ctx.fillRect(
-              werdnaEngine.canvas.width-Math.abs(werdnaEngine.dungeon[i].length-1-werdnaEngine.player.y)*10,
-              -5+Math.abs(werdnaEngine.player.x)*10, 8, 8);
+              werdnaEngine.canvas.width-15-Math.abs( werdnaEngine.dungeon[0].length-1-werdnaEngine.player.y)*10,
+              5+Math.abs(werdnaEngine.player.x)*10, 8, 8);
         } else {
-          for (var i = 1; i < werdnaEngine.dungeon.length-1; i++) {
+          for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
             werdnaEngine.ctx.fillStyle = '#000';
             werdnaEngine.ctx.strokeStyle = '#fff';
-            for (var j = 1; j < werdnaEngine.dungeon[i].length-1; j++) {
+            for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
               werdnaEngine.ctx.fillStyle = '#000';
               werdnaEngine.ctx.strokeRect(
-                          werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                          -5+Math.abs(jj-j)*10, 8, 8);
+                          werdnaEngine.canvas.width-15-Math.abs(ii-i)*10,
+                          5+Math.abs(jj-j)*10, 8, 8);
               var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
               if (value == 2) {
                 werdnaEngine.ctx.fillStyle = '#bbb';
@@ -308,14 +308,14 @@
                 werdnaEngine.ctx.fillStyle = '#fff';
               }
               werdnaEngine.ctx.fillRect(
-                        werdnaEngine.canvas.width-Math.abs(ii-i)*10,
-                        -5+Math.abs(j)*10, 8, 8);
+                        werdnaEngine.canvas.width-15-Math.abs(ii-i)*10,
+                        5+Math.abs(j)*10, 8, 8);
             }
           }
           werdnaEngine.ctx.fillStyle = '#f09';
           werdnaEngine.ctx.fillRect(
-              werdnaEngine.canvas.width-Math.abs(werdnaEngine.player.y)*10,
-              -5+Math.abs(werdnaEngine.dungeon.length - 1 - werdnaEngine.player.x)*10, 8, 8);
+              werdnaEngine.canvas.width-15-Math.abs(werdnaEngine.player.y)*10,
+              5+Math.abs(werdnaEngine.dungeon.length - 1 - werdnaEngine.player.x)*10, 8, 8);
         }
       //
       //}
@@ -471,30 +471,41 @@
     /**
     on click event what to do?
     */
+    werdnaEngine.clicked = false;
+    /**
+    on click event what to do?
+    */
     werdnaEngine.clicker = function(eve) {
       console.log('x:'+eve.pageX+', y:'+eve.pageY);
-      var data = {x: (1+Math.floor(Math.random()*9)), y:(1+Math.floor(Math.random()*9)), start: null};
-      while (werdnaEngine.dungeon[data.x][data.y+1] >= 1) {
-        data = {x: (1+Math.floor(Math.random()*9)), y:(1+Math.floor(Math.random()*9)), start: null};
+      var data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)), 
+                  y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
+      while (werdnaEngine.dungeon[data.y+1][data.x] >= 1) {
+        data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)), 
+                y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
       }
       data.start = werdnaEngine.dungeon[data.y][data.x];
       if (data.start == 0) {
-
-        werdnaEngine.player.x = data.x;
-        werdnaEngine.player.y = data.y + 1;
-
-        var view = [[
-          werdnaEngine.dungeon[data.y-1][data.x-1],
-          werdnaEngine.dungeon[data.y-1][data.x],
-          werdnaEngine.dungeon[data.y-1][data.x+1]],[
-          werdnaEngine.dungeon[data.y][data.x-1],
-          werdnaEngine.dungeon[data.y][data.x],
-          werdnaEngine.dungeon[data.y][data.x+1]],[
-          werdnaEngine.dungeon[data.y+1][data.x-1],
-          werdnaEngine.dungeon[data.y+1][data.x],
-          werdnaEngine.dungeon[data.y+1][data.x+1]]];
-        werdnaEngine.gameStart(view);
+        werdnaEngine.clicked = true;
+        werdnaEngine.setView(data);
       }
+    };
+
+    werdnaEngine.setView = function(data) {
+      werdnaEngine.player.x = data.x;
+      werdnaEngine.player.y = data.y + 1;
+
+      var view = [[
+        werdnaEngine.dungeon[data.y-1][data.x-1],
+        werdnaEngine.dungeon[data.y-1][data.x],
+        werdnaEngine.dungeon[data.y-1][data.x+1]],[
+        werdnaEngine.dungeon[data.y][data.x-1],
+        werdnaEngine.dungeon[data.y][data.x],
+        werdnaEngine.dungeon[data.y][data.x+1]],[
+        werdnaEngine.dungeon[data.y+1][data.x-1],
+        werdnaEngine.dungeon[data.y+1][data.x],
+        werdnaEngine.dungeon[data.y+1][data.x+1]
+      ]];
+      werdnaEngine.gameStart(view);      
     };
     /**
     */
@@ -574,9 +585,9 @@
           typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-1] : -1,
           typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x] : -1,
           typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+1] : -1],[
-          werdnaEngine.dungeon[data.y-1][data.x-1],
-          werdnaEngine.dungeon[data.y-1][data.x],
-          werdnaEngine.dungeon[data.y-1][data.x+1]],[
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-1] : -1 ,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+1] : -1],[
           werdnaEngine.dungeon[data.y][data.x-1],
           werdnaEngine.dungeon[data.y][data.x],
           werdnaEngine.dungeon[data.y][data.x+1]]];
@@ -741,7 +752,8 @@ function Cube(_px, _py, _pz) {
     this.posZ = posZ;
   };
 }
-
+  </script>
+  <script>
 window.addEventListener("load", werdnaEngine.init, true);
   </script>
   <style>

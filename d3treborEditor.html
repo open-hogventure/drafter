@@ -767,25 +767,42 @@ function Cube(_px, _py, _pz) {
   (
   //Light And Tragic Of The Night Heron 
   function(_win) {
-	  //treborEditor -> Robert Woodhead
-	  //wrednaEngine -> Andrew C. Greenberg
-	var treborEditor = {};
-	treborEditor.sizeX = 5;
-	treborEditor.sizeY = 5;
-	treborEditor.map = [];
-	treborEditor.tileTypes = [];
-
-	treborEditor.createMap = function() {
-	  for (var i = 0; i < treborEditor.sizeX; i++) {
-      treborEditor.map[i] = [];
-      for (var j = 0; j < treborEditor.sizeY; j++) {
-        treborEditor.map[i][j] = 0;
+    //treborEditor -> Robert Woodhead
+    //wrednaEngine -> Andrew C. Greenberg
+    /**
+		@class treborEditor
+		@since
+		*/
+    var treborEditor = {};
+    treborEditor.sizeX = 5;
+    treborEditor.sizeY = 5;
+    treborEditor.map = [];
+    treborEditor.tileTypes = [];
+		/**
+		@method
+		@since
+		@param
+		@return
+		*/
+    treborEditor.createMap = function() {
+      for (var i = 0; i < treborEditor.sizeX; i++) {
+        treborEditor.map[i] = [];
+        for (var j = 0; j < treborEditor.sizeY; j++) {
+          treborEditor.map[i][j] = 0;
+        }
       }
-    }
-    werdnaEngine.dungeon = treborEditor.map;
-    werdnaEngine.init();    
-    werdnaEngine.setView({x: 3, y: 3, start: 0});
-    werdnaEngine.dungeonUndefinedCallback = function(data) {
+      werdnaEngine.dungeon = treborEditor.map;
+      werdnaEngine.init();    
+      werdnaEngine.setView({x: 3, y: 3, start: 0});
+      werdnaEngine.dungeonUndefinedCallback = treborEditor.dungeonUndefinedCallback;
+    };
+    /**
+		@method dungeonUndefinedCallback
+		@since 2014-08-21
+		@param
+		@return
+		*/
+    treborEditor.dungeonUndefinedCallback = function(data) {
       data.y = data.y + 1;
       var row = [];
       treborEditor.sizeX ++;
@@ -794,50 +811,73 @@ function Cube(_px, _py, _pz) {
         row[i] = 0;
         if (i < treborEditor.sizeX - 1) werdnaEngine.dungeon[i].push(0);
       }
-
       werdnaEngine.dungeon.push(row);
       treborEditor.map = werdnaEngine.dungeon;
       return data;
-    }
-	};
-
-	treborEditor.loadMap = function() {
+    };
+		/**
+		@method
+		@since
+		@param
+		@return
+		*/
+    treborEditor.loadMap = function() {
 	
-	};
-
-	treborEditor.drawMap =function() {
-		if (cvs == null) {
-			cvs = document.querySelector('canvas');
-			cvs.width = 800;
-			cvs.height = 450;
-			ctx = cvs.getContext('2d');
+	  };
+		/**
+		@method
+		@since
+		@param
+		@return
+		*/
+	  treborEditor.drawMap =function() {
+		  if (cvs == null) {
+			  cvs = document.querySelector('canvas');
+			  cvs.width = 800;
+			  cvs.height = 450;
+			  ctx = cvs.getContext('2d');
+	  	}
+	  };
+		/**
+		@method
+		@since
+		@param
+		@return
+		*/
+		treborEditor.addTileType = function() {
+			
 		}
-	};
-
-	treborEditor.addTileType = function() {
-		
-	}
-
-	treborEditor.createTileType = function(_type) {
-		window.TileType.prototype = new Note();
-		window.TileType = function(_uid, _type) {
-			Note.call(_uid);
-			this.type = _type;
-		};		
-		return new TileType(editor.uidcounter.createNew(), _type);
-	};
-
-	treborEditor.init = function() {
-		//set the two primary tile types
-		//empty tile and small cube
-	}
-
-	_win.treborEditor = treborEditor;
-
+		/**
+		@method
+		@since
+		@param
+		@return
+		*/
+		treborEditor.createTileType = function(_type) {
+			window.TileType.prototype = new Note();
+			window.TileType = function(_uid, _type) {
+				Note.call(_uid);
+				this.type = _type;
+			};		
+			return new TileType(editor.uidcounter.createNew(), _type);
+		};
+		/**
+		@method
+		@since
+		@param
+		@return
+		*/ 
+		treborEditor.init = function() {
+			//set the two primary tile types
+			//empty tile and small cube
+			treborEditor.createMap();
+		}
+		//
+		_win.treborEditor = treborEditor;
   })(window);
   </script>
   <script>
-  window.addEventListener("load", treborEditor.createMap, true);
+  window.addEventListener("load", treborEditor.init, true);
   </script>
   <style>
   *{

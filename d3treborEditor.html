@@ -383,7 +383,7 @@
       werdnaEngine.camera.offsetY = werdnaEngine.canvas.height/2;
 
       werdnaEngine.gameStart(null);
-      werdnaEngine.startAnimation();
+      //werdnaEngine.startAnimation();
     };
     /**
     @property dungeon
@@ -812,8 +812,8 @@ function Cube(_px, _py, _pz) {
     /**
 		@method dungeonUndefinedCallback
 		@since 2014-08-21
-		@param
-		@return
+		@param data
+		@return {Object} data
 		*/
     treborEditor.dungeonUndefinedCallback = function(data) {
       var value = window.confirm('Make the map bigger?');
@@ -834,10 +834,8 @@ function Cube(_px, _py, _pz) {
       return data;
     };
 		/**
-		@method
-		@since
-		@param
-		@return
+		@method loadMap
+		@since 2014-08-16
 		*/
     treborEditor.loadMap = function() {
       treborEditor.map[werdnaEngine.player.x][werdnaEngine.player.y] = 0;
@@ -851,6 +849,7 @@ function Cube(_px, _py, _pz) {
       treborEditor.map = werdnaEngine.dungeon;
       treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = 0;
       werdnaEngine.dungeon = treborEditor.map;
+      werdnaEngine.keyUp({keyCode:0});
     };
     /**
 		@method applyType
@@ -866,44 +865,11 @@ function Cube(_px, _py, _pz) {
       getElement('applyType').blur();
       //copy the map back to the dungeon
       werdnaEngine.dungeon = treborEditor.map;
+      werdnaEngine.keyUp({keyCode:0});
     };
-
-	  treborEditor.drawMap =function() {
-		  if (cvs == null) {
-			  cvs = document.querySelector('canvas');
-			  cvs.width = 800;
-			  cvs.height = 450;
-			  ctx = cvs.getContext('2d');
-	  	}
-	  };
-		/**
-		@method
-		@since
-		@param
-		@return
-		*/
-		treborEditor.addTileType = function() {
-
-		}
-		/**
-		@method
-		@since
-		@param
-		@return
-		*/
-		treborEditor.createTileType = function(_type) {
-			window.TileType.prototype = new Note();
-			window.TileType = function(_uid, _type) {
-				Note.call(_uid);
-				this.type = _type;
-			};
-			return new TileType(editor.uidcounter.createNew(), _type);
-		};
-		/**
-		@method
-		@since
-		@param
-		@return
+  	/**
+		@method init
+		@since 2014-08-16
 		*/
 		treborEditor.init = function() {
 			//set the two primary tile types

@@ -6,8 +6,9 @@
   <meta name="Author" content="">
   <meta name="Keywords" content="">
   <meta name="Description" content="">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
   <title>Document</title>
-  
+
  <script id="wrednaengine">
 (
   function(_win) {
@@ -94,7 +95,7 @@
 
 
       werdnaEngine.camera.screen.clearRect(0, 0, werdnaEngine.camera.width, werdnaEngine.camera.height);
-      werdnaEngine.camera.screen.strokeStyle = "red";
+      werdnaEngine.camera.screen.strokeStyle = "#000";
 
       werdnaEngine.camera.ry = -(werdnaEngine.mouse.x/werdnaEngine.camera.width - 0.5)*Math.PI*2;
       werdnaEngine.camera.rx = (werdnaEngine.mouse.y/werdnaEngine.camera.height)*Math.PI/2;
@@ -105,13 +106,13 @@
       werdnaEngine.camera.x = Math.sin(werdnaEngine.camera.ry)*ryRadius;
       werdnaEngine.camera.z = -Math.cos(werdnaEngine.camera.ry)*ryRadius;
 
-      werdnaEngine.camera.screen.strokeStyle = "#fff";
+      werdnaEngine.camera.screen.strokeStyle = "#000";
       //werdnaEngine.camera.screen.fillStyle = 'rgba(0,0,0,0.5)';
       werdnaEngine.render(werdnaEngine.world, werdnaEngine.camera);
     };
 
     werdnaEngine.render = function (world, camera) {
-      camera.screen.fillStyle = '#000';
+      camera.screen.fillStyle = '#eee';
       camera.screen.fillRect(0, 0, camera.width, camera.height);
       var toStroke = [];
       var toFill = [];
@@ -209,7 +210,7 @@
         camera.screen.lineTo(toStroke[i].posX1, toStroke[i].posY1);
         camera.screen.stroke();
       }
-      camera.screen.fillStyle = '#000';
+      camera.screen.fillStyle = '#eee';
       camera.screen.lineWidth = 2;
       for(var i=0; i < toFill.length; i++){
         camera.screen.beginPath();
@@ -222,7 +223,7 @@
         camera.screen.stroke();
       }
 
-      werdnaEngine.ctx.fillStyle = '#000';
+      werdnaEngine.ctx.fillStyle = '#eee';
       werdnaEngine.ctx.lineWidth = 1;
       var ii = 0;
       var jj = 0;
@@ -355,7 +356,7 @@
 
       werdnaEngine.ctx = werdnaEngine.canvas.getContext('2d');
       //werdnaEngine
-      document.body.appendChild(werdnaEngine.canvas);
+      //document.body.appendChild(werdnaEngine.canvas);
 
       werdnaEngine.canvas.addEventListener('click', werdnaEngine.clicker, true);
       /*werdnaEngine.game = typeof Game != 'undefined' ? new Game() : {};
@@ -473,17 +474,19 @@
     on click event what to do?
     */
     werdnaEngine.clicker = function(eve) {
-      console.log('x:'+eve.pageX+', y:'+eve.pageY);
-      var data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)), 
+      if (!werdnaEngine.clicked) {
+        console.log('x:'+eve.pageX+', y:'+eve.pageY);
+        var data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)),
+                    y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
+        while (werdnaEngine.dungeon[data.y+1][data.x] >= 1) {
+          data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)),
                   y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
-      while (werdnaEngine.dungeon[data.y+1][data.x] >= 1) {
-        data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)), 
-                y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
-      }
-      data.start = werdnaEngine.dungeon[data.y][data.x];
-      if (data.start == 0) {
-        werdnaEngine.clicked = true;
-        werdnaEngine.setView(data);
+        }
+        data.start = werdnaEngine.dungeon[data.y][data.x];
+        if (data.start == 0) {
+          werdnaEngine.clicked = true;
+          werdnaEngine.setView(data);
+        }
       }
     };
 
@@ -566,7 +569,7 @@
       }
       if (typeof werdnaEngine.dungeon[data.y] == 'undefined') {
         console.log(data.y, data.x);
-        //rotateView must be modified to use dungeonUndefinedCallback for asymetric maps 
+        //rotateView must be modified to use dungeonUndefinedCallback for asymetric maps
         if (werdnaEngine.dungeonUndefinedCallback != null) {
           data = werdnaEngine.dungeonUndefinedCallback(data);
         } else {
@@ -575,7 +578,7 @@
       }
       data.start = werdnaEngine.dungeon[data.y][data.x];
       for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
-        var t = '';
+        var t = i+' -> ';
         for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
           t = t + werdnaEngine.dungeon[i][j];
         }
@@ -599,8 +602,8 @@
           werdnaEngine.dungeon[data.y][data.x-1],
           werdnaEngine.dungeon[data.y][data.x],
           werdnaEngine.dungeon[data.y][data.x+1]]];
-        /*
-        for (var i = 0; i < map.length; i++) {
+
+        /*for (var i = 0; i < map.length; i++) {
           var t = '';
           for (var j = 0; j < map[i].length; j++) {
             t = t + map[i][j];
@@ -614,11 +617,7 @@
 
     */
     werdnaEngine.rotateView = function(dirLeft) {
-      /*if (dirLeft) {
-        werdnaEngine.mouse.x += werdnaEngine.canvas.width/4;
-      } else {
-        werdnaEngine.mouse.x -= werdnaEngine.canvas.width/4;
-      }*/
+
       var copyDungeon = [];
       if (!dirLeft) {
         for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
@@ -747,8 +746,8 @@ function Cube(_px, _py, _pz) {
   ];
   this.raster = [
     {p1:0,p2:1,p3:5,p4:4},
-    {p1:7,p2:6,p3:2,p4:3},
-    {p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+    //{p1:7,p2:6,p3:2,p4:3},
+    //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
   ];
   this.map = null;
   /**
@@ -765,7 +764,7 @@ function Cube(_px, _py, _pz) {
   </script>
   <script id="treboreditor">
   (
-  //Light And Tragic Of The Night Heron 
+  //Light And Tragic Of The Night Heron
   function(_win) {
     //treborEditor -> Robert Woodhead
     //wrednaEngine -> Andrew C. Greenberg
@@ -792,8 +791,10 @@ function Cube(_px, _py, _pz) {
         }
       }
       werdnaEngine.dungeon = treborEditor.map;
-      werdnaEngine.init();    
-      werdnaEngine.setView({x: 3, y: 3, start: 0});
+      werdnaEngine.init();
+      werdnaEngine.player.x = 2;
+      werdnaEngine.player.y = 2;
+      werdnaEngine.setView({x: 2, y: 1, start: 0});
       werdnaEngine.dungeonUndefinedCallback = treborEditor.dungeonUndefinedCallback;
     };
     /**
@@ -803,6 +804,10 @@ function Cube(_px, _py, _pz) {
 		@return
 		*/
     treborEditor.dungeonUndefinedCallback = function(data) {
+      var value = window.confirm('Make the map bigger?');
+      if (!value) {
+        return data;
+      }
       data.y = data.y + 1;
       var row = [];
       treborEditor.sizeX ++;
@@ -812,6 +817,7 @@ function Cube(_px, _py, _pz) {
         if (i < treborEditor.sizeX - 1) werdnaEngine.dungeon[i].push(0);
       }
       werdnaEngine.dungeon.push(row);
+      werdnaEngine.clicked = true;
       treborEditor.map = werdnaEngine.dungeon;
       return data;
     };
@@ -822,14 +828,32 @@ function Cube(_px, _py, _pz) {
 		@return
 		*/
     treborEditor.loadMap = function() {
-	
+      treborEditor.map[werdnaEngine.player.x][werdnaEngine.player.y] = 0;
+      werdnaEngine.dungeon = treborEditor.map;
 	  };
 		/**
-		@method
-		@since
-		@param
-		@return
+		@method resetType
+		@since 2014-08-21
 		*/
+    treborEditor.resetType = function() {
+
+    };
+    /**
+		@method applyType
+		@since 2014-08-21
+		*/
+    treborEditor.applyType = function(value) {
+      console.log('applyType -> '+value);
+      //copy the dungeon into the map
+      //because it might be rotated meanwhile
+      treborEditor.map = werdnaEngine.dungeon;
+      treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = value;
+      getElement('applyType').value = null;
+      getElement('applyType').blur();
+      //copy the map back to the dungeon
+      werdnaEngine.dungeon = treborEditor.map;
+    };
+
 	  treborEditor.drawMap =function() {
 		  if (cvs == null) {
 			  cvs = document.querySelector('canvas');
@@ -845,7 +869,7 @@ function Cube(_px, _py, _pz) {
 		@return
 		*/
 		treborEditor.addTileType = function() {
-			
+
 		}
 		/**
 		@method
@@ -858,7 +882,7 @@ function Cube(_px, _py, _pz) {
 			window.TileType = function(_uid, _type) {
 				Note.call(_uid);
 				this.type = _type;
-			};		
+			};
 			return new TileType(editor.uidcounter.createNew(), _type);
 		};
 		/**
@@ -866,7 +890,7 @@ function Cube(_px, _py, _pz) {
 		@since
 		@param
 		@return
-		*/ 
+		*/
 		treborEditor.init = function() {
 			//set the two primary tile types
 			//empty tile and small cube
@@ -880,17 +904,28 @@ function Cube(_px, _py, _pz) {
   window.addEventListener("load", treborEditor.init, true);
   </script>
   <style>
-  *{
-    margin: 0;
-    padding: 0;
-  }
-  html, body{
-    position: relative;
-  }
+  *{margin: 0;padding: 0;}
+  body{ width: 100%; min-height: 400px; background: #333;}
+  #trebor {margin:0; position: relative; width: 99%;}
+  #treborbar {margin: 0; min-width: 99%;width: 99%; min-height: 25px;}
+  select,button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; cursor: pointer; margin-bottom: 2px; float: left;}
+  select:active, select:focus {outline: 0;}
+  option {margin: 0; padding: 0 5px 0 5px; color: white; background: #666;}
+  option:hover, option:active, option:focus{background: #eee; color: black;}
+  button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
 	</style>
  </head>
  <body>
-  <div id="buttonbar"></div>
+  <div id="treborbar">
+  <button id="resetType" onclick="treborEditor.resetType();">remove</button>
+  <select id="applyType" name="applyType" onchange="treborEditor.applyType(this.value);">
+  <option value="0">blank</option>
+  <option value="1">cube block</option>
+  <option value="2">cube door</option>
+  </select>
+  </div>
+  <div id="trebor">
   <canvas></canvas>
+  </div>
  </body>
 </html>

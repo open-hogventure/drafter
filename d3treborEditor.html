@@ -52,6 +52,8 @@
     werdnaEngine.mouse.x = 0;
     werdnaEngine.mouse.y = 0;
     werdnaEngine.mouse.z = 0;
+    //if true, allowed to walk into blocks
+    werdnaEngine.editMode = false;
 
     werdnaEngine.gameStart = function(_view) {
       if (_view == null) {
@@ -577,15 +579,15 @@
         }
       }
       data.start = werdnaEngine.dungeon[data.y][data.x];
-      for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+      /*for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
         var t = i+' -> ';
         for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
           t = t + werdnaEngine.dungeon[i][j];
         }
         console.log(t);
-      }
+      }*/
 
-      if (data.start == 0) {
+      if (data.start == 0 || werdnaEngine.editMode) {
         if (data.direction < 0) {
           data.direction = 3;
         }
@@ -792,10 +794,20 @@ function Cube(_px, _py, _pz) {
       }
       werdnaEngine.dungeon = treborEditor.map;
       werdnaEngine.init();
+      werdnaEngine.editMode = true;
       werdnaEngine.player.x = 2;
       werdnaEngine.player.y = 2;
       werdnaEngine.setView({x: 2, y: 1, start: 0});
       werdnaEngine.dungeonUndefinedCallback = treborEditor.dungeonUndefinedCallback;
+    };
+    /**
+    @method setEditMode
+    @since 2014-08-21
+    */
+    treborEditor.setEditMode = function() {
+      werdnaEngine.editMode = !werdnaEngine.editMode;
+      console.log('treborEditor.setEditMode',werdnaEngine.editMode);
+      werdnaEngine.editMode ? getElement('setEditMode').innerHTML = 'test' : getElement('setEditMode').innerHTML = 'edit';
     };
     /**
 		@method dungeonUndefinedCallback
@@ -836,7 +848,9 @@ function Cube(_px, _py, _pz) {
 		@since 2014-08-21
 		*/
     treborEditor.resetType = function() {
-
+      treborEditor.map = werdnaEngine.dungeon;
+      treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = 0;
+      werdnaEngine.dungeon = treborEditor.map;
     };
     /**
 		@method applyType
@@ -923,6 +937,7 @@ function Cube(_px, _py, _pz) {
   <option value="1">cube block</option>
   <option value="2">cube door</option>
   </select>
+  <button id="setEditMode" onclick="treborEditor.setEditMode();">test</button>
   </div>
   <div id="trebor">
   <canvas></canvas>

@@ -56,65 +56,71 @@
     werdnaEngine.editMode = false;
 
     werdnaEngine.prepareView = function(_view) {
+      console.log(_view);
       if (_view == null) {
-        werdnaEngine.world.view = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
-        werdnaEngine.world.cubes.push( new Cube(-400,0,-450) );
-		werdnaEngine.world.cubes.push( new Cube(-200,0,-450) );
-        werdnaEngine.world.cubes.push( new Cube(0,0,-450) );
-        werdnaEngine.world.cubes.push( new Cube(200,0,-450) );
-		werdnaEngine.world.cubes.push( new Cube(400,0,-450) );
-        //
-		werdnaEngine.world.cubes.push( new Cube(-400,0,-250) );
-		werdnaEngine.world.cubes.push( new Cube(-200,0,-250) );
-        werdnaEngine.world.cubes.push( new Cube(0,0,-250) );
-        werdnaEngine.world.cubes.push( new Cube(200,0,-250) );
-		werdnaEngine.world.cubes.push( new Cube(400,0,-250) );
-        //
-		werdnaEngine.world.cubes.push( new Cube(-400,0,-50) );
-        werdnaEngine.world.cubes.push( new Cube(-200,0,-50) );
-        werdnaEngine.world.cubes.push( new Cube(0,0,-50) );
-        werdnaEngine.world.cubes.push( new Cube(200,0,-50) );
-		werdnaEngine.world.cubes.push( new Cube(400,0,-50) );
-        //
-        werdnaEngine.world.cubes.push( new Cube(-400,0,150) );
-		werdnaEngine.world.cubes.push( new Cube(-200,0,150) );
-        werdnaEngine.world.cubes.push( new Cube(0,0,150) );
-        werdnaEngine.world.cubes.push( new Cube(200,0,150) );
-		werdnaEngine.world.cubes.push( new Cube(400,0,150) );
-		 //
-		werdnaEngine.world.cubes.push( new Cube(-400,0,350) );
-        werdnaEngine.world.cubes.push( new Cube(-200,0,350) );
-        werdnaEngine.world.cubes.push( new Cube(0,0,350) );
-        werdnaEngine.world.cubes.push( new Cube(200,0,350) );
-		werdnaEngine.world.cubes.push( new Cube(400,0,350) );
-        for (var j = 0; j < werdnaEngine.world.cubes.length; j++) {
-
-          for (var i=0; i<werdnaEngine.world.cubes[j].raster.length; i++){
-            var side = werdnaEngine.world.cubes[j].raster[i];
-            side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
-            side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
-            side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
-            side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
-            werdnaEngine.world.cubes[j].raster[i] = side;
-          }
-          for(var i=0; i<werdnaEngine.world.cubes[j].sides.length; i++){
-            var side = werdnaEngine.world.cubes[j].sides[i];
-            side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
-            side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
-            side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
-            side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
-            //side.p5 = werdnaEngine.world.cubes[j].vertices[side.p5];
-            werdnaEngine.world.cubes[j].sides[i] = side;
-          }
-        }
-		console.log(werdnaEngine.world.view.length,werdnaEngine.world.view[0].length);
-      } else {
-        console.log('new view ->');
-        console.log(_view);
-        werdnaEngine.world.view = _view;
+        werdnaEngine.world.view = [[0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]];
+        _view = werdnaEngine.world.view;
       }
-
-
+      werdnaEngine.world.cubes = [];
+      console.log(werdnaEngine.world.cubes);
+      var model = null;
+      for (var i = 0; i < _view.length; i++) {
+        for (var j = 0; j < _view[i].length; j++) {
+          switch (_view[i][j]) {
+            case 0: model = new Tile(-800+200*j,0,-450+200*i);
+            break;
+            case 10: model = new Block(-800+200*j,0,-450+200*i);
+            break;
+            case 11: model = new BlockDoor(-800+200*j,0,-450+200*i);
+            break;
+            case 20: model = new Cube(-800+200*j,0,-450+200*i);
+            break;
+            case 21: model = new CubeDoor(-800+200*j,0,-450+200*i);
+            break;
+            default:
+              model = new Tile(-800+200*j,0,-450+200*i);
+            break;
+          }
+          werdnaEngine.world.cubes.push( model );
+        }
+      }
+        
+      for (var j = 0; j < werdnaEngine.world.cubes.length; j++) {
+        for (var i=0; i<werdnaEngine.world.cubes[j].raster.length; i++){
+          var side = werdnaEngine.world.cubes[j].raster[i];
+          //replace this ->
+          side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+          side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+          side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+          side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+          /*
+          this will replace the code above
+          for (var k = 0; k < side.p.length; k++) {
+            side.p[k] = werdnaEngine.world.cubes[j].vertices[side.p[k]];
+          }*/
+          werdnaEngine.world.cubes[j].raster[i] = side;
+        }
+        for(var i=0; i<werdnaEngine.world.cubes[j].sides.length; i++){
+          var side = werdnaEngine.world.cubes[j].sides[i];
+          //replace this ->
+          /*side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+          side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+          side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+          side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+          this will replace the code above*/
+          for (var k = 0; k < side.p.length; k++) {
+            side.p[k] = werdnaEngine.world.cubes[j].vertices[side.p[k]];
+          }
+          werdnaEngine.world.cubes[j].sides[i] = side;
+        }
+      }
+		  //console.log(werdnaEngine.world.view.length,werdnaEngine.world.view[0].length);
+      //console.log('new view ->',_view);
+      werdnaEngine.world.view = _view;
+      console.log('new view ->',werdnaEngine.world.view);
+      
       werdnaEngine.camera.screen.clearRect(0, 0, werdnaEngine.camera.width, werdnaEngine.camera.height);
       werdnaEngine.camera.screen.strokeStyle = "#000";
 
@@ -133,17 +139,18 @@
     };
 
     werdnaEngine.render = function (world, camera) {
-	  camera.screen.fillStyle = '#ccc';
+	    camera.screen.fillStyle = '#ccc';
       camera.screen.fillRect(0, camera.height/2, camera.width, camera.height/2);
-	  camera.screen.fillStyle = '#000';
+	    camera.screen.fillStyle = '#000';
       camera.screen.fillRect(0, 0, camera.width, camera.height/2 + 22);
-	  camera.screen.fillStyle = '#eee';
+	    camera.screen.fillStyle = '#eee';
       var toStroke = [];
       var toFill = [];
-	  console.log('world.cubes->'+world.cubes.length);
-      //for (var j = world.cubes.length-1; j > 0; j--) {
-		for (var j = 0; j < world.cubes.length; j++) {
-        for(var i=0; i<world.cubes[j].vertices.length; i++){
+	    console.log('world.cubes->'+world.cubes.length,world.cubes);
+      
+      for (var j = 0; j < world.cubes.length; j++) {
+        //console.log('>>>'+((j-(j%9))/9),j%9);
+        for(var i = 0; i < world.cubes[j].vertices.length; i++){
           var vertex = world.cubes[j].vertices[i];
 
           var dx = vertex.x - camera.x;
@@ -168,10 +175,11 @@
           vertex.posZ = scale;
         }
 
-        for(var i=0; i<world.cubes[j].raster.length; i++){
+        for(var i = 0; i < world.cubes[j].raster.length; i++){
           var side = world.cubes[j].raster[i];
-          if(world.view[(j-(j%5))/5][j%5] == 0 &&
-		  !(i==2 && world.view[(j-(j%5))/5][j%5] != 6) ){
+          //console.log('stroke side->',side);              
+          if(world.view[(j-(j%9))/9][j%9] == 0 &&
+		        !(i==2 && world.view[(j-(j%9))/9][j%9] != 6) ){
             toStroke.push({
               posX1: side.p1.posX,
               posY1: side.p1.posY,
@@ -183,7 +191,7 @@
               posY4: side.p4.posY,
               posZ: (side.p1.posZ + side.p2.posZ)/2
             });
-			/*toFill.push({
+			      /*toFill.push({
                 posX1: side.p1.posX,
                 posY1: side.p1.posY,
                 posX2: side.p2.posX,
@@ -196,41 +204,47 @@
             });*/
           }
         }
-
-        if (world.view[(j-(j%5))/5][j%5] >= 1) {
+        if (world.view[(j-(j%9))/9][j%9] >= 1) {
           for(var i=0; i<world.cubes[j].sides.length; i++){
             var side = world.cubes[j].sides[i];
-            if(!(i==1 && j%5==0) &&
-              !((i==1) && world.view[(j-(j%5))/5][j%5-1] >= 1) &&
-              !(i==3 && world.view[(j-(j%5))/5][j%5] != 2) &&
-              !(i==4 && world.view[(j-(j%5))/5][j%5] != 3)
+            console.log('toFill ->',world.cubes[j]);
+            if(!(i==1 && j%9==0) //&&
+               //!((i==1) && world.view[(j-(j%9))/9][j%9-1] >= 10) //&&
+               /* !(i==3 && world.view[(j-(j%9))/9][j%9] != 2) &&
+               !(i==4 && world.view[(j-(j%9))/9][j%9] != 3)*/
             ) {
-              var posX = (side.p1.posX + side.p2.posX + side.p3.posX + side.p4.posX) / 4;
-              if (posX > 0 && posX <= camera.width) {
+              console.log(side.p);
+              var posX = (side.p[0].posX + side.p[1].posX + side.p[2].posX + side.p[3].posX) / 4;
+              //console.log('stroke posX->'+posX);
+              if ((posX + 25 > 0 && posX <= camera.width + 25) || i == 2) {
                 toFill.push({
-                  posX1: side.p1.posX,
-                  posY1: side.p1.posY,
-                  posX2: side.p2.posX,
-                  posY2: side.p2.posY,
-                  posX3: side.p3.posX,
-                  posY3: side.p3.posY,
-                  posX4: side.p4.posX,
-                  posY4: side.p4.posY,
-                  posZ: (side.p1.posZ + side.p2.posZ + side.p3.posZ + side.p4.posZ)/4,
-                  posX: (side.p1.posX + side.p2.posX + side.p3.posX + side.p4.posX) / 4,
-                  posY: (side.p1.posY + side.p2.posY + side.p3.posY + side.p4.posY) / 4
+                  posX1: side.p[0].posX,
+                  posY1: side.p[0].posY,
+                  posX2: side.p[1].posX,
+                  posY2: side.p[1].posY,
+                  posX3: side.p[2].posX,
+                  posY3: side.p[2].posY,
+                  posX4: side.p[3].posX,
+                  posY4: side.p[3].posY,
+                  posZ: (side.p[1].posZ + side.p[2].posZ + side.p[3].posZ + side.p[0].posZ)/4,
+                  posX: (side.p[1].posX + side.p[2].posX + side.p[3].posX + side.p[0].posX) / 4,
+                  posY: (side.p[1].posY + side.p[2].posY + side.p[3].posY + side.p[0].posY) / 4
                 });
               }
             }
           }
         }
       }
+      //console.log(toStroke);
       toStroke.sort(function(a, b){
         return a.posZ - b.posZ;
       });
-	  /*toFill.sort(function(a, b){
-        return  Math.abs(a.posY) < Math.abs(b.posY);
+	    /*toFill.sort(function(a, b){
+        return Math.abs((werdnaEngine.width/2)-b.posX) - Math.abs((werdnaEngine.width/2)-a.posX);
       });*/
+      toFill.sort(function(a, b){
+        return a.posZ - b.posZ;
+      });
 
       camera.screen.lineWidth = 1;
       for(var i=0; i<toStroke.length; i++){
@@ -437,31 +451,31 @@
       werdnaEngine.player.y = data.y + 1;
 
       var view = [[
-		werdnaEngine.dungeon[data.y-2][data.x-2],
+		    werdnaEngine.dungeon[data.y-2][data.x-2],
         werdnaEngine.dungeon[data.y-2][data.x-1],
         werdnaEngine.dungeon[data.y-2][data.x],
         werdnaEngine.dungeon[data.y-2][data.x+1],
-		werdnaEngine.dungeon[data.y-2][data.x+2]],[
-		werdnaEngine.dungeon[data.y-1][data.x-2],
+		    werdnaEngine.dungeon[data.y-2][data.x+2]],[
+		    werdnaEngine.dungeon[data.y-1][data.x-2],
         werdnaEngine.dungeon[data.y-1][data.x-1],
         werdnaEngine.dungeon[data.y-1][data.x],
         werdnaEngine.dungeon[data.y-1][data.x+1],
-		werdnaEngine.dungeon[data.y-1][data.x+2]],[
+		    werdnaEngine.dungeon[data.y-1][data.x+2]],[
         werdnaEngine.dungeon[data.y][data.x-2],
-		werdnaEngine.dungeon[data.y][data.x-1],
+		    werdnaEngine.dungeon[data.y][data.x-1],
         werdnaEngine.dungeon[data.y][data.x],
         werdnaEngine.dungeon[data.y][data.x+1],
-		werdnaEngine.dungeon[data.y][data.x+2]],[
-		werdnaEngine.dungeon[data.y+1][data.x-2],
+		    werdnaEngine.dungeon[data.y][data.x+2]],[
+		    werdnaEngine.dungeon[data.y+1][data.x-2],
         werdnaEngine.dungeon[data.y+1][data.x-1],
         werdnaEngine.dungeon[data.y+1][data.x],
         werdnaEngine.dungeon[data.y+1][data.x+1],
-		werdnaEngine.dungeon[data.y+1][data.x+2]],[
-		werdnaEngine.dungeon[data.y+2][data.x-2],
+		    werdnaEngine.dungeon[data.y+1][data.x+2]],[
+		    werdnaEngine.dungeon[data.y+2][data.x-2],
         werdnaEngine.dungeon[data.y+2][data.x-1],
         werdnaEngine.dungeon[data.y+2][data.x],
         werdnaEngine.dungeon[data.y+2][data.x+1],
-		werdnaEngine.dungeon[data.y+2][data.x+2]
+		    werdnaEngine.dungeon[data.y+2][data.x+2]
       ]];
       werdnaEngine.prepareView(view);
     };
@@ -551,37 +565,57 @@
         werdnaEngine.player.x = data.x;
         werdnaEngine.player.y = data.y;
         var map = [
-		  [
-		  typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-2] : -1 ,
-          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-1] : -1 ,
+		    [
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-3] : -1,
+		      typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-1] : -1,
           typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x] : -1,
           typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+1] : -1,
-		  typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+2] : -1
-		  ],[
-		  typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-2] : -1,
+		      typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+4] : -1 
+		    ],[
+		      typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-3] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-2] : -1,
           typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-1] : -1,
           typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x] : -1,
           typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+1] : -1,
-		  typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+2] : -1,
-		  ],[
-		  typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-2] : -1,
+		      typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+4] : -1
+		    ],[
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-4] : -1,
+		      typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-3] : -1,
+		      typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-2] : -1,
           typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-1] : -1,
           typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x] : -1,
           typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+1] : -1,
-		  typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+2] : -1,
-		  ],[
-		  typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-2] : -1 ,
-          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-1] : -1 ,
+		      typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+4] : -1
+		    ],[
+		      typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-3] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-1] : -1,
           typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x] : -1,
           typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+1] : -1,
-		  typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+2] : -1
-		  ],[
-		  werdnaEngine.dungeon[data.y][data.x-2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-2] : -1,
-          werdnaEngine.dungeon[data.y][data.x-1]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-1] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+2] : -1,
+		      typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+3] : -1,
+		      typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+4] : -1
+		    ],[
+		      typeof werdnaEngine.dungeon[data.y][data.x-2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x-2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-3] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x-2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x-1]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-1] : -1,
           werdnaEngine.dungeon[data.y][data.x],
-          werdnaEngine.dungeon[data.y][data.x+1]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+1] : -1,
-		  werdnaEngine.dungeon[data.y][data.x+2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+2] : -1
-		  ]];
+          typeof werdnaEngine.dungeon[data.y][data.x+1]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+1] : -1,
+		      typeof werdnaEngine.dungeon[data.y][data.x+2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x+2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x+2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+4] : -1
+		    ]];
 
         /*for (var i = 0; i < map.length; i++) {
           var t = '';
@@ -594,10 +628,12 @@
       }
     };
     /**
-
+    @method rotateView
+    @since 2014-07-17
+    @param {boolean} dirLeft indicates to turn left or right(false)
+    @return {Array} the rotated dungeon map
     */
     werdnaEngine.rotateView = function(dirLeft) {
-
       var copyDungeon = [];
       if (!dirLeft) {
         for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
@@ -668,78 +704,504 @@ function getElement(_t) {
   return document.getElementById(_t);
 }
 //a Wizardy I like game engine
-
-/**
-@class Cube
-@since 2014-07-15
-*/
-function Cube(_px, _py, _pz) {
-
-  this.posX = _px;
-  this.posY = _py;
-  this.posZ = _pz;
-  this.vertices = [
-    {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
-    {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
-    {x:-100 + this.posX, y:-235 + this.posY, z: 100 + this.posZ},//2
-    {x:100 + this.posX,  y:-235 + this.posY, z: 100 + this.posZ},//3
-    {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
-    {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
-    {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
-    {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
-    {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
-    {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
-    {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
-    {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
-    {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
-    {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
-    {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
-    {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
-    {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
-    {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
-  ];
-  this.lines = [
-    {p1: 0, p2: 1},
-    {p1: 1, p2: 2},
-    {p1: 2, p2: 3},
-    {p1: 3, p2: 0},
-    //
-    {p1: 4, p2: 5},
-    {p1: 5, p2: 6},
-    {p1: 6, p2: 7},
-    {p1: 7, p2: 4},
-    //
-    {p1: 0, p2: 4},
-    {p1: 1, p2: 5},
-    {p1: 2, p2: 6},
-    {p1: 3, p2: 7}
-  ];
-  this.sides = [
-    //{p1:0,p2:1,p3:5,p4:4},
-    //{p1:4,p2:5,p3:6,p4:7},
-    //{p1:7,p2:6,p3:2,p4:3},
-    {p1:0,p2:4,p3:7,p4:3},
-    {p1:5,p2:1,p3:2,p4:6},
-    {p1:0,p2:1,p3:2,p4:3},
-    {p1:8,p2:9,p3:10,p4:11},//door
-    {p1:12,p2:13,p3:10,p4:11}//map text note
-  ];
-  this.raster = [
-    {p1:0,p2:1,p3:5,p4:4},
-    //{p1:7,p2:6,p3:2,p4:3},
-    //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
-  ];
-  this.map = null;
+//for a little Adventure RPG named "S'Laughter House"
   /**
-  @method
+  @class Tile
+  @since 2014-08-23
   */
-  this.setPosition = function(posX, posY, posZ) {
-    this.posX = posX;
-    this.posY = posY;
-    this.posZ = posZ;
-  };
-}
+  function Tile(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [ {p:[0,1,5,4]} ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},
+      //{p1:7,p2:6,p3:2,p4:3},
+      //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+    ];
+  }
+  /**
+  @class TileMessage
+  @since 2014-08-23
+  */
+  function TileMessage(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,1,5,4]},{p:[14,15,16,17]}];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},//the bottom
+      //{p1:7,p2:6,p3:2,p4:3}//top ceiling
+      {p1:14,p2:15,p3:16,p4:17}//the possible pitfall
+    ];
+  }
+  /**
+  @class TileCeiling
+  @since 2014-08-23
+  */
+  function TileCeiling(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [ {p:[0,1,5,4]},{p:[7,6,2,3]} ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},//the bottom
+      {p1:7,p2:6,p3:2,p4:3}//top ceiling
+      //{p1:14,p2:15,p3:16,p4:17}//the possible pitfall
+    ];
+  }
+  /**
+  @class Block
+  @since 2014-08-23
+  */
+  function Block(_px, _py, _pz) {
 
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]}];
+    this.raster = [ {p1:0,p2:1,p3:5,p4:4} ];
+  }
+  /**
+  @class BlockDoor
+  @since 2014-08-23
+  */
+  function BlockDoor(_px, _py, _pz) {
+
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]}//door
+                 ];
+    this.raster = [ {p1:0,p2:1,p3:5,p4:4} ];
+  }
+  /**
+  @class BlockMessage
+  @since 2014-08-23
+  */
+  function BlockMesage(_px, _py, _pz) {
+
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    /*this.sides = [
+      //{p1:0,p2:1,p3:5,p4:4},
+      //{p1:4,p2:5,p3:6,p4:7},
+      //{p1:7,p2:6,p3:2,p4:3},
+      {p1:0,p2:4,p3:7,p4:3},
+      {p1:5,p2:1,p3:2,p4:6},
+      {p1:0,p2:1,p3:2,p4:3},
+      //{p1:8,p2:9,p3:10,p4:11}//door
+      {p1:12,p2:13,p3:10,p4:11}//map text note
+    ];*/
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[12,13,10,11]}//map text note
+                  ];
+    
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},
+      //{p1:7,p2:6,p3:2,p4:3},
+      //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+    ];
+  }
+  /**
+  @class Cube
+  @since 2014-07-15
+  */
+  function Cube(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-235 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    /*this.sides = [
+      //{p1:0,p2:1,p3:5,p4:4},
+      //{p1:4,p2:5,p3:6,p4:7},
+      //{p1:7,p2:6,p3:2,p4:3},
+      {p1:0,p2:4,p3:7,p4:3},
+      {p1:5,p2:1,p3:2,p4:6},
+      {p1:0,p2:1,p3:2,p4:3}
+      //{p1:8,p2:9,p3:10,p4:11},//door
+      //{p1:12,p2:13,p3:10,p4:11}//map text note
+    ];*/
+    this.sides = [ {p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]} ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},
+      //{p1:7,p2:6,p3:2,p4:3},
+      //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+    ];
+    this.map = null;
+    /**
+    @method
+    */
+    this.setPosition = function(posX, posY, posZ) {
+      this.posX = posX;
+      this.posY = posY;
+      this.posZ = posZ;
+    };
+  }
+  /**
+  @class CubeDoor
+  @since 2014-08-23
+  */
+  function CubeDoor(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-235 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},//door
+      {x:75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},
+      
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]},//door
+                  {p:[12,13,14,15]},//window1
+                  {p:[16,17,18,19]} //window2
+                  ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4}
+    ];
+  }
+  /**
+  @class CubeMessage
+  @since 2014-08-23
+  */
+  function CubeMessage(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-235 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[12,13,14,15]},//window1
+                  {p:[16,17,18,19]},//window2
+                  {p:[12,13,10,11]}//map text note
+                  ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4}
+    ];
+  }
 //window.addEventListener("load", werdnaEngine.init, true);
   </script>
   <script id="treboreditor">
@@ -753,8 +1215,8 @@ function Cube(_px, _py, _pz) {
 		@since
 		*/
     var treborEditor = {};
-    treborEditor.sizeX = 5;
-    treborEditor.sizeY = 5;
+    treborEditor.sizeX = 9;
+    treborEditor.sizeY = 9;
     treborEditor.map = [];
     treborEditor.tileTypes = [];
     treborEditor.canvas = null;
@@ -776,11 +1238,11 @@ function Cube(_px, _py, _pz) {
       werdnaEngine.init();
       werdnaEngine.clicked = true;
       werdnaEngine.editMode = true;
-      werdnaEngine.player.x = 2;
-      werdnaEngine.player.y = 2;
-      werdnaEngine.setView({x: 2, y: 2, start: 0});
+      werdnaEngine.player.x = 3;
+      werdnaEngine.player.y = 3;
+      werdnaEngine.setView({x: 4, y: 3, start: 0});
       werdnaEngine.dungeonUndefinedCallback = treborEditor.dungeonUndefinedCallback;
-	  werdnaEngine.keyUp({keyCode:0, which:0});
+	    werdnaEngine.keyUp({keyCode:0, which:0});
     };
     /**
     @method setEditMode
@@ -829,24 +1291,26 @@ function Cube(_px, _py, _pz) {
     treborEditor.resetType = function() {
       treborEditor.map = werdnaEngine.dungeon;
       treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = 0;
+      //werdnaEngine.setModel(werdnaEngine.player.y,werdnaEngine.player.x, 0);
       werdnaEngine.dungeon = treborEditor.map;
-      werdnaEngine.keyUp({keyCode:0});
+      werdnaEngine.keyUp({keyCode:0,which:0});
     };
     /**
 		@method applyType
 		@since 2014-08-21
 		*/
     treborEditor.applyType = function(value) {
-      console.log('applyType -> '+value);
       //copy the dungeon into the map
       //because it might be rotated meanwhile
       treborEditor.map = werdnaEngine.dungeon;
-      treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = value;
+      treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = parseInt(value);
+      //werdnaEngine.setModel(werdnaEngine.player.y,werdnaEngine.player.x, value);
+      console.log('applyType -> '+value);
       getElement('applyType').value = null;
       getElement('applyType').blur();
       //copy the map back to the dungeon
       werdnaEngine.dungeon = treborEditor.map;
-      werdnaEngine.keyUp({keyCode:0});
+      werdnaEngine.keyUp({keyCode:0,which:0});
     };
     /***/
     treborEditor.renderMap = function() {
@@ -856,6 +1320,8 @@ function Cube(_px, _py, _pz) {
         treborEditor.mapCanvas.height = 250;
         treborEditor.ctx = treborEditor.mapCanvas.getContext('2d');
       }
+      treborEditor.ctx.fillStyle = '#000';
+      treborEditor.ctx.fillRect(0,0,treborEditor.mapCanvas.width,treborEditor.mapCanvas.height);
       treborEditor.ctx.fillStyle = '#eee';
       treborEditor.ctx.lineWidth = 1;
       var ii = 0;
@@ -889,9 +1355,11 @@ function Cube(_px, _py, _pz) {
                 0+Math.abs(ii-i)*10, 8, 8);
             var value = werdnaEngine.dungeon[i][j];
             if (value == 2) {
-              treborEditor.ctx.fillStyle = '#bbb';
+              treborEditor.ctx.fillStyle = '#ccc';
             } else if ( value == 1) {
               treborEditor.ctx.fillStyle = '#fff';
+            } else if (value > 0) {
+              treborEditor.ctx.fillStyle = '#999';
             }
             treborEditor.ctx.fillRect(
                       treborEditor.mapCanvas.width-10-Math.abs(jj-j)*10,
@@ -913,9 +1381,11 @@ function Cube(_px, _py, _pz) {
                         0+Math.abs(jj-j)*10, 8, 8);
             var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
             if (value == 2) {
-              treborEditor.ctx.fillStyle = '#bbb';
+              treborEditor.ctx.fillStyle = '#ccc';
             } else if ( value == 1) {
               treborEditor.ctx.fillStyle = '#fff';
+            } else if (value > 0) {
+              treborEditor.ctx.fillStyle = '#999';
             }
             treborEditor.ctx.fillRect(
                       treborEditor.mapCanvas.width-10-Math.abs(i)*10,
@@ -937,9 +1407,11 @@ function Cube(_px, _py, _pz) {
                         0+Math.abs(jj-j)*10, 8, 8);
             var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
             if (value == 2) {
-              treborEditor.ctx.fillStyle = '#bbb';
+              treborEditor.ctx.fillStyle = '#ccc';
             } else if ( value == 1) {
               treborEditor.ctx.fillStyle = '#fff';
+            } else if (value > 0) {
+              treborEditor.ctx.fillStyle = '#999';
             }
             treborEditor.ctx.fillRect(
                       treborEditor.mapCanvas.width-10-Math.abs(ii-i)*10,
@@ -993,9 +1465,22 @@ function Cube(_px, _py, _pz) {
   <div id="treborbar">
   <button id="resetType" onclick="treborEditor.resetType();">remove</button>
   <select id="applyType" name="applyType" onchange="treborEditor.applyType(this.value);">
-  <option value="0">blank</option>
-  <option value="1">cube block</option>
-  <option value="2">cube door</option>
+  <option value="-1">blank</option>
+  <option value="0">tile</option>
+  <!--option value="1">tile with ceiling</option-->
+  <!--option value="2">tile message</option-->
+  <option value="10">block</option>
+  <option value="11">block door</option>
+  <!--option value="12">block message</option-->
+  <option value="20">cube</option>
+  <option value="21">cube door</option>
+  <!--option value="22">cube message</option-->
+  <!--option value="30">house</option>
+  <option value="31">house door</option>
+  <option value="32">house message</option>
+  <option value="40">tower</option>
+  <option value="41">tower door</option>
+  <option value="42">high tower</option-->
   </select>
   <button id="setEditMode" onclick="treborEditor.setEditMode();">test</button>
   </div>

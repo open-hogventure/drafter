@@ -36,6 +36,7 @@
       ry: 0,
       rz: 0,
       depth: 250,
+      cam: null,//internal offscreen canvas
       screen: null,
       width: null,
       height: null,
@@ -71,13 +72,23 @@
           switch (_view[i][j]) {
             case 0: model = new Tile(-800+200*j,0,-450+200*i);
             break;
+            case 1: model = new TileCeiling(-800+200*j,0,-450+200*i);
+            break;
+            case 2: model = new TileMessage(-800+200*j,0,-450+200*i);
+            break;
+            //
             case 10: model = new Block(-800+200*j,0,-450+200*i);
             break;
             case 11: model = new BlockDoor(-800+200*j,0,-450+200*i);
             break;
+            case 12: model = new BlockMessage(-800+200*j,0,-450+200*i);
+            break;
+            //
             case 20: model = new Cube(-800+200*j,0,-450+200*i);
             break;
             case 21: model = new CubeDoor(-800+200*j,0,-450+200*i);
+            break;
+            case 22: model = new CubeMessage(-800+200*j,0,-450+200*i);
             break;
             default:
               model = new Tile(-800+200*j,0,-450+200*i);
@@ -88,20 +99,19 @@
       }
         
       for (var j = 0; j < werdnaEngine.world.cubes.length; j++) {
-        for (var i=0; i<werdnaEngine.world.cubes[j].raster.length; i++){
+        /*for (var i=0; i<werdnaEngine.world.cubes[j].raster.length; i++){
           var side = werdnaEngine.world.cubes[j].raster[i];
           //replace this ->
           side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
           side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
           side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
           side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
-          /*
-          this will replace the code above
-          for (var k = 0; k < side.p.length; k++) {
-            side.p[k] = werdnaEngine.world.cubes[j].vertices[side.p[k]];
-          }*/
+          //this will replace the code above
+          //for (var k = 0; k < side.p.length; k++) {
+          //  side.p[k] = werdnaEngine.world.cubes[j].vertices[side.p[k]];
+          //}
           werdnaEngine.world.cubes[j].raster[i] = side;
-        }
+        }*/
         for(var i=0; i<werdnaEngine.world.cubes[j].sides.length; i++){
           var side = werdnaEngine.world.cubes[j].sides[i];
           //replace this ->
@@ -143,7 +153,7 @@
       camera.screen.fillRect(0, camera.height/2, camera.width, camera.height/2);
 	    camera.screen.fillStyle = '#000';
       camera.screen.fillRect(0, 0, camera.width, camera.height/2 + 22);
-	    camera.screen.fillStyle = '#eee';
+	    camera.screen.fillStyle = '#ccc';
       var toStroke = [];
       var toFill = [];
 	    console.log('world.cubes->'+world.cubes.length,world.cubes);
@@ -174,37 +184,30 @@
           vertex.posY = scale * d3y + camera.offsetY;
           vertex.posZ = scale;
         }
-
-        for(var i = 0; i < world.cubes[j].raster.length; i++){
-          var side = world.cubes[j].raster[i];
-          //console.log('stroke side->',side);              
-          if(world.view[(j-(j%9))/9][j%9] == 0 &&
-		        !(i==2 && world.view[(j-(j%9))/9][j%9] != 6) ){
-            toStroke.push({
-              posX1: side.p1.posX,
-              posY1: side.p1.posY,
-              posX2: side.p2.posX,
-              posY2: side.p2.posY,
-              posX3: side.p3.posX,
-              posY3: side.p3.posY,
-              posX4: side.p4.posX,
-              posY4: side.p4.posY,
-              posZ: (side.p1.posZ + side.p2.posZ)/2
-            });
-			      /*toFill.push({
-                posX1: side.p1.posX,
-                posY1: side.p1.posY,
-                posX2: side.p2.posX,
-                posY2: side.p2.posY,
-                posX3: side.p3.posX,
-                posY3: side.p3.posY,
-                posX4: side.p4.posX,
-                posY4: side.p4.posY,
-                posZ: (side.p1.posZ + side.p2.posZ)/2
-            });*/
+        if (world.view[(j-(j%9))/9][j%9] >= 0 && world.view[(j-(j%9))/9][j%9] <= 9) {
+          for(var i = 0; i < world.cubes[j].sides.length; i++){
+            var side = world.cubes[j].sides[i];
+            //console.log('stroke side->',side);              
+            if(world.view[(j-(j%9))/9][j%9] == 0 &&
+              !(i==2 && world.view[(j-(j%9))/9][j%9] != 6) )
+            {
+              toStroke.push({
+                posX1: side.p[0].posX,
+                posY1: side.p[0].posY,
+                posX2: side.p[1].posX,
+                posY2: side.p[1].posY,
+                posX3: side.p[2].posX,
+                posY3: side.p[2].posY,
+                posX4: side.p[3].posX,
+                posY4: side.p[3].posY,
+                posZ: (side.p[1].posZ + side.p[2].posZ + side.p[3].posZ + side.p[0].posZ)/4,
+                posX: (side.p[1].posX + side.p[2].posX + side.p[3].posX + side.p[0].posX) / 4,
+                posY: (side.p[1].posY + side.p[2].posY + side.p[3].posY + side.p[0].posY) / 4
+              });    
+            }
           }
         }
-        if (world.view[(j-(j%9))/9][j%9] >= 1) {
+        if (world.view[(j-(j%9))/9][j%9] >= 10) {
           for(var i=0; i<world.cubes[j].sides.length; i++){
             var side = world.cubes[j].sides[i];
             console.log('toFill ->',world.cubes[j]);
@@ -254,10 +257,11 @@
         camera.screen.lineTo(toStroke[i].posX3, toStroke[i].posY3);
         camera.screen.lineTo(toStroke[i].posX4, toStroke[i].posY4);
         camera.screen.lineTo(toStroke[i].posX1, toStroke[i].posY1);
+        camera.screen.fill();
         camera.screen.stroke();
       }
-      //camera.screen.fillStyle = '#eee';
-      camera.screen.lineWidth = 1.5;
+      camera.screen.fillStyle = '#eee';
+      camera.screen.lineWidth = 1.15;
       for(var i=0; i < toFill.length; i++){
         camera.screen.beginPath();
         camera.screen.moveTo(toFill[i].posX1, toFill[i].posY1);
@@ -272,6 +276,8 @@
       if (werdnaEngine.editMode) {
         treborEditor.renderMap();
       }
+      
+      werdnaEngine.ctx.drawImage(camera.cam, -40, -27, 680, 340);
     };
     /**
     @method inArray
@@ -324,8 +330,10 @@
       console.log(werdnaEngine.canvas);
       window.addEventListener("keydown", werdnaEngine.keyDown, false);
       window.addEventListener("keyup", werdnaEngine.keyUp, false);
-
-      werdnaEngine.camera.screen = werdnaEngine.ctx;
+      werdnaEngine.camera.cam = createElement('canvas');
+      werdnaEngine.camera.cam.width = werdnaEngine.canvas.width;
+      werdnaEngine.camera.cam.height = werdnaEngine.canvas.height;
+      werdnaEngine.camera.screen = werdnaEngine.camera.cam.getContext('2d');
       werdnaEngine.camera.width = werdnaEngine.canvas.width;
       werdnaEngine.camera.height = werdnaEngine.canvas.height;
       werdnaEngine.camera.offsetX = werdnaEngine.canvas.width/2;
@@ -876,16 +884,14 @@ function getElement(_t) {
       {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
       {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
       {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
-      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
-      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
-      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+      {x:75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:50+ this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ} //window2
     ];
     this.lines = [
       {p1: 0, p2: 1},
@@ -903,7 +909,9 @@ function getElement(_t) {
       {p1: 2, p2: 6},
       {p1: 3, p2: 7}
     ];
-    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]}];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]},{p:[12,13,14,15]}
+                 ];
     this.raster = [ {p1:0,p2:1,p3:5,p4:4} ];
   }
   /**
@@ -960,8 +968,7 @@ function getElement(_t) {
   @class BlockMessage
   @since 2014-08-23
   */
-  function BlockMesage(_px, _py, _pz) {
-
+  function BlockMessage(_px, _py, _pz) {
     this.posX = _px;
     this.posY = _py;
     this.posZ = _pz;
@@ -974,16 +981,10 @@ function getElement(_t) {
       {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
       {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
       {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
-      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
-      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
-      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+      {x:-75 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:75 + this.posY,  z: 101 + this.posZ},
+      {x:-75 + this.posX, y:75 + this.posY,  z: 101 + this.posZ}
     ];
     this.lines = [
       {p1: 0, p2: 1},
@@ -1001,18 +1002,8 @@ function getElement(_t) {
       {p1: 2, p2: 6},
       {p1: 3, p2: 7}
     ];
-    /*this.sides = [
-      //{p1:0,p2:1,p3:5,p4:4},
-      //{p1:4,p2:5,p3:6,p4:7},
-      //{p1:7,p2:6,p3:2,p4:3},
-      {p1:0,p2:4,p3:7,p4:3},
-      {p1:5,p2:1,p3:2,p4:6},
-      {p1:0,p2:1,p3:2,p4:3},
-      //{p1:8,p2:9,p3:10,p4:11}//door
-      {p1:12,p2:13,p3:10,p4:11}//map text note
-    ];*/
     this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
-                  {p:[12,13,10,11]}//map text note
+                  {p:[10,11,8,9]}//map text note
                   ];
     
     this.raster = [
@@ -1038,16 +1029,22 @@ function getElement(_t) {
       {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
       {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
       {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
-      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
-      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
-      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+      {x:75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ}, //window2
+      {x:75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:50+ this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ} //window2
     ];
     this.lines = [
       {p1: 0, p2: 1},
@@ -1065,17 +1062,12 @@ function getElement(_t) {
       {p1: 2, p2: 6},
       {p1: 3, p2: 7}
     ];
-    /*this.sides = [
-      //{p1:0,p2:1,p3:5,p4:4},
-      //{p1:4,p2:5,p3:6,p4:7},
-      //{p1:7,p2:6,p3:2,p4:3},
-      {p1:0,p2:4,p3:7,p4:3},
-      {p1:5,p2:1,p3:2,p4:6},
-      {p1:0,p2:1,p3:2,p4:3}
-      //{p1:8,p2:9,p3:10,p4:11},//door
-      //{p1:12,p2:13,p3:10,p4:11}//map text note
-    ];*/
-    this.sides = [ {p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]} ];
+    this.sides = [ {p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]},//window1
+                  {p:[12,13,14,15]},//window1
+                  {p:[16,17,18,19]}, //window2
+                  {p:[20,21,22,23]} //window2
+                 ];
     this.raster = [
       {p1:0,p2:1,p3:5,p4:4},
       //{p1:7,p2:6,p3:2,p4:3},
@@ -1166,16 +1158,18 @@ function getElement(_t) {
       {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
       {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
       {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
-      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
-      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
-      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
-      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
-      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
-      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+      {x:-75 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:75 + this.posY,  z: 101 + this.posZ},
+      {x:-75 + this.posX, y:75 + this.posY,  z: 101 + this.posZ},//message
+      {x:75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ} //window2      
     ];
     this.lines = [
       {p1: 0, p2: 1},
@@ -1196,7 +1190,7 @@ function getElement(_t) {
     this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
                   {p:[12,13,14,15]},//window1
                   {p:[16,17,18,19]},//window2
-                  {p:[12,13,10,11]}//map text note
+                  {p:[10,11,8,9]}//map text note
                   ];
     this.raster = [
       {p1:0,p2:1,p3:5,p4:4}
@@ -1467,14 +1461,14 @@ function getElement(_t) {
   <select id="applyType" name="applyType" onchange="treborEditor.applyType(this.value);">
   <option value="-1">blank</option>
   <option value="0">tile</option>
-  <!--option value="1">tile with ceiling</option-->
-  <!--option value="2">tile message</option-->
+  <option value="1">tile with ceiling</option>
+  <option value="2">tile message</option>
   <option value="10">block</option>
   <option value="11">block door</option>
-  <!--option value="12">block message</option-->
+  <option value="12">block message</option>
   <option value="20">cube</option>
   <option value="21">cube door</option>
-  <!--option value="22">cube message</option-->
+  <option value="22">cube message</option>
   <!--option value="30">house</option>
   <option value="31">house door</option>
   <option value="32">house message</option>

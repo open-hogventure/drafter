@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script>
+
+  function Note(_uid) {
+	this.uid = _uid;
+	this.connections =  [];
+	this.load = function(json) {
+	  for (var key in json)
+	  {		
+		if (typeof this[key] == 'Array')
+		{
+		  this[key] = [];
+		  for (var i = 0; i < json[key].length; i++)
+		  {
+		    if (json[key][i]['type']==null) {
+		      this[key].push(json[key][i]);
+		    } else {
+		      var func = new Function('return new '+json[key][i]['type']+'("'+json[key][i]['uid']+'");');
+			  var obj = func();
+			  obj.load(json[key][i]);
+			  this[key].push(obj);
+		    }
+		  }			
+		}
+	  }
+	}
+	this.save = function() {
+	  return JSON.stringify(this);
+	}
+  }
+  //the necessary constructor of a GameObject
+  function GameObject(_uid) { this.uid = _uid; };
+  GameObject.prototype = new Note();  	
+  GameObject.prototype.posX = 0;
+  GameObject.prototype.posY = 0;
+  GameObject.prototype.width = 0;
+  GameObject.prototype.height = 0;
+  GameObject.prototype.image = null;//an simple image
+  GameObject.prototype.sprite = null;//used later
+  
+  var objEditor = {};
+  objEditor.ctx = null;
+  objEditor.objects = [];
+  objEditor.btx = null;
+  objEditor.bbuffer = null;
+  objEditor.pressed = false;
+  objEditor.currentObject = null;
+  objEditor.createObject = function(x, y) {
+	var obj = new GameObject(Date.now());//sipleest way to create a unique uid on the fly
+	//but not the best
+	obj.posX = x;
+	obj.posY = y;
+	return obj;
+  }
+  objEditor.update = false;
+  objEditor.mouseDown = function(x, y) {
+	if (!this.pressed)
+	{
+	  //create current_object now
+	  console.log(x, y);
+	  this.currentObject = this.createObject(x, y);
+	  this.pressed = true;
+	}
+  };	
+  objEditor.mouseMove = function(x, y) {
+	if (this.pressed)
+	{
+	  if (x < objEditor.currentObject.posX)
+	  {
+		objEditor.currentObject.width = objEditor.currentObject.posX - x;
+		objEditor.currentObject.posX = x;
+	  } else {
+		objEditor.currentObject.width = x - objEditor.currentObject.posX;
+	  }
+	  if (y < objEditor.currentObject.posY)
+	  {
+		objEditor.currentObject.height = objEditor.currentObject.posY - y;
+		objEditor.currentObject.posY = y;
+	  } else {
+		objEditor.currentObject.height = y - objEditor.currentObject.posY;		
+	  }	  
+	  //draw aka update doublebuffer 
+	  objEditor.update = true;
+	}
+  };
+  objEditor.mouseUp = function(x, y) {
+	if (this.pressed)
+	{
+	  if (x < objEditor.currentObject.posX)
+	  {
+		objEditor.currentObject.width = objEditor.currentObject.posX - x;
+		objEditor.currentObject.posX = x;
+	  } else {
+		objEditor.currentObject.height = x - objEditor.currentObject.posX;
+	  }
+	  if (y < objEditor.currentObject.posY)
+	  {
+		objEditor.currentObject.height = objEditor.currentObject.posY - y;
+		objEditor.currentObject.posY = y;
+	  } else {
+		objEditor.currentObject.height = y - objEditor.currentObject.posY;		
+	  }	  
+	  this.objects.push(this.currentObject);
+	  //and add it to the objects array
+	  this.pressed = false;
+	  //current_object = null;
+	  this.currentObject = null;
+	  //draw aka update doublebuffer
+	  objEditor.update = true;
+	}
+  };
+  objEditor.drawUpdate = function() {
+	if (objEditor.bbuffer == null)
+	{
+	  objEditor.bbuffer = document.createElement('canvas');
+	  objEditor.bbuffer.width = 800;
+	  objEditor.bbuffer.height = 600;
+	  objEditor.btx = objEditor.bbuffer.getContext('2d');
+	}
+	objEditor.btx.fillStyle = '#000';
+	objEditor.btx.fillRect(0,0, 800, 600);
+	objEditor.btx.strokeStyle = '#f00';
+	for (var i = 0; i < objEditor.objects.length; i++)
+	{
+	  var o = objEditor.objects[i];
+	  objEditor.btx.strokeRect(o.posX, o.posY, o.width, o.height);
+	}
+	//draw current
+	if (objEditor.currentObject != null)
+	{	
+	  objEditor.btx.strokeStyle = '#0ff';
+	  objEditor.btx.strokeRect(objEditor.currentObject.posX,
+	  objEditor.currentObject.posY, 
+	  objEditor.currentObject.width, 
+	  objEditor.currentObject.height);
+	}
+	if (objEditor.update)
+	{
+	  objEditor.ctx.drawImage(objEditor.bbuffer, 0,0);
+	  objEditor.update = false;
+	}
+	requestAnimationFrame(objEditor.drawUpdate);
+  };
+  function init() {
+	var cnvs = document.getElementById('cnvs');
+	cnvs.addEventListener('mousedown', function(eve) { objEditor.mouseDown(eve.pageX, eve.pageY)}, true);
+	cnvs.addEventListener('mousemove', function(eve) { objEditor.mouseMove(eve.pageX, eve.pageY)}, true);
+	cnvs.addEventListener('mouseup', function(eve) { objEditor.mouseUp(eve.pageX, eve.pageY)}, true);
+	cnvs.style.width = '800px';
+	cnvs.style.height = '600px';
+	cnvs.width = 800;
+	cnvs.height = 600;
+	objEditor.ctx = cnvs.getContext('2d');
+	requestAnimationFrame(objEditor.drawUpdate);
+  }
+  window.onload = function() {setTimeout(init, 100)};
+  </script>
+ </head>
+ <body>
+ <canvas style="width: 100%; height: 100%;" id="cnvs"></canvas>
+ </body>
+</html>

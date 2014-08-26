@@ -1,0 +1,40 @@
+body background #333
+change font to glyphicon(-halflings) --social dropbox
+-- zoom +
+-- zoom -
+-- pencil
+-- code
+-- question
+-- info
+-- warning
+
+remove :focus and .active for button and button .mini
+button mini will be removed
+fix this in the zoom function: use the new css-classes
+
+let notelist look like noteeditor
+show mark startnote in notelist, too
+
+enable extensions in code and preferences
+selectable by checkbox list in a scrollable inner div
+
+test different 56.images less intensive colors?
+
+write article:
+'Wizardy, Mercenary, Slaughtery'
+'the 3 dimensions of game design'
+
+The idea of a social multiplayer and why this has to fail.
+
+Access to a computer, limited time, play with friends in real
+Live, sleep, eat, drink, communicate, laugh, love and begin from
+the front again.
+
+Never fades, always changes.
+Games were an event you did share with your people.
+
+Nowadays everybody has three computers in their pockets, at
+least.
+No excitment, low entertainment, commonly usage, boardom return
+to fade.
+

@@ -1,0 +1,49 @@
+{
+    "version": "0.11",
+    "name": "Hogventure Draft",
+    "description": "The new version of hogventure's game-draft manager",
+    "launch_path": "/draft/index.html",
+    "appcache_path": "/draft/offline.appcache",
+    "icons": {
+        "24": "/draft/img/icon_logo24.png",
+        "48": "/draft/img/icon_logo48.png",
+        "128": "/draft/img/icon_logo128.png"
+    },
+    "developer": {
+        "name": "Malte Kosian",
+        "url": "http://hogventure.com/draft/"
+    },
+    "installs_allowed_from": ["*"],
+    "locales": {
+	"en": {
+	    "description": "Die simplyfied version of the Hogventure game-draft-manager",
+            "developer": {
+                "url": "http://hogventure.com/draft/"
+            }
+	},
+        "de": {
+            "description": "Die vereinfachte Version des Hogventure Spiele-Draft-Managers",
+            "developer": {
+                "url": "http://hogventure.com/draft/"
+            }
+        }
+    },
+    "default_locale": "en",
+    "orientation": ["portrait"],
+    "permissions": {
+	"device-storage:sdcard": {
+		"access": "readwrite",
+		"description": "Required for im & export and build option"
+	},
+	"storage": {
+		"access": "readwrite",
+		"description": "Required for local save and load option"
+	},
+	"downloads": {
+		"description": "Required to store on the device"
+	},
+        "systemXHR": {
+		"description": "Required for notifications, login, loading and saving online"
+	}
+    }
+}

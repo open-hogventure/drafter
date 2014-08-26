@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script id="origin">
+	function test() {
+	  var script = document.createElement('script');
+	  script.setAttribute('id','scr_test');
+	  if (document.getElementById('scr_test') == null) {
+		//we should check if the element does not exist
+		//the element id must be unique always
+		document.body.appendChild(script);
+		script.appendChild(document.createTextNode( 'function stop() {\n'+
+		'  document.body.removeChild(document.getElementById(\'test\'));\n'+
+		'  document.body.removeChild(document.getElementById(\'scr_test\'));\n'+
+		'}\n'+
+		'var ipt = document.createElement(\'button\');\n'+
+		'document.body.appendChild(ipt);\n'+
+		'ipt.setAttribute(\'id\',\'test\');'+
+		'ipt.setAttribute(\'onclick\',\'stop();\');\n'+
+		'ipt.appendChild(document.createTextNode( \'stop\'));\n'));
+	  } else {
+		//do not forget to give feedback!
+		var feedback = confirm('stop testing before start again.');
+		console.log(feedback);
+		if (feedback) {
+		  stop();
+		}
+	  }
+	}
+  </script>
+ </head>
+ <body>
+  <button onclick="test();">test</button>
+ </body>
+</html>

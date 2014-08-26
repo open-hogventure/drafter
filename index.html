@@ -1,4 +1,5 @@
 <!doctype html>
+<<<<<<< HEAD
 <html>
  <head>
   <title> editor for text games </title>
@@ -8,39 +9,82 @@
   <meta name="description" content="">
 <script type="text/javascript" src="js/base64.js"></script>
 <script type="text/javascript" id="game_source">
+=======
+<html manifest="offline.appcache">
+ <head>
+  <title> editor for text games </title>
+  <meta name="generator" content="hogventure.com drafter">
+  <meta name="author" content="malte kosian">
+  <meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">
+  <meta name="description" content="Drafter, hogventure.com's twine like game and story editor in javascript">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="shortcut icon" href="https://hogventure.com/draft/favicon.gif" />
+<link rel="icon" type="image/x-icon" href="https://hogventure.com/draft/favicon.ico" />
+<link rel="stylesheet" href="cm/lib/codemirror.css">
+<script src="cm/lib/codemirror.js"></script>
+<script src="cm/mode/javascript/javascript.js"></script>
+<script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js"></script>
+<script type="text/javascript" id="datamodel_source">
+//the basic datamodel
+>>>>>>> origin/master
 /**
 @class Note
 @param _uid
 @since 2014-05-17
 */
-function Note(_uid) {
+function Note (_uid) {
  /***/
  this.uid = _uid;
  /***/
  this.text = null;
+ /***/
+ this.ex = 0;
+ /***/
+ this.ey = 0;
  /***/
  this.title = null;
  /***/
  this.connections = [];
  /***/
  this.load = function(data) {
+<<<<<<< HEAD
    console.log(data);
   this.uid = data['uid'];
+=======
+  console.log(data);
+  for (var key in data) {
+    //garanties that primitive values are loaded
+    this[key] = data[key];
+    //console.log(key+' '+data[key]);
+  }
+  //this.uid = data['uid'];
+  this.connections = [];
+>>>>>>> origin/master
   for (var i = 0; i < data['connections'].length;i++) {
    var connection = new Connection(data['connections'][i]['uid']);
    connection.load(data['connections'][i]);
    this.connections.push(connection);
   }
+<<<<<<< HEAD
   this.text = data['text'];
   this.title = data['title'];
  };
+=======
+};
+ /**
+ */
+ this.setEditorPos = function(x,y) {
+  this.ex = x;
+  this.ey = y;
+ }
+>>>>>>> origin/master
 };
 /**
 @class Connection
 @param _uid
 @since 2014-05-17
 */
-function Connection(_uid) {
+function Connection (_uid) {
  /***/
  this.uid = _uid;
  /***/
@@ -51,10 +95,18 @@ function Connection(_uid) {
  this.from_uid = null;
  /***/
  this.load = function(data) {
+<<<<<<< HEAD
   this.uid = data['uid'];
   this.text = data['text'];
   this.to_uid = data['to_uid'];
   this.from_uid = data['from_uid'];
+=======
+  for (var key in data) {
+   //garanties that primitive values are loaded
+   //a good replacement here
+   this[key] = data[key];
+  }
+>>>>>>> origin/master
  };
 };
 /**
@@ -63,7 +115,13 @@ function Connection(_uid) {
 @since 2014-05-18
 */
 function MediaLanguage(_lan) {
+ /**
+ @attribute language
+ */
  this.language = _lan;
+ /**
+ @property medias
+ */
  this.medias = [];
  /**
  @method load
@@ -77,14 +135,38 @@ function MediaLanguage(_lan) {
    this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});
   }
  };
+<<<<<<< HEAD
  this.setMedia = function(_k, _v) {
+=======
+ /**
+ _t64 indicates if the value has to be base64_encoded or not
+ @method setMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ */
+ this.setMedia = function(_k, _v, _t64) {
+>>>>>>> origin/master
   //console.log('setMedia'+_k);
   if (this.hasMedia(_k)) {
-   this.getMedia(_k).value = Base64.encode(_v);
+   this.getMedia(_k).value = _t64 ? Base64.encode(_v): _v;
   } else {
-   this.addMedia(_k, _v);
+   this.addMedia(_k, _v, _t64);
   }
  };
+<<<<<<< HEAD
+=======
+ /**
+ use this to get Images, Audios, Videos and other
+ media that should stay bas64 encoded
+ var myMediaValue = [..].getMedia('key').value;
+ @method getMedia
+ @since 2014-05-15
+ @param _k the key
+ @return the complete media Object
+ */
+>>>>>>> origin/master
  this.getMedia = function(_k) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -93,7 +175,19 @@ function MediaLanguage(_lan) {
   }
   return null;
  };
+<<<<<<< HEAD
  this.getMediaValue = function(_k) {
+=======
+ /**
+ Don't use this method for images, audios or videos,
+ because those have to stay base64_encoded
+ @method getTextMedia
+ @since 2014-05-15
+ @param _k the key
+ @return the media value - always base64 decoded
+ */
+ this.getTextMedia = function(_k) {
+>>>>>>> origin/master
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
     //console.log('getMedia->'+Base64.decode(this.medias[i].value));
@@ -102,6 +196,15 @@ function MediaLanguage(_lan) {
   }
   return null;
  };
+<<<<<<< HEAD
+=======
+ /**
+ @method hasMedia
+ @since 2014-05-15
+ @param _k the key
+ @return {boolean} true if the media with the key exists
+ */
+>>>>>>> origin/master
  this.hasMedia = function(_k, _v) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -110,6 +213,14 @@ function MediaLanguage(_lan) {
   }
   return false;
  };
+<<<<<<< HEAD
+=======
+ /**
+ @method deleteMedia
+ @since 2014-05-16
+ @param _k the key
+ */
+>>>>>>> origin/master
  this.deleteMedia = function(_k, _v) {
   for (var i = 0; i < this.medias.length; i++) {
    if (this.medias[i].key == _k) {
@@ -117,11 +228,35 @@ function MediaLanguage(_lan) {
    }
   }
  };
+<<<<<<< HEAD
  this.addMedia = function(_k, _v) {
   this.medias.push(this.createMedia(_k, _v));
  };
  this.createMedia = function(_k, _v) {
   return { key : _k, value : Base64.encode(_v) };
+=======
+ /**
+ @method addMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ */
+ this.addMedia = function(_k, _v, _t64) {
+  this.medias.push(this.createMedia(_k, _v, _t64));
+ };
+ /**
+ @method createMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ @return the media Object
+ */
+ this.createMedia = function(_k, _v, _t64) {
+  _v = _t64 ? Base64.encode(_v): _v;
+  return { key : _k, value : _v };
+>>>>>>> origin/master
  };
 };
 /**
@@ -164,7 +299,11 @@ function Game() {
    var note = new Note(data['notes'][i]['uid']);
    note.load(data['notes'][i]);
    this.notes.push(note);
+<<<<<<< HEAD
   }  
+=======
+  }
+>>>>>>> origin/master
  };
  /**
  @method save
@@ -182,20 +321,46 @@ function Game() {
  @since 2014-05-18
  */
  this.mediamanager = {
+<<<<<<< HEAD
+=======
+  /**
+  @property defaultLananguage
+  @default 'en'
+  */
+>>>>>>> origin/master
   defaultLanguage : 'en',
+  /**
+  @property currentLanguage
+  @default 'en'
+  */
   currentLanguage : 'en',
+  /**
+  @property {array} languages
+  */
   languages : [],
+  /**
+  @property {array} mediaLanguages
+  */
   mediaLanguages : [],
+  /**
+  @method setCurrentLanguage
+  */
   setCurrentLanguage : function(_lan) {
    this.currentLanguage = _lan;
    if (!this.hasLanguage(_lan)) {
     this.addLanguage(_lan);
    }
   },
+  /**
+  @method addLanguage
+  */
   addLanguage : function(_lan) {
    this.mediaLanguages.push( new MediaLanguage(_lan) );
    this.languages.push(_lan);
   },
+  /**
+  @method hasLanguage
+  */
   hasLanguage : function(_lan) {
    for (var i = 0; i < this.languages.length; i++) {
     if (this.languages[i] == _lan) {
@@ -204,6 +369,23 @@ function Game() {
    }
    return false;
   },
+  /**
+  @method getLanguage
+  @since 2014-07-31
+  @param _lan a language key like 'en','de',...
+  @return {MediaLanguage} a mediaLanguage or null
+  */
+  getLanguage : function(_lan) {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    if (this.mediaLanguages[i].language == _lan) {
+     return this.mediaLanguages[i];
+    }
+   }
+   return null;
+  },
+  /**
+  @method getCurrentLanguage
+  */
   getCurrentLanguage : function() {
    for (var i = 0; i < this.mediaLanguages.length; i++) {
     if (this.mediaLanguages[i].language == this.currentLanguage) {
@@ -216,10 +398,56 @@ function Game() {
    this.languages.push(this.currentLanguage);
    return language;
   },
+  /**
+  returns the keys, defined by the default language
+  @method getKeys
+  @since 2914-07-31
+  @return {Array} keys 
+  */
+  getKeys : function () {
+    var d_lan = this.getLanguage(this.defaultLanguage);
+    var keys = [];
+    for (var i = 0; i < d_lan.medias.length; i++) {
+      //console.log(d_lan.getMedia(d_lan.medias[i].key).value.substr(0, 20));
+      if (!(d_lan.getMedia(d_lan.medias[i].key).value.indexOf('data:') == 0 &&
+          d_lan.getMedia(d_lan.medias[i].key).value.indexOf('base64') > 0))
+      {
+        keys.push(d_lan.medias[i].key);
+      }
+    }
+    return keys;
+  },
+  /**
+  use getTextMedia too get the decoded media value
+  @method setTextMedia
+  @since 2014-05-17
+  @param _k the key
+  @param _v the value
+  */
+  setTextMedia : function(_k, _v) {
+   //type64=true|false would regulate de/encoding or not
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    if (this.mediaLanguages[i].getMedia(_k) == null) {
+     this.mediaLanguages[i].setMedia(_k, _v, true);
+    } 
+   }
+  },
+  /**
+  push through for MediaLanguage.setMedia
+  the media will not be base64 encoded
+  use getMedia too get the media
+  use for Images and other natually base64 encoded media
+  @method setMedia
+  @since 2014-05-29
+  @param _k the key
+  @param _v the value - already base64 encoded
+  */
   setMedia : function(_k, _v) {
    //type64=true|false would regulate de/encoding or not
    for (var i = 0; i < this.mediaLanguages.length; i++) {
-    this.mediaLanguages[i].setMedia(_k, _v);
+    if (this.mediaLanguages[i].getMedia(_k) == null) {
+     this.mediaLanguages[i].setMedia(_k, _v, false);
+    }
    }
   },
   deleteMedia : function(_k) {
@@ -229,9 +457,30 @@ function Game() {
   },
   getMedia : function(_k) {
    return this.getCurrentLanguage().getMedia(_k);
+<<<<<<< HEAD
   },
   getMediaValue : function(_k) {
    return this.getCurrentLanguage().getMediaValue(_k);
+  },
+  /**
+  @method load
+  @param data
+  @since 2014-05-29
+  */
+  load : function(data) {
+   this.defaultLanguage = 'en',
+   this.currentLanguage = data['currentLanguage'];
+   this.languages = data['languages'];
+   this.mediaLanguages = [];
+   for (var i = 0; i < data['mediaLanguages'].length; i++) {
+    var lan = new MediaLanguage(data['mediaLanguages'][i]['uid']);
+    lan.load(data['mediaLanguages'][i]);
+    this.mediaLanguages.push(lan);
+   }
+=======
+  },
+  getTextMedia : function(_k) {
+   return this.getCurrentLanguage().getTextMedia(_k);
   },
   /**
   @method load
@@ -255,10 +504,487 @@ function Game() {
 @property game
 @since 2014-05-28
 */
-var game = new Game();
+//var game = new Game();
 
 </script>
+<script type="text/text" id="canvas_game_engine_source">
+
+ /**
+ @class gameCanvasEngine
+ @since 2014-05-30
+ */
+ var gameCanvasEngine = {
+  /**
+  @property game
+  @since 2014-05-30
+  */
+  game : null,
+  /**
+  the 2d context
+  @property ctx
+  @since 2014-06-06
+  */
+  ctx : null,
+  /**
+  the window innerWidth
+  @property ctx
+  @since 2014-06-06
+  */
+  width : 600,
+  /**
+  the window innerHeight
+  @property ctx
+  @since 2014-06-06
+  */
+  height : 300,
+  /**
+  @method init
+  @since 2014-05-30
+  */
+  init : function() {
+  gameCanvasEngine.game = new Game();
+  console.log(gameCanvasEngine.game);
+  gameCanvasEngine.game.mediamanager.addLanguage(gameCanvasEngine.game.mediamanager.defaultLanguage);
+  gameCanvasEngine.game.load(json['game']);
+  var child = document.createElement('canvas');
+  child.setAttribute('id', 'gameMainView');
+  document.body.appendChild(child);
+
+  gameCanvasEngine.width = window.innerWidth - 5;
+  gameCanvasEngine.height = window.innerHeight - 5 - document.getElementById('gameMainView').offsetTop;
+
+  child.width = gameCanvasEngine.width;
+  child.height = gameCanvasEngine.height;
+  child.style.width = gameCanvasEngine.width + 'px';
+  child.style.height = gameCanvasEngine.height + 'px';
+  child.style.padding = 0;
+  child.style.margin = 0;
+
+  document.body.style.padding = 0;
+  document.body.style.margin = 0;
+  child.addEventListener('mousemove', function(eve) {
+   if (gameCanvasEngine.renderNote != null) {
+    gameCanvasEngine.renderNote.mouseOver(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+   }
+  }, false);
+  child.addEventListener('mouseup', function(eve) {
+   if (gameCanvasEngine.renderNote != null) {
+    var uid_to = gameCanvasEngine.renderNote.mouseHit(eve.pageX, eve.pageY - document.getElementById('gameMainView').offsetTop);
+    if (uid_to != null) {
+     gameCanvasEngine.renderNote.setNote(gameCanvasEngine.getNote( uid_to ));
+    }
+   }
+  }, false);
+  gameCanvasEngine.ctx = child.getContext('2d');
+  if (gameCanvasEngine.game.startNote == null) {
+    alert('Can\'t start the game. game.startNote is not defined!');
+    return;
+  }
+  gameCanvasEngine.renderNote.setNote(gameCanvasEngine.getNote( gameCanvasEngine.game.startNote ));
+  requestAnimationFrame(gameCanvasEngine.drawUpdate);
+  },
+  /**
+  @property renderNote
+  @since 2014-06-06
+  */
+  renderNote : {
+  title: null,
+  texts: [],
+  connections: [],
+  /**
+  @method setNote
+  @since 2014-06-06
+  */
+  setNote: function(_n) {
+   this.title = gameCanvasEngine.game.mediamanager.getTextMedia(_n.title);
+   var text = gameCanvasEngine.game.mediamanager.getTextMedia(_n.text);
+   this.texts = text.split(/\n/);
+   this.connections = [];//_n.connections;
+   var j = 0;
+   for (var i = 0; i < _n.connections.length; i++) {
+    if (_n.connections[i].from_uid == _n.uid) {
+     j++;
+     this.connections.push(this.prepareConnection(_n.connections[i], j, _n.connections.length));
+    }
+   }
+  },
+  /**
+  @method prepareConnection
+  @since 2014-06-06
+  @return connectionObject
+  */
+  prepareConnection: function(_c, _j, _l) {
+   return {
+    text: gameCanvasEngine.game.mediamanager.getTextMedia(_c.text),
+    index: _j,
+    x: gameCanvasEngine.width - 250,
+    y: 1 + gameCanvasEngine.height - _l * 25 + _j * 25,
+    to_uid: _c.to_uid,
+    over: false,
+    /**
+    @method isHit
+    @since 2014-06-06
+    @param _x
+    @param _y
+    @return true if the connection is hit
+    */
+    isHit: function(_x, _y) {
+     return (this.x < _x && this.x + 250 > _x && this.y > _y && this.y - 24 < _y);
+    }
+   };
+  },
+  mouseOver: function(_x, _y) {
+   for (var i = 0; i < this.connections.length; i++) {
+    this.connections[i].over = this.connections[i].isHit(_x, _y);
+   }
+  },
+  mouseHit: function(_x, _y) {
+   for (var i = 0; i < this.connections.length; i++) {
+    if (this.connections[i].isHit(_x, _y)) {
+     return this.connections[i].to_uid;
+    }
+   }
+   return null;
+  }
+  },
+  /**
+  @method drawUpdate
+  @sinc 2014-06-05
+  */
+  drawUpdate : function() {
+  gameCanvasEngine.draw();
+  requestAnimationFrame(gameCanvasEngine.drawUpdate);
+  },
+  /**
+  @method draw
+  @since 2014-05-30
+  @param uid
+  */
+  draw : function () {
+  var ctx = gameCanvasEngine.ctx;
+  //'clearing' the 'page' > the context of the canvas
+  ctx.fillStyle = '#030';
+  ctx.fillRect(0,0, gameCanvasEngine.width, gameCanvasEngine.height);
+  ctx.fillStyle = '#3d3';
+  ctx.strokeStyle = '#090';
+  //drawing the title
+  ctx.font = '30px Arial';
+  ctx.fillText(gameCanvasEngine.renderNote.title, 10, 40);
+  //drawing the text
+  ctx.font = '17.5px Arial';
+  for (var i = 0; i < gameCanvasEngine.renderNote.texts.length; i++) {
+    ctx.fillText(gameCanvasEngine.renderNote.texts[i], 10, 70 + i * 25);
+  }
+  //connections
+  ctx.beginPath();
+  var cons = gameCanvasEngine.renderNote.connections;
+  for (var i = 0; i < cons.length; i++) {
+    if (cons[i].over) {
+     ctx.fillStyle = 'rgba(0,100,0,0.5)';
+     ctx.fillRect(cons[i].x, cons[i].y - 22, 250, 21);
+     ctx.fillStyle = '#3d3';
+     ctx.moveTo( gameCanvasEngine.width, cons[i].y - 22);
+     ctx.lineTo( cons[i].x, cons[i].y - 22);
+    }
+    ctx.fillStyle = '#3d3';
+    //console.log(cons[i].text);
+    ctx.fillText(cons[i].index+'. '+cons[i].text, cons[i].x + 2, cons[i].y - 2);
+    ctx.moveTo( gameCanvasEngine.width, cons[i].y);
+    ctx.lineTo( cons[i].x, cons[i].y);
+  }
+  ctx.stroke();
+  },
+  /**
+  @method getNote
+  @since 2014-05-30
+  @param uid
+  @return {Note} the corresponding Note
+  */
+  getNote : function (uid) {
+  for (var i = 0; i < gameCanvasEngine.game.notes.length; i++) {
+    if (gameCanvasEngine.game.notes[i].uid == uid) {
+      return gameCanvasEngine.game.notes[i];
+    }
+  }
+  return null;
+  }
+ };
+/**
+making the gameCanvasEngine public global available
+*/
+window.gameCanvasEngine = gameCanvasEngine;
+//allways at last
+//must be comment if you extent the code
+gameCanvasEngine.init();
+
+</script>
+<script type="text/text" id="html5_game_engine_source">
+ /**
+ @class gameEngine
+ @since 2014-05-30
+*/
+var gameEngine = {
+ /**
+ @property game
+ @since 2014-05-30
+ */
+ game : null,
+ /**
+ @method init
+ @since 2014-05-30
+ */
+ init : function() {
+  this.game = new Game();
+  this.game.mediamanager.addLanguage(gameEngine.game.mediamanager.defaultLanguage);
+  this.game.load(json['game']);
+  var child = document.createElement('div');
+  child.setAttribute('id', 'gameMainView');
+  document.body.appendChild(child);
+  if (this.game.startNote == null) {
+    alert('Can\'t start the game. game.startNote is not defined!');
+    return;
+  }
+  console.log(this.game.notes.length);
+  this.renderNote(this.game.startNote);
+ },
+ /**
+ @method renderNote
+ @since 2014-05-30
+ @param uid
+ */
+ renderNote : function (uid) {
+  var note = this.getNote(uid);
+  var ele = document.getElementById('gameMainView');
+  ele.innerHTML = '';
+  var child = document.createElement('h1');
+  child.appendChild(document.createTextNode(
+                    this.game.mediamanager.getTextMedia(note.title)));
+  ele.appendChild(child);
+  //ele.appendChild(document.createElement('br'));
+  ele.appendChild(document.createElement('br'));
+  var text = this.game.mediamanager.getTextMedia(note.text);
+  texts = text.split(/\n/);
+  for (var i = 0; i < texts.length; i++) {
+    ele.appendChild(document.createTextNode(texts[i]));
+    ele.appendChild(document.createElement('br'));
+  }
+  ele.appendChild(document.createElement('br'));
+  //connections
+  var cons = note.connections;
+  for (var i = 0; i < cons.length; i++) {
+   if (cons[i].from_uid == note.uid) {
+    var con_text = this.game.mediamanager.getTextMedia(cons[i].text);
+    child = document.createElement('span');
+    child.style.cssFloat = 'right';
+    child.style.cursor = 'pointer';
+    child.style.color = '#00c';
+    child.style.textDecoration = 'underline';
+    child.setAttribute('onclick','gameEngine.renderNote(\''+cons[i].to_uid+'\');');
+    child.appendChild(document.createTextNode(con_text));
+    ele.appendChild(child);
+    ele.appendChild(document.createElement('br'));
+   }
+  }
+ },
+ /**
+ @method getNote
+ @since 2014-05-30
+ @param uid
+ @return {Note} the corresponding Note
+ */
+ getNote : function (uid) {
+  for (var i = 0; i < this.game.notes.length; i++) {
+    if (this.game.notes[i].uid == uid) {
+      return this.game.notes[i];
+    }
+>>>>>>> origin/master
+  }
+  return null;
+ }
+}
+/**
+@property game
+@since 2014-05-28
+*/
+var game = new Game();
+
+window.gameEngine = gameEngine;
+//allways at last
+//must be comment if you extent the code
+gameEngine.init();
+</script>
+<script type="text/javascript" id="base64_source">
+/**
+* @class Base64
+*  Base64 encode / decode
+*  http://www.webtoolkit.info/
+*
+**/
+
+var Base64 = {
+
+	// private property
+	_keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+	// public method for encoding
+	encode : function (data) {
+		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+		var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+        ac = 0,
+        enc = "",
+        tmp_arr = [];
+
+		if (!data) {
+			return data;
+		}
+
+		data = this._utf8_encode(data + '');
+
+		do { // pack three octets into four hexets
+			o1 = data.charCodeAt(i++);
+			o2 = data.charCodeAt(i++);
+			o3 = data.charCodeAt(i++);
+
+			bits = o1 << 16 | o2 << 8 | o3;
+
+			h1 = bits >> 18 & 0x3f;
+			h2 = bits >> 12 & 0x3f;
+			h3 = bits >> 6 & 0x3f;
+			h4 = bits & 0x3f;
+
+			// use hexets to index into b64, and append result to encoded string
+			tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
+		} while (i < data.length);
+
+		enc = tmp_arr.join('');
+
+		var r = data.length % 3;
+
+		return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
+	},
+
+	// public method for decoding
+	decode : function (data) {
+		var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+		var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+			ac = 0,
+			dec = "",
+			tmp_arr = [];
+
+		if (!data) {
+			return data;
+		}
+
+		data += '';
+
+		do { // unpack four hexets into three octets using index points in b64
+			h1 = b64.indexOf(data.charAt(i++));
+			h2 = b64.indexOf(data.charAt(i++));
+			h3 = b64.indexOf(data.charAt(i++));
+			h4 = b64.indexOf(data.charAt(i++));
+
+			bits = h1 << 18 | h2 << 12 | h3 << 6 | h4;
+
+			o1 = bits >> 16 & 0xff;
+			o2 = bits >> 8 & 0xff;
+			o3 = bits & 0xff;
+
+			if (h3 == 64) {
+				tmp_arr[ac++] = String.fromCharCode(o1);
+			} else if (h4 == 64) {
+				tmp_arr[ac++] = String.fromCharCode(o1, o2);
+			} else {
+				tmp_arr[ac++] = String.fromCharCode(o1, o2, o3);
+			}
+		} while (i < data.length);
+
+		dec = tmp_arr.join('');
+		dec = this._utf8_decode(dec);
+
+		return dec;
+	},
+
+	// private method for UTF-8 encoding
+	_utf8_encode : function (argString) {
+		if (argString === null || typeof argString === "undefined") {
+			return "";
+		}
+
+		var string = (argString + ''); // .replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+		var utftext = "",
+			start, end, stringl = 0;
+
+		start = end = 0;
+		stringl = string.length;
+		for (var n = 0; n < stringl; n++) {
+			var c1 = string.charCodeAt(n);
+			var enc = null;
+
+			if (c1 < 128) {
+				end++;
+			} else if (c1 > 127 && c1 < 2048) {
+				enc = String.fromCharCode((c1 >> 6) | 192) + String.fromCharCode((c1 & 63) | 128);
+			} else {
+				enc = String.fromCharCode((c1 >> 12) | 224) + String.fromCharCode(((c1 >> 6) & 63) | 128) + String.fromCharCode((c1 & 63) | 128);
+			}
+			if (enc !== null) {
+				if (end > start) {
+					utftext += string.slice(start, end);
+				}
+				utftext += enc;
+				start = end = n + 1;
+			}
+		}
+
+		if (end > start) {
+			utftext += string.slice(start, stringl);
+		}
+
+		return utftext;
+	},
+
+	// private method for UTF-8 decoding
+	_utf8_decode : function (str_data) {
+		var tmp_arr = [],
+        i = 0,
+        ac = 0,
+        c1 = 0,
+        c2 = 0,
+        c3 = 0;
+
+		str_data += '';
+
+		while (i < str_data.length) {
+			c1 = str_data.charCodeAt(i);
+			if (c1 < 128) {
+				tmp_arr[ac++] = String.fromCharCode(c1);
+				i++;
+			} else if (c1 > 191 && c1 < 224) {
+				c2 = str_data.charCodeAt(i + 1);
+				tmp_arr[ac++] = String.fromCharCode(((c1 & 31) << 6) | (c2 & 63));
+				i += 2;
+			} else {
+				c2 = str_data.charCodeAt(i + 1);
+				c3 = str_data.charCodeAt(i + 2);
+				tmp_arr[ac++] = String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+				i += 3;
+			}
+		}
+
+		return tmp_arr.join('');
+	}
+
+}
+</script>
+<<<<<<< HEAD
  <script type="text/javascript" id="editor_source">
+=======
+<script type="text/javascript" id="editor_source">
+  var img_arrow = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAALCAYAAABGbhwYAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAUUlEQVR42o2RQQrAMAgEZ83D2v8/KttDexCM2MBAkB0RBbhsM0EIL+FJIAKvRCeUYCegwNGgJEjC4vyc/uGv0GLuvd9e1oEyI0OgBMc9/r3MA+17xBlmgO+bAAAAAElFTkSuQmCC';
+  var img_line = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADUlEQVR4AQECAP3/AAAAAgABfgUN0gAAAABJRU5ErkJggg==';
+
+
+>>>>>>> origin/master
   window.URL = window.URL || window.webkitURL || null;
   window.Blob = window.WebKitBlob || window.MozBlob || window.MSBlob || window.Blob || null;
   window.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
@@ -266,25 +992,50 @@ var game = new Game();
   (
     function(_win) {
       var editor = {};
-      /***/
+      /**
+      @property func
+      */
       editor.func = null;
-      /***/
+      /**
+      @property width
+      */
       editor.width = 0;
-      /***/
+      /**
+      @property height
+      */
       editor.height = 0;
+<<<<<<< HEAD
       /***/
       editor.game = new Game();
+=======
+      /**
+      @property game
+      */
+      editor.game = new Game();
+      /**
+      @property mediamanager
+      @since 2014-07-01
+      */
+      editor.mediamanager = (new Game()).mediamanager;
+      /**
+      @property dropboxClient
+      @since 2014-06-05
+      */
+      editor.dropboxClient = null;
+>>>>>>> origin/master
       /**
       You should store a game data before you test the code whit the game
       @method saveCodeAndGame
       @since 2014-05-17
       */
       editor.saveCodeAndGame = function() {
-        var code = getElement('texteditor').value;
+        var code = codemirror.getValue();
         _win.localStorage.setItem('texteditor-code', code);
         var data = JSON.stringify(editor.game);
         //console.log(data);
         _win.localStorage.setItem('game_data', data);
+        _win.localStorage.setItem('uidcounter', JSON.stringify(editor.uidcounter));
+        _win.localStorage.setItem('preferences', JSON.stringify(editor.preferences));
       };
       /**
       @method loadCodeAndGame
@@ -292,12 +1043,21 @@ var game = new Game();
       */
       editor.loadCodeAndGame = function() {
         var code = _win.localStorage.getItem('texteditor-code');
-        getElement('texteditor').value = code;
+        codemirror.setValue(code);
         var data = _win.localStorage.getItem('game_data');
         //console.log(data);
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         editor.game.load(JSON.parse(data));
+<<<<<<< HEAD
+=======
+        editor.uidcounter =  JSON.parse(_win.localStorage.getItem('uidcounter'));
+        try {
+          editor.preferences =  JSON.parse(_win.localStorage.getItem('preferences'));
+        } catch (ex) {
+          console.log(_win.localStorage.getItem('preferences'));
+        }
+>>>>>>> origin/master
         getElement('noteeditor').innerHTML = '';
         getElement('notelist').innerHTML = '';
         for (var i = 0; i < editor.game.notes.length; i++) {
@@ -309,20 +1069,45 @@ var game = new Game();
             editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
+<<<<<<< HEAD
+=======
+        editor.usePreferences();
+>>>>>>> origin/master
       };
       /**
       @method testGame
       @since 2014-05-17
       */
       editor.testGame = function() {
-        var code = _win.localStorage.getItem('texteditor-code');
-        //getElement('texteditor').value = code;
-        //perform the code
+        code = getElement('texteditor').value;
+        code = codemirror.getValue();
+        console.log(code);
         try {
-          editor.func = new Function('window,document', code);
-          editor.func(window, document);
+          editor.func = null;
+          var cache = [];
+          console.log('testGame->');
+          var edi = {uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code};
+          cache = null;
+          //
+          if (editor.getPreference('p_editor_source') != null &&
+              editor.getPreference('p_editor_source') ) 
+          {
+            console.log('p_editor_source - test');
+            var script = createElement('script');
+            script.setAttribute('id','editor_extension');
+            script.appendChild(createTextNode('var json  = '+JSON.stringify(edi)+';\n\n'+code + 
+                  '\n'+getElement('background_image').innerHTML));
+            document.body.appendChild(script);
+          } else {
+            console.log('func - test');
+            editor.func = 
+              new Function('window,document', 'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +'\n'+getElement('background_image').innerHTML);
+            editor.func(window, document);
+          }
+          //
         } catch(e) {
-          console.log(e);
+          console.log(e,'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +
+                  +'\n'+getElement('background_image').innerHTML);
         }
       };
       /**
@@ -331,14 +1116,15 @@ var game = new Game();
       */
       editor.stopTest = function() {
         if (editor.func != null) {
-          editor.func = null;
           document.body.removeChild(document.body.childNodes[document.body.childNodes.length-1]);
+          editor.func = null;
         }
       };
       /**
       @method toggleEditor
       @since 2014-05-17
       */
+<<<<<<< HEAD
       editor.toggleEditor = function() {
         if (getElement('noteeditor_box').style.display != 'block') {
           getElement('noteeditor_box').style.display = 'block';
@@ -346,6 +1132,14 @@ var game = new Game();
         } else {
           getElement('noteeditor_box').style.display = 'none';
           getElement('texteditor').style.display = 'block';
+=======
+      editor.toggleEditor = function(_t) {
+        if (_t == 'notes' || getElement('noteeditor_box').style.display != 'block') {
+          getElement('noteeditor_box').style.display = 'block';
+        } else {
+          //_t == 'code'
+          getElement('noteeditor_box').style.display = 'none';
+>>>>>>> origin/master
         }
       };
       /**
@@ -355,6 +1149,7 @@ var game = new Game();
       editor.resize = function() {
         editor.width = window.innerWidth;
         editor.height = window.innerHeight;
+<<<<<<< HEAD
       }
       /**
       @method init
@@ -367,11 +1162,42 @@ var game = new Game();
         ele.style.width = (editor.width - 5) + 'px';
         var game_source = getElement('game_source').innerHTML;
         getElement('texteditor').value = getElement('texteditor').value + game_source;
+=======
+        document.body.style.width = editor.width+'px';
+        document.body.style.height = editor.height+'px';
+        var ele = getElement('editor');
+        ele.style.height = (editor.height - 5) + 'px';
+        ele.style.width = (editor.width - 5) + 'px';
+      };
+      /**
+      @method init
+      @since 2014-05-28
+      */
+      editor.init = function() {
+        editor.resize();
+        //var datamodel_source = getElement('datamodel_source').innerHTML;
+        //getElement('texteditor').value
+        setHighlighter();
+        try {
+          editor.preferences = JSON.parse(_win.localStorage.getItem('preferences'));
+          editor.usePreferences();
+        }
+        catch (ex) {
+          //might be null - exspected exception - no handle needed
+        }        
+>>>>>>> origin/master
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
+        getElement('noteeditor').innerHTML = '';
+        getElement('notelist').innerHTML = '';
+        if (typeof json != 'undefined') {
+          editor.load(JSON.stringify(json));
+        }
         //experimental from here
-
+        //this might be part of the preferences
+        //console.log(editor.getPreference('p_dropbox').value);
+        //as the canvas based or html5 game engine should be
       };
       /**
       @parameter uidcounter
@@ -390,6 +1216,9 @@ var game = new Game();
             uid = uid + abc.substr(Math.floor(Math.random()*abc.length), 1);
           }
           if (editor.hasUid(uid)) {
+            uid = '';
+          }
+          if (!isNaN(uid)) {
             uid = '';
           }
         }
@@ -420,8 +1249,420 @@ var game = new Game();
           }
         }
       }
+      /**
+      where to add the next note position x
+      @property noteStartX
+      */
       editor.noteStartX = 5;
+      /**
+      where to add the next note position y
+      @property noteStartY
+      */
       editor.noteStartY = 5;
+      /**
+      zoom or not
+      @property offZoom
+      */
+      editor.offZoom = false;
+      /**
+      @method zoom
+      @since 2014-05-31
+      */
+      editor.zoom = function() {
+        editor.offZoom = !editor.offZoom;
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          var note = editor.game.notes[i];
+          var ele = getElement('note_'+note.uid);
+          if (editor.offZoom) {
+            ele.style.left = (note.ex/2)+'px';
+            ele.style.top = (note.ey/2)+'px';
+            ele.style.width = '75px';
+            ele.style.height = '55px';
+            ele.style.minHeight = '55px';
+            ele.style.maxHeight = '55px';
+            //ele.style.overflow = 'auto';
+            //ele.style.fontSize = '50%';
+          } else {
+            ele.style.left = note.ex+'px';
+            ele.style.top = note.ey+'px';
+            ele.style.width = '150px';
+            //ele.style.height = '110px';
+            ele.style.minHeight = '100px';
+            ele.style.height = 'auto';
+            ele.style.maxHeight = '150px';
+            ele.style.fontSize = '100%';
+            ele.style.overflow = 'hidden';
+          }
+        }
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          var cons = editor.game.notes[i].connections;
+          //console.log(cons);
+          for (var j = 0; j < cons.length; j++) {
+            editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
+          }
+        }
+        //make the arrows smaller or bigger
+        getElement('noteeditor').className = editor.offZoom ? 'offZoom': '';
+        getElement('zoom').className = editor.offZoom ? 'fa fa-search-plus' : 'fa fa-search-minus';
+      };
+      /**
+      @property preferences
+      @since 2014-06-09
+      */
+      editor.preferences = [];
+      /**
+      @method getPreference
+      @since 2014-06-09
+      @param name
+      @return {object} the preference object
+      */
+      editor.getPreference = function(_name) {
+        if (editor.preferences != null)
+        for (var i = 0; i < editor.preferences.length; i++) {
+          if (editor.preferences[i].name == _name) {
+            return editor.preferences[i];
+          }
+        }
+        return null;
+      };
+      /**
+      @method createPreference
+      @since 2014-06-09
+      @param name
+      @param value any kind of object
+      @return {object} the new preference
+      */
+      editor.createPreference = function(_name, _value) {
+        return {'name': _name, 'value': _value};
+      };
+      /**
+      @method showPreferences
+      @since 2014-06-09
+      */
+      editor.showPreferences = function() {
+        var child = createElement('div');
+        child.className = 'connectionBox';
+        child.style.width = '300px';
+        child.setAttribute('id','preferencesBox');
+
+        child.appendChild(createElement('br'));
+        var child2 = createElement('b');
+        child2.appendChild(createTextNode('How to store:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        //saveAndLoad
+        //exAndImport
+        //dropbox
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child2.setAttribute('id','p_saveAndLoad');
+        child.appendChild(child2);
+        child.appendChild(createTextNode(' save and load locally'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_exAndImport');
+        child.appendChild(createTextNode(' ex- and import'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_dropbox');
+        child.appendChild(createTextNode(' dropbox'));
+        child.appendChild(createElement('br'));
+        //install button
+        child.appendChild(createElement('hr'));
+        child2 = createElement('button');
+        child2.setAttribute('onclick','install();');
+        child2.appendChild(createTextNode('install'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(createTextNode('direct install only for firefox browsers'));
+        child.appendChild(createElement('br'));
+        child.appendChild(createTextNode('install via store will be available later'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('a');
+        child2.href = 'https://hogventure.com/download/HDCwin.exe';
+        child2.appendChild(createTextNode('the windows desktop application'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('a');
+        child2.href = 'https://hogventure.com/download/HDCosx.dmg';
+        child2.appendChild(createTextNode('the mac osx desktop application'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('a');
+        child2.href = 'https://hogventure.com/download/HDClinux32.zip';
+        child2.appendChild(createTextNode('linux32 desktop application'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('a');
+        child2.href = 'https://hogventure.com/download/HDClinux64.zip';
+        child2.appendChild(createTextNode('linux64 desktop application'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('a');
+        child2.href = 'https://hogventure.com/Dev_Rush_Days.html';
+        child2.appendChild(createTextNode('you may want to read this article'));
+        child2.appendChild(createElement('br'));
+        child2.appendChild(createTextNode('or the help for install'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+
+        child.appendChild(createElement('hr'));
+        
+        child2 = createElement('div');
+        child2.setAttribute('id', 'extensionBox');
+        child2.appendChild(createTextNode('Select one of these Extensions:'));
+        child2.appendChild(createElement('br'));
+        var select = createElement('div');
+        select.style.border = 'solid #999 1px';
+        select.setAttribute('id','extension');
+        for (var i = 0; i < editor.extensionsList.length; i++) {
+          child3 = createElement('input');
+          child3.setAttribute('id','ext_'+i);
+          child3.setAttribute('type','checkbox');
+          child3.setAttribute('value', editor.extensionsList[i].name);
+          child3.setAttribute('onchange', 'editor.loadExtension(this);');          
+          select.appendChild(child3);
+          select.appendChild(createTextNode(' '+editor.extensionsList[i].description));
+          select.appendChild(createElement('br'));
+        }
+        child2.appendChild(select);
+        child2.appendChild(createElement('br'));
+        child.appendChild(child2);
+        //child.appendChild(createTextNode('install via store will be available later'));
+        //child.appendChild(createElement('br'));
+        //html5_game_engine_source
+        //canvas_game_engine_source
+        child.appendChild(createElement('hr'));
+        child2 = createElement('b');
+        child2.appendChild(createTextNode('choose you game engine:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_html5_game_engine');
+        child.appendChild(createTextNode(' html5 engine'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_canvas_game_engine');
+        child.appendChild(createTextNode(' canvas engine'));
+        child.appendChild(createElement('br'));
+        //editor_source
+        child2 = createElement('b');
+        child2.appendChild(createTextNode('optional:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.setAttribute('type','checkbox');
+        child.appendChild(child2);
+        child2.setAttribute('id','p_editor_source');
+        child.appendChild(createTextNode(' editor source'));
+        child.appendChild(createElement('br'));
+        //title of the game project
+        child.appendChild(createElement('hr'));
+        child2 = createElement('b');
+        child2.appendChild(createTextNode('project title:'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child2 = createElement('input');
+        child2.style.width = '300px';
+        child2.setAttribute('type','text');
+        child2.setAttribute('title', 'only letters, digits, spaces');
+        child2.setAttribute('placeholder','project title only letters, digits, spaces');
+        var filename = editor.getPreference('p_projectTitle') != null ? 
+                                          editor.getPreference('p_projectTitle').value : '';
+        //child2.value = filename;
+        child2.setAttribute('value', filename);
+        child2.setAttribute('id','p_projectTitle');
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('button');
+        child2.setAttribute('onclick','editor.setPreferences(true);');
+        child2.style.cssFloat = 'right';
+        child2.appendChild(document.createTextNode('set preferences'));
+        child.appendChild(child2);
+        //
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','editor.setPreferences(null);');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+        //
+        getElement('editor').appendChild(child);
+      }
+      /**
+      @method showPreferences
+      @since 2014-06-09
+      */
+      editor.setPreferences = function(settings) {
+        if (settings == null) {
+          getElement('editor').removeChild(getElement('preferencesBox'));
+          return;
+        }
+        var tmpreferences = [];
+        //saveAndLoad
+        //exAndImport
+        //dropbox
+        tmpreferences.push(editor.createPreference('p_saveAndLoad', getElement('p_saveAndLoad').checked));
+        tmpreferences.push(editor.createPreference('p_exAndImport', getElement('p_exAndImport').checked));
+        tmpreferences.push(editor.createPreference('p_dropbox', getElement('p_dropbox').checked));
+        if (!getElement('p_saveAndLoad').checked &&
+            !getElement('p_exAndImport').checked &&
+            !getElement('p_dropbox').checked)
+        {
+          alert('You should select one saving option at least.');
+          return;
+        }
+        //html5_game_engine_source
+        //canvas_game_engine_source
+        tmpreferences.push(editor.createPreference('p_html5_game_engine', getElement('p_html5_game_engine').checked));
+        tmpreferences.push(editor.createPreference('p_canvas_game_engine', getElement('p_canvas_game_engine').checked));
+        //editor_source
+        tmpreferences.push(editor.createPreference('p_editor_source', getElement('p_editor_source').checked));
+        //title of the game project
+        var title = getElement('p_projectTitle').value;
+        title = title.replace(/([^a-z0-9])/gmi, ' ');
+        title = title.replace(/\s+/g,'_');
+        console.log(title);
+        tmpreferences.push(editor.createPreference('p_projectTitle',title));
+        console.log(tmpreferences);
+        editor.preferences = tmpreferences;
+        _win.localStorage.setItem('preferences', JSON.stringify(editor.preferences));
+        editor.usePreferences();
+        getElement('editor').removeChild(getElement('preferencesBox'));
+      };
+      /**
+      @method usePreferences
+      @since 2014-06-09
+      */
+      editor.usePreferences = function() {
+        if (editor.getPreference('p_saveAndLoad') != null) {
+          getElement('saveLoadButtons').style.display =
+            editor.getPreference('p_saveAndLoad').value ? 'block' : 'none';
+        }
+        if (editor.getPreference('p_exAndImport') != null) {
+          getElement('exImportButtons').style.display =
+            editor.getPreference('p_exAndImport').value ? 'block' : 'none';
+        }
+        if (editor.getPreference('p_dropbox') != null) {
+          getElement('dropboxSpanButtons').style.display =
+            editor.getPreference('p_dropbox').value ? 'block' : 'none';
+          if (typeof Dropbox != 'undefined' && editor.getPreference('p_dropbox').value) {
+            /*editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
+            editor.dropboxClient.authenticate({ interactive: false }, function (error, client) {
+              if (error) {
+                alert('Error: ' + error);
+              }
+            });*/
+            //getElement('dopboxLoginButton').addEventListener('click', function() {editor.dropboxLogin();}, false);
+          }
+        }
+        //
+        if (editor.getPreference('p_html5_game_engine') == null ||
+            editor.getPreference('p_html5_game_engine').value) {
+          //that is default
+          //add the datamodel and the html5_game_engine_source sources to the codemirror
+          codemirror.setValue(getElement('datamodel_source').innerHTML + ' \n' +
+                              getElement('base64_source').innerHTML +' \n'+
+                              getElement('html5_game_engine_source').innerHTML);
+        } else if (editor.getPreference('p_canvas_game_engine') != null &&
+            editor.getPreference('p_canvas_game_engine').value) {
+          //add the datamodel and the html5_game_engine_source sources to the codemirror
+          codemirror.setValue(getElement('datamodel_source').innerHTML + ' \n' +
+                              getElement('base64_source').innerHTML +' \n'+
+                              getElement('canvas_game_engine_source').innerHTML);
+        }
+        //
+        if (editor.getPreference('p_editor_source') != null &&
+            editor.getPreference('p_editor_source').value) {
+          //add the datamodel and the html5_game_engine_source sources to the codemirror
+          codemirror.setValue(codemirror.getValue() + ' \n' +
+                              getElement('editor_source').innerHTML);
+        }
+      };
+      /**
+      array off objects with the 
+      name, path, description of the extension
+      @property extensionsList
+      @since 2014-07-11
+      */
+      editor.extensionsList = [
+          {name: 'translator', path: 'js/translateEditor.js', description: 'EXPERIMENTAL translate texts to other languages'},
+          {name: 'background image', path: 'js/backgroundEditor.js', description: 'upload an background image for a note'}
+        ];
+      /**
+      loads the extensionsList and show a select in a box
+      @method showExtensions
+      @since 2014-07-11
+      */
+      editor.showExtensions = function () {
+        /**/
+      };
+      /**
+      @method loadExtension
+      @since 2014-07-11
+      @param value
+      */
+      editor.loadExtension = function (_ele) {
+        var value = _ele.value;
+        if (value == null || value == '---') {
+          //do nothing without loading
+          return;
+        }
+        var checked = _ele.checked;
+        try {
+          var script = getElement(value.replace(/ /g, '_'));
+          if (script != null) {
+            console.log('removeExtension_'+value.replace(/ /g, '_')+'();');
+            var f = new Function('window,editor', 'removeExtension_'+value.replace(/ /g, '_')+'();');
+            f(window, editor);
+            document.body.removeChild(script);
+          }
+          console.log(value,checked);
+          var extension = null;
+          for (var i = 0; i < editor.extensionsList.length; i++) {
+            if (editor.extensionsList[i].name == value) {
+              extension = editor.extensionsList[i];
+            }
+          }
+          //inject the script
+          //store in the preferences of the project to load this extension
+          if (checked) {
+            script = createElement('script');
+            script.setAttribute('id', value.replace(/ /g, '_'));
+            script.setAttribute('type','text/javascript');
+            try {  
+            editor.makeRequest(extension.path, function() {
+              if (editor.http_request.readyState == 4) {
+                if (editor.http_request.status == 200) {
+                  // show contents of downloaded file
+                  script.appendChild(createTextNode(editor.http_request.responseText));
+                } else {
+                  alert('There was a problem with the request.');
+                }
+              }
+              //editor.storage.setItem('ext_'+value.replace(/ /g, '_'),result);
+            });
+            } catch (ex) {
+              script.src = extension.path;
+            }
+            //script.src = extension.path;
+            console.log(script.id);
+            document.body.appendChild(script);
+          }
+          //currently you have to be online!
+        } catch(e) {
+          //that might happen
+          alert('loading extension "'+value+'" failed.');
+        }
+      };
       /**
       @method addNote
       @since 2014-05-18
@@ -438,16 +1679,22 @@ var game = new Game();
         child.className = 'note';
         child.setAttribute('id','note_'+note.uid);
         ele.appendChild(child);
-        editor.noteStartX += 160;
-        editor.noteStartY += 110;
-        if (editor.noteStartX + 150 > editor.width) {
-          editor.noteStartX = editor.noteStartX + 150 - editor.width;
+        if (note.ex == null || (note.ex <= 0 && note.ey <= 0)) {
+
+          editor.noteStartX += 160;
+          editor.noteStartY += 110;
+          if (editor.noteStartX + 150 > editor.width) {
+            editor.noteStartX = editor.noteStartX + 150 - editor.width;
+          }
+          if (editor.noteStartY + 110 > editor.height * 0.9) {
+            editor.noteStartY = editor.noteStartY + 110 - (editor.height * 0.9);
+          }
+          child.style.left = editor.noteStartX+'px';
+          child.style.top = editor.noteStartY+'px';
+        } else {
+          child.style.left = note.ex+'px';
+          child.style.top = note.ey+'px';
         }
-        if (editor.noteStartY + 110 > editor.height * 0.9) {
-          editor.noteStartY = editor.noteStartY + 110 - (editor.height * 0.9);
-        }
-        child.style.left = editor.noteStartX+'px';
-        child.style.top = editor.noteStartY+'px';
         var child2 = createElement('div');
         child2.setAttribute('id','note_'+note.uid+'_bar');
         child2.className = 'note_bar';
@@ -481,29 +1728,95 @@ var game = new Game();
         child2.className ='note_title';
         child2.setAttribute('placeholder','note title');
         if (note.title != null) {
+<<<<<<< HEAD
           child2.value = editor.game.mediamanager.getMediaValue(note.title);
         }        
+=======
+          child2.value = editor.game.mediamanager.getTextMedia(note.title);
+        }
+>>>>>>> origin/master
         child.appendChild(child2);
         child2 = createElement('textarea');
         child2.setAttribute('id','note_'+note.uid+'_text');
         child2.className = 'note_text';
         child2.setAttribute('placeholder','note text');
         if (note.text != null) {
+<<<<<<< HEAD
           child2.value = editor.game.mediamanager.getMediaValue(note.text);
         } 
+=======
+          child2.value = editor.game.mediamanager.getTextMedia(note.text);
+        }
+>>>>>>> origin/master
         child.appendChild(child2);
         child2 = createElement('div');
         child2.setAttribute('id','note_'+note.uid+'_overlay');
         child2.className = 'note_overlay';
         child.appendChild(child2);
         //THE MENU -> make this a editor method
+<<<<<<< HEAD
         //add to notelist too    
         child2 = createElement('div');
         child2.appendChild(document.createTextNode('*'));
+=======
+        //add to notelist too
+        child2 = editor.createNoteMenu(note);
+        //THE MENU END
+        child.appendChild(child2);
+
+        ele = getElement('notelist');
+        child = createElement('div');
+        child.className = 'notelistBox';
+        ele.appendChild(child);
+        child2 = createElement('div');
+        child2.className = 'note_bar';
+        child2.appendChild(document.createTextNode(note.uid));
+        child2.appendChild(editor.createNoteMenu(note));
+        child.appendChild(child2);
+        child2 = createElement('div');
+        child2.className = 'connections';
+        child2.setAttribute('id', 'list_menu_'+note.uid);
+        if (note.uid == editor.game.startNote) {
+          child3 = createElement('span');
+          child3.className = 'list_start';
+          child3.setAttribute('id', 'list_start_'+note.uid);
+          child3.appendChild(createTextNode('start'));
+          child2.appendChild(child3);
+        }
+        child2.appendChild(document.createTextNode('connects: '));
+        child3 = createElement('span');
+        child3.setAttribute('id','list_con_amount_'+note.uid);
+        child3.appendChild(document.createTextNode(' '+note.connections.length));
+        child2.appendChild(child3);
+        child.appendChild(child2);
+        //child.appendChild(createElement('br'));
+        //missing connections here?
+        child2 = createElement('span');
+        if (note.title != null) {
+          child2.appendChild(document.createTextNode(editor.game.mediamanager.getTextMedia(note.title) ) );
+        }
+        child2.setAttribute('id', 'notelistElement_'+note.uid);
+        child.setAttribute('id', 'notelistBox_'+note.uid);
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+      }
+      /**
+      @method createNoteMenu
+      @since 2014-05-30
+      @param note
+      */
+      editor.createNoteMenu = function(note) {
+        var child2 = createElement('div');
+        var child3 = createElement('span');
+        child3.className = 'fa fa-bars';
+        child3.appendChild(document.createTextNode(''));
+        child2.appendChild(child3);
+>>>>>>> origin/master
         child2.className = 'note_menu_button';
         //
         child3 = createElement('div');
         child3.className = 'note_menu';
+<<<<<<< HEAD
           child4 = createElement('div');
           child4.className = 'menu_element';
           child4.setAttribute('onclick','editor.editNote(\''+note.uid+'\');');
@@ -512,6 +1825,16 @@ var game = new Game();
           //
           child4 = createElement('div');
           child4.className = 'menu_element';
+=======
+          var child4 = createElement('div');
+          child4.className = 'menu_element';
+          child4.setAttribute('onclick','editor.editNote(\''+note.uid+'\');');
+          child4.appendChild(document.createTextNode('edit note'));
+          child3.appendChild(child4);
+          //
+          child4 = createElement('div');
+          child4.className = 'menu_element';
+>>>>>>> origin/master
           child4.setAttribute('onclick','editor.deleteNote(\''+note.uid+'\');');
           child4.appendChild(document.createTextNode('delete note'));
           child3.appendChild(child4);
@@ -526,6 +1849,15 @@ var game = new Game();
           child4.className = 'menu_element';
           child4.setAttribute('onclick','editor.openAddConnectionBox(\''+note.uid+'\');');
           child4.appendChild(document.createTextNode('add connection'));
+<<<<<<< HEAD
+=======
+          child3.appendChild(child4);
+           //
+          child4 = createElement('div');
+          child4.className = 'menu_element';
+          child4.setAttribute('onclick','editor.openEditConnectionBox(\''+note.uid+'\');');
+          child4.appendChild(document.createTextNode('edit connection'));
+>>>>>>> origin/master
           child3.appendChild(child4);
           //
           child4 = createElement('div');
@@ -535,6 +1867,7 @@ var game = new Game();
           child4.appendChild(document.createTextNode('delete connection'));
           child3.appendChild(child4);
         child2.appendChild(child3);
+<<<<<<< HEAD
         //THE MENU END
         child.appendChild(child2);
 
@@ -554,6 +1887,9 @@ var game = new Game();
         child.setAttribute('id', 'notelistBox_'+note.uid);
         child.appendChild(child2);
         child.appendChild(createElement('br'));
+=======
+        return child2;
+>>>>>>> origin/master
       }
       /**
       @method setStartNote
@@ -561,22 +1897,46 @@ var game = new Game();
       @param _uid
       */
       editor.setStartNote = function(_uid) {
+<<<<<<< HEAD
         console.log('setStartNote = '+_uid);
         if (editor.game.startNote != null) {
           //remove startNote visualation
           getElement('con_menu_'+editor.game.startNote).removeChild(
                       getElement('con_start_'+editor.game.startNote) );
+=======
+        //console.log('setStartNote = '+_uid);
+        if (editor.game.startNote != null && editor.getNote(editor.game.startNote) != null) {
+          //remove startNote visualation
+          getElement('con_menu_'+editor.game.startNote).removeChild(
+                      getElement('con_start_'+editor.game.startNote) );
+          getElement('list_menu_'+editor.game.startNote).removeChild(
+                      getElement('list_start_'+editor.game.startNote) );
+>>>>>>> origin/master
         }
         editor.game.startNote = _uid;
         //visualize startNote
         var ele = getElement('con_menu_'+_uid);
+<<<<<<< HEAD
         console.log(ele);
         console.log('setStartNote = con_menu_'+_uid);
+=======
+        //console.log(ele);
+        //console.log('setStartNote = con_menu_'+_uid);
+>>>>>>> origin/master
         var child = createElement('span');
         child.className = 'con_start';
         child.setAttribute('id', 'con_start_'+_uid);
         child.appendChild(createTextNode('start'));
         ele.appendChild(child);
+<<<<<<< HEAD
+=======
+        var ele = getElement('list_menu_'+_uid);
+        var child = createElement('span');
+        child.className = 'con_start';
+        child.setAttribute('id', 'list_start_'+_uid);
+        child.appendChild(createTextNode('start'));
+        ele.appendChild(child);
+>>>>>>> origin/master
       }
       /**
       @method deleteNote
@@ -601,8 +1961,15 @@ var game = new Game();
                 tcons = editor.getNote(cons[k].to_uid).connections;
               }
               for (var j = 0; j < tcons.length; j++) {
+<<<<<<< HEAD
                 getElement('noteeditor').removeChild(getElement('arrow_'+tcons[j].from_uid+'_'+tcons[j].to_uid));
                 tcons.splice(j, 1);
+=======
+                if (tcons[j].from_uid == note.uid || tcons[j].to_uid == note.uid) {
+                  getElement('noteeditor').removeChild(getElement('arrow_'+tcons[j].from_uid+'_'+tcons[j].to_uid));
+                  tcons.splice(j, 1);
+                }
+>>>>>>> origin/master
               }
             }
             //delete the uid from the uid couter
@@ -644,7 +2011,11 @@ var game = new Game();
         child2.setAttribute('id', 'input_note_title');
         child2.setAttribute('name', 'input_note_title');
         if (c_note.title != null)
+<<<<<<< HEAD
           child2.value = editor.game.mediamanager.getMediaValue(c_note.title);
+=======
+          child2.value = editor.game.mediamanager.getTextMedia(c_note.title);
+>>>>>>> origin/master
         child.appendChild(child2);
         child.appendChild(createElement('br'));
         child.appendChild(document.createTextNode('text: '));
@@ -652,7 +2023,11 @@ var game = new Game();
         child2.setAttribute('id', 'input_note_text');
         child2.setAttribute('name', 'input_note_text');
         if (c_note.text != null)
+<<<<<<< HEAD
           child2.value = editor.game.mediamanager.getMediaValue(c_note.text);
+=======
+          child2.value = editor.game.mediamanager.getTextMedia(c_note.text);
+>>>>>>> origin/master
         child.appendChild(child2);
         child.appendChild(createElement('br'));
         child2 = createElement('button');
@@ -682,6 +2057,7 @@ var game = new Game();
         if (c_note.text == null) {
           c_note.text = editor.createUid();
         }
+<<<<<<< HEAD
         editor.game.mediamanager.setMedia(c_note.text, getElement('input_note_text').value);
         if (c_note.title == null) {
           c_note.title = editor.createUid();
@@ -693,6 +2069,19 @@ var game = new Game();
         getElement('notelistElement_'+_id).appendChild(document.createTextNode(
                                                        editor.game.mediamanager.getMediaValue(c_note.title) ) );
         getElement('note_'+_id+'_text').value = editor.game.mediamanager.getMediaValue(c_note.text);
+=======
+        editor.game.mediamanager.setTextMedia(c_note.text, getElement('input_note_text').value);
+        if (c_note.title == null) {
+          c_note.title = editor.createUid();
+        }
+        editor.game.mediamanager.setTextMedia(c_note.title, getElement('input_note_title').value);
+        console.log('->'+editor.game.mediamanager.getTextMedia(c_note.title) );
+        getElement('note_'+_id+'_title').value = editor.game.mediamanager.getTextMedia(c_note.title);
+        getElement('notelistElement_'+_id).innerHTML = '';
+        getElement('notelistElement_'+_id).appendChild(document.createTextNode(
+                                                       editor.game.mediamanager.getTextMedia(c_note.title) ) );
+        getElement('note_'+_id+'_text').value = editor.game.mediamanager.getTextMedia(c_note.text);
+>>>>>>> origin/master
 
         getElement('editor').removeChild(getElement('note_input_box'));
       }
@@ -774,7 +2163,11 @@ var game = new Game();
         if (con.text == null) {
           con.text = editor.createUid();
         }
+<<<<<<< HEAD
         editor.game.mediamanager.setMedia(con.text, getElement('boxText').value);
+=======
+        editor.game.mediamanager.setTextMedia(con.text, getElement('boxText').value);
+>>>>>>> origin/master
         c_note.connections.push( con );
         editor.getNote(value).connections.push( con );
         getElement('con_amount_'+_id).innerHTML = '';
@@ -784,6 +2177,96 @@ var game = new Game();
         editor.addArrowLine(_id, value);
       };
       /**
+<<<<<<< HEAD
+=======
+      @method openEditConnectionBox
+      @param _id the uid
+      @since 2014-06-03
+      */
+      editor.openEditConnectionBox = function (_id) {
+        var note = editor.getNote(_id);
+        var cons = note.connections;
+        if (cons.length == 0) {
+          alert('note has no connections');
+          return;
+        }
+        var child = createElement('div');
+        child.setAttribute('id', 'editConnectionBox');
+        child.className = 'connectionBox';
+        getElement('editor').appendChild(child);
+        child.appendChild(document.createTextNode('edit connection'));
+        child.appendChild(createElement('br'));
+
+        var select = createElement('select');
+        select.setAttribute('id','boxTo');
+        select.setAttribute('name','boxTo');
+        select.innerHTML = '';
+	      var child2 = document.createElement('option');
+	      child2.setAttribute('value', '---');
+	      select.appendChild(child2);
+        select.addEventListener('change', function(eve) {
+          var value = getElement('boxTo').value;
+          console.log('boxTo: input edit con -> '+value+' '+getElement('boxTo').getAttribute('data-uid'));
+          var cons = editor.getNote(getElement('boxTo').getAttribute('data-uid')).connections;
+          for (var i = 0; i < cons.length; i++) {
+            if (cons[i].uid == value) {
+              getElement('inputEditCon').value = editor.game.mediamanager.getTextMedia(cons[i].text);
+            }
+          }
+          getElement('changeConnect').setAttribute('data-change-uid', value);
+        }, true);
+
+	      for (var i = 0; i < cons.length; i++) {
+	        child2 = document.createElement('option');
+	        child2.setAttribute('value', ''+cons[i].uid);
+          child2.appendChild(document.createTextNode(cons[i].from_uid+' -> '+cons[i].to_uid));
+          select.appendChild(child2);
+        }
+        select.setAttribute('data-uid', note.uid);
+        child.appendChild(select);
+        child.appendChild(createElement('br'));
+        child.appendChild(document.createTextNode('text: '));
+        child2 = createElement('input');
+        child2.setAttribute('id','inputEditCon');
+        child2.setAttribute('placeholder','select a connection first');
+        child.appendChild(child2);
+        child2 = createElement('button');
+        child2.setAttribute('onclick','editor.closeEditConnectionBox(\''+note.uid+'\');');
+        child2.setAttribute('data-change-uid','');
+        child2.setAttribute('id','changeConnect');
+        child2.appendChild(document.createTextNode('done'));
+        child.appendChild(child2);
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','editor.closeEditConnectionBox(null);');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+      }
+      /**
+      @method closeEditConnectionBox
+      @param _id the uid
+      @since 2014-06-03
+      */
+      editor.closeEditConnectionBox = function (_id) {
+        var change_uid = getElement('changeConnect').getAttribute('data-change-uid');
+        console.log(_id+' - '+change_uid);
+        if (_id == null || change_uid == '') {
+          getElement('editor').removeChild(getElement('editConnectionBox'));
+        }
+        var note = editor.getNote(_id);
+        var cons = note.connections;
+        for (var i = 0; i < cons.length; i++) {
+          if (cons[i].uid == change_uid) {
+            if (cons[i].text == null) {
+              cons[i].text = editor.createUid();
+            }
+            editor.game.mediamanager.setTextMedia(cons[i].text, getElement('inputEditCon').value);
+          }
+        }
+        getElement('editor').removeChild(getElement('editConnectionBox'));
+      }
+      /**
+>>>>>>> origin/master
       @method openDeleteConnectionBox
       @param _id
       @since 2014-05-23
@@ -872,7 +2355,7 @@ var game = new Game();
         var c_ele = getElement('note_'+from_uid);
         var cx = c_ele.offsetLeft + c_ele.clientWidth;
         var cy = c_ele.offsetTop + c_ele.clientHeight;
-        console.log(c_ele);
+        //console.log(c_ele);
         var ele = getElement('note_'+to_uid);
         var x = ele.offsetLeft;
         var y = ele.offsetTop;
@@ -901,12 +2384,16 @@ var game = new Game();
         arrow_line.style.width = c+'px';
         arrow_line.style.top = '0px';
         arrow_line.style.height = '1px';
-        arrow_line.src = 'img/line.png';
+        arrow_line.src = img_line;
         arrow_png.setAttribute('id','arrow_png_'+from_uid+'_'+to_uid);
         arrow_png.style.position = 'absolute';
         arrow_png.style.left = (c-10)+'px';
         arrow_png.style.top = '-5px';
+<<<<<<< HEAD
         arrow_png.src = 'img/arrow.png';
+=======
+        arrow_png.src = img_arrow;
+>>>>>>> origin/master
 
         arrow.style.transform = 'rotate('+theta+'deg)';
         arrow.style.msTransform = 'rotate('+theta+'deg)';
@@ -922,7 +2409,7 @@ var game = new Game();
         var c_ele = getElement('note_'+from_uid);
         var cx = c_ele.offsetLeft + c_ele.clientWidth;
         var cy = c_ele.offsetTop + c_ele.clientHeight;
-        console.log(c_ele);
+        //console.log(c_ele);
         var ele = getElement('note_'+to_uid);
         var x = ele.offsetLeft;
         var y = ele.offsetTop;
@@ -976,13 +2463,18 @@ var game = new Game();
         if (window.navigator.msSaveBlob) {
           element = window.navigator.msSaveBlob(bb, name+'.'+fileEnding);
         } else {
+<<<<<<< HEAD
           element.href = fileEnding == 'json' ? window.URL.createObjectURL( bb ) : data;
+=======
+          element.href = window.URL.createObjectURL( bb );
+>>>>>>> origin/master
           element.appendChild(document.createTextNode( name ));
           element.className = 'exportA';
           element.setAttribute('download', name+'.'+fileEnding);
           element.setAttribute('title', name+'.'+fileEnding);
         }
         return element;
+<<<<<<< HEAD
       }
       /**
       @method exportEditor
@@ -1109,12 +2601,235 @@ var game = new Game();
             //editor.updateArrowLine(cons[j].from_uid, cons[j].to_uid);
           }
         }
+=======
+>>>>>>> origin/master
       }
-      /***/
+      /**
+      @method exportEditor
+      @since 2014-05-27
+      */
+      editor.exportEditor = function() {
+        var ele = document.body;
+        var child = createElement('div');
+        var child2 = createElement('div');
+        var filename = (editor.getPreference('p_projectTitle') != null &&
+                        editor.getPreference('p_projectTitle').value.trim() != '') ?
+                                                editor.getPreference('p_projectTitle').value : 'editor';
+        child2.appendChild(document.createTextNode(' download '+filename+'.json: '));
+        child.appendChild(child2);
+        editor.code = codemirror.getValue();
+        editor.noteeditor_box = null;
+        editor.noteeditor = null;
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: editor.code});
+        child2 = editor.buildExportBlobUrl( data, filename, 'json'); //
+		    child.appendChild(child2);
+        child.className = 'eximport';
+        child.setAttribute('id','eximport');
+        ele.appendChild(child);
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('textarea');
+        child2.value = data;
+        child2.style.width = '300px';
+        child2.style.height = (editor.height / 2)+ 'px';
+        child.appendChild(child2);
+      };
+      /**
+      @method importEditor
+      @since 2014-05-27
+      */
+      editor.importEditor = function(eve) {
+        if (eve == null) {
+          //alert('create upload form here');
+          var ele = document.body;
+          var child = createElement('div');
+          child.className = 'eximport';
+          child.setAttribute('id','eximport');
+          child2 = createElement('button');
+          child2.className = 'closeBoxButton';
+          child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
+          child2.appendChild(document.createTextNode('X'));
+          child.appendChild(child2);
+          child.appendChild(document.createTextNode('upload your editor.json file:'));
+          child.appendChild(createElement('br'));
+          child2 = createElement('input');
+          child2.setAttribute('type','file');
+          child2.setAttribute('name','files');
+          child2.setAttribute('id','files');
+          child2.addEventListener('change', editor.importEditor, true);
+          child.appendChild(child2);
+          ele.appendChild(child);
+          return;
+        }
+        var files = eve.target.files; // FileList object
+        var f = files[0];
+        var reader = new FileReader();
+        reader.onload = (function(theFile) {
+          return function(e) {
+            //console.log('handleJsonImport->'+theFile.name);
+            console.log(e.target.result);
+            editor.load(e.target.result);
+            console.log(theFile.name);
+            document.body.removeChild(getElement('eximport'));
+          };
+        })(f);
+        reader.readAsText(f, 'UTF-8');//readAsDataURL(f);//, 'UTF-8');
+      };
+      /**
+      @method buildGame
+      @since 2014-05-29
+      */
+      editor.buildGame = function() {
+        var ele = document.body;
+        var code = codemirror.getValue();
+        //perform the code
+        var filename = (editor.getPreference('p_projectTitle') != null &&
+                        editor.getPreference('p_projectTitle').value.trim() != '') ?
+                        editor.getPreference('p_projectTitle').value : 'myDrafterGame';
+
+        var head = '<!doctype html>\n<html>\n<head>\n\n<title>'+filename+'</title>\n<meta name="generator" content="hogventure.com drafter">\n'+
+        '<meta name="author" content="you author">'+
+        '<meta name="keywords" content="editor, text, game, story, twine, adventure, game engine, draft, javascript, html5">'+
+        '<meta name="description" content="Drafter, hogventure.com\'s twine like game and story editor in javascript">'+
+        '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+        var data = '<s'+'cript type="text/javasc'+'ript">\nvar json ='+JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code})+';\n \n'+code+'\n</'+'script>\n';
+        var body = '';
+        if (editor.getPreference('p_editor_source') != null &&
+            editor.getPreference('p_editor_source').value )
+        {
+          head = '<head>' + document.head.innerHTML;
+          body = '</head>\n<body>\n' + document.body.innerHTML + '<sc'+'ript id="extension_source">'+code+'\n\neditor.load(JSON.stringify(json));</'+'script></body>\n</html>\n';
+        } else {
+          body = '</head>\n<body>\n</body>\n</html>\n';
+        }
+
+        var child = createElement('div');
+        var child2 = createElement('div');
+        child2.appendChild(document.createTextNode(' download '+filename+'.html: '));
+        child.appendChild(child2);
+        editor.code = codemirror.getValue();
+        editor.noteeditor_box = null;
+        editor.noteeditor = null;
+        child2 = editor.buildExportBlobUrl( head+data+body, filename, 'html');
+		    child.appendChild(child2);
+        child.className = 'eximport';
+        child.setAttribute('id','eximport');
+        ele.appendChild(child);
+        child2 = createElement('button');
+        child2.className = 'closeBoxButton';
+        child2.setAttribute('onclick','document.body.removeChild(getElement(\'eximport\'))');
+        child2.appendChild(document.createTextNode('X'));
+        child.appendChild(child2);
+        child.appendChild(createElement('br'));
+        child.appendChild(createElement('br'));
+        child2 = createElement('textarea');
+        child2.value = head+data+body;
+        child2.style.width = '300px';
+        child2.style.height = (editor.height / 2)+ 'px';
+        child.appendChild(child2);
+      };
+      /**
+      @method load
+      @since 2014-05-28
+      @param result
+      */
+      editor.load = function(result) {
+        var json = JSON.parse(result);
+        console.log(json);
+        editor.game = new Game();
+        editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
+        editor.game.load(json['game']);
+        editor.uidcounter = json['uidcounter'];
+        editor.preferences = json['preferences'];
+        //noteStartX,noteStartY,ox,oy,width,height,pressed
+        getElement('noteeditor').innerHTML = '';
+        getElement('notelist').innerHTML = '';
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          editor.addNote(editor.game.notes[i]);
+        }
+        getElement('noteeditor_box').style.display = 'block';
+        for (var i = 0; i < editor.game.notes.length; i++) {
+          var cons = editor.game.notes[i].connections;
+          for (var j = 0; j < cons.length; j++) {
+            editor.addArrowLine(cons[j].from_uid, cons[j].to_uid);
+          }
+        }
+        editor.usePreferences();
+        editor.code = json['code'];
+        codemirror.setValue(json['code']);
+      };
+      /**
+      @property http_request
+      @since 2014-07-01
+      */
+      editor.http_request = null;
+      /**
+      @method makeRequest
+      @since 2014-07-01
+      @param url
+      */
+      editor.makeRequest = function (url, callback) {
+        if (callback == null) {
+          callback = editor.alertContents;
+        }
+        editor.http_request = null;
+        if (window.XMLHttpRequest) { // Mozilla, Safari,...
+          editor.http_request = new XMLHttpRequest();
+          if (editor.http_request.overrideMimeType) {
+            editor.http_request.overrideMimeType('text/xml');
+          // See note below about this line
+          }
+        } else if (window.ActiveXObject) { // IE
+          try {
+            editor.http_request = new ActiveXObject("Msxml2.XMLHTTP");
+          } catch (e) {
+            try {
+              editor.http_request = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {}
+          }
+        }
+        if (editor.http_request == null) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return;
+        }
+        editor.http_request.onreadystatechange = callback;
+        editor.http_request.open('GET', url, true);
+        editor.http_request.send(null);
+      };
+      /**
+      @method aleartContents
+
+      @since 2014-07-01
+      */
+      editor.alertContents = function () {
+        if (editor.http_request.readyState == 4) {
+          if (editor.http_request.status == 200) {
+            // show contents of downloaded file
+            alert(editor.http_request.responseText);
+          } else {
+            alert('There was a problem with the request.');
+          }
+        }
+      };
+      /**
+      is the mouse pressed true
+      @property pressed
+      */
       editor.pressed = false;
-      /***/
+      /**
+      old x from mouse/touch
+      @property ox
+      */
       editor.ox = 0;
-      /***/
+      /**
+      old y from mouse/touch
+      @property oy
+      */
       editor.oy = 0;
       /**
       attach to 'noteeditor' element
@@ -1163,6 +2878,7 @@ var game = new Game();
           var y = ele.offsetTop + eve.pageY - editor.oy;
           ele.style.top = y + 'px';
           ele.style.left = x + 'px';
+          editor.getNote(uid).setEditorPos(x,y);
           //console.log(ele.id+':'+eve.pageX+','+eve.pageY+','+ele.offsetLeft+','+ele.offsetTop);
           for (var i = 0; i < cons.length; i++) {
             editor.updateArrowLine(cons[i].from_uid,cons[i].to_uid);//from to
@@ -1214,6 +2930,87 @@ var game = new Game();
           help.style.display = 'none';
         }
       };
+<<<<<<< HEAD
+=======
+      /**
+      @method dropboxWrite
+      @since 2014-06-05
+      */
+      editor.dropboxWrite = function() {
+        var name = getElement('dropboxName').value;
+        var code = codemirror.getValue();
+        var data = JSON.stringify({uidcounter: editor.uidcounter, game: editor.game, preferences: editor.preferences, code: code});
+        if (name == '' || name == null) {
+          name = 'editor';
+        }
+        editor.dropboxClient.writeFile(name+'.json', ''+data, function (error) {
+          if (error) {
+            alert('Error: ' + error);
+          } else {
+            alert('File written successfully!');
+          }
+        });
+      }
+      /**
+      @method dropboxRead
+      @since 2014-06-05
+      */
+      editor.dropboxRead = function() {
+        var name = getElement('dropboxName').value;
+        if (name == '' || name == null) {
+          name = 'editor';
+        }
+        editor.dropboxClient.readFile(name+'.json', function(error, data) {
+          if (error) {
+            alert('Error: ' + error);
+          } else {
+            console.log(data);// alert(data);
+            editor.load(data);
+          }
+        });
+      }
+      /**
+      @method dropboxLogin
+      @since 2014-06-05
+      */
+      editor.dropboxLogin = function() {
+        if (window.location.protocol != "https:" && window.location.protocol != "file:") {
+          //alert('Please, accept the self certified ssl.');
+          window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+          return;
+        }
+        
+        editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
+        editor.dropboxClient.authenticate({interactive: true},function (error, client) {
+          if (error) {
+            alert('Error: ' + error); 
+          } else {
+            getElement('dropboxWriteButton').addEventListener('click', function() {
+              if (client.isAuthenticated()) {
+                editor.dropboxWrite();
+              } else {
+                alert('something went wrong.');
+                /*var popup = window.open('https://dropbox.com/login', '_blank', 'width=640, height=480, scrollbars=yes');
+                popup.focus();*/  
+              }
+            }, false);
+            getElement('dropboxReadButton').addEventListener('click', function() {
+              if (client.isAuthenticated()) {
+                editor.dropboxRead();
+              } else {                  
+                alert('something went wrong.');
+                /*var popup = window.open('https://dropbox.com/login', '_blank', 'width=640, height=480, scrollbars=yes');
+                popup.focus();*/
+              }
+            }, false);
+            //dropboxWriteButton getElement('dropboxButtons').style.display = 'inline';
+            getElement('dropboxWriteButton').style.display = 'inline';
+            getElement('dropboxReadButton').style.display = 'inline';
+            getElement('dropboxName').style.display = 'inline';
+          }
+        });
+      }
+>>>>>>> origin/master
       /***/
       _win.createElement = function(_ele) {
         return document.createElement(_ele);
@@ -1227,13 +3024,57 @@ var game = new Game();
         return document.getElementById(_id);
       };
       /***/
+      _win.install = function() {
+        try {
+         if (console.log((navigator.userAgent.toLowerCase()).indexOf('firefox') > 0)) {
+         var request = window.navigator.mozApps.install(
+                        'https://hogventure.com/draft/manifest.webapp');
+         } else {
+          alert('Please use the firefox browser for this feature.');
+         }
+        }
+        catch (e) {
+         alert('Please use the firefox browser for this feature. Automatic installation failed: '+e.message);
+        }
+      };
+      /***/
       _win.editor = editor;
+<<<<<<< HEAD
       _win.onload = function() { setTimeout(editor.init, 100); };
+=======
+      _win.onload = function() {
+        //forcing https first (accept file)
+        //may be comment
+        if (window.location.protocol != 'https:' && window.location.protocol != 'file:') {
+          //alert('Please, accept the self certified ssl.');
+          window.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+          return;
+        }
+        //looking for changes in the app cache
+        window.applicationCache.addEventListener('updateready', function(e) {
+          if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+            // Browser downloaded a new app cache.
+            if (confirm('A new version of this site is available. Load it?')) {
+              window.location.reload();
+            }
+          } else {
+            // Manifest didn't changed. Nothing new to server.
+          }
+        }, false);
+        setTimeout(editor.init, 250);
+      };
+      _win.onresize = function() {
+        editor.resize();
+        document.body.style.width = editor.width+'px';
+        document.body.style.height = editor.height+'px';
+      };
+>>>>>>> origin/master
     }
 
   )(window);
 
  </script>
+<<<<<<< HEAD
  <style type="text/css">
 body {margin: 0; padding: 0; background: #eee; font-family: sans-serif;}
 div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
@@ -1272,10 +3113,159 @@ div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px
 #help div div {display: none;}
 #help div:hover div {display: block;}
  </style>
+=======
+ <!-- Create a simple CodeMirror instance -->
+<script type="text/javascript">
+var codemirror = null;
+function setHighlighter() {
+  if (typeof CodeMirror != 'undefined') {
+    codemirror = new CodeMirror(getElement('cmtexteditor'), {
+      mode: "javascript"
+    });
+  } else {
+    codemirror = {
+      setValue : function(v) {
+        getElement('texteditor').value = v;
+      },
+      getValue : function() {
+        return getElement('texteditor').value;
+      }
+    };
+    getElement('texteditor').style.display = 'block';
+  }
+};
+  editor.setActive = function (ele) {
+   var eles = document.getElementsByName('oct');
+   for (var i = 0; i < eles.length; i++) {
+     eles[i].className = eles[i].className.replace(/ active/g,'');
+   }
+   ele.className = ele.className+' active';
+  }
+</script>
+ <style type="text/css" id="styles">
+body {margin: 0; padding: 0; background: #333; font-family: sans-serif;}
+div, span, input, textarea, button, br {font-family: sans-serif; font-size: 13px; margin: 0;}
+body {overflow: hidden;}
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('fnt/fontawesome-webfont.eot?v=4.1.0');
+  src: url('fnt/fontawesome-webfont.eot?#iefix&v=4.1.0') format('embedded-opentype'), url('fnt/fontawesome-webfont.woff?v=4.1.0') format('woff'), url('fnt/fontawesome-webfont.ttf?v=4.1.0') format('truetype'), url('fnt/fontawesome-webfont.svg?v=4.1.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.fa {
+  display: inline-block;
+  font: normal normal 16px FontAwesome;
+  line-height: 1;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+.fa-pencil-square-o,
+.fa-edit:before { content: "\f044"; }
+.fa-bars:before { content: "\f0c9";}
+.fa-square:before { content: "\f040"; }
+.fa-gear:before { content: "\f013"; }
+.fa-wrench:before { content: "\f0ad"; }
+.fa-plus-square-o:before { content: "\f196"; }
+.fa-square-o:before { content: "\f096"; }
+.fa-arrow-circle-o-down:before { content: "\f01a"; }
+.fa-arrow-circle-o-up:before { content: "\f01b"; }
+.fa-flask:before { content: "\f0c3"; }/*test*/
+.fa-times:before { content: "\f00d"; }/*stop*/
+.fa-question-circle:before { content: "\f059";}
+.fa-code:before { content: "\f121";}
+.fa-search-plus:before { content: "\f00e";}
+.fa-search-minus:before { content: "\f010";}
+.fa-dropbox:before { content: "\f16b";}
+.fa-upload:before { content: "\f093";}
+.fa-download:before { content: "\f019";}
+/*button {height: 22px; max-height: 22px; float: inherit;}*/
+button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; cursor: pointer; margin-bottom: 2px; }
+input[type="file"]::-webkit-file-upload-button{max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; cursor: pointer; margin-bottom: 2px; }
+button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
+input[type="file"]::-webkit-file-upload-button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
+button:active {color: #000; background: #fff;}
+input[type="file"]::-webkit-file-upload-button:active {color: #000; background: #fff;}
+  .bcode {margin: 0px; width: auto; text-align: center; color: #fff; background: #069;}
+  .bhelp {margin: 0px; width: auto; text-align: center; color: #fff; background: #fc0;}
+  .bnote{margin: 0px; width: auto; text-align: center; color: #fff; background: #063;}
+  .closeBoxButton{margin: 0px; color: #fff; background: #b00; outline: 0px;}
+  button span, .bcode span,.bnote span,.bhelp span {font-family: sans-serif; font-size: 13px; margin-left: 5px; color: inherit;}
+  .bcode:hover {background: #0bd;}
+  .bhelp:hover {background: #fd6;}
+  .bnote:hover {background: #0c9;}
+  .closeBoxButton:hover {background: #e00;color:#fff;}
+  .closeBoxButton.active,.closeBoxButton:active,.closeBoxButton:focus {background: #e00;}
+#editor {position: absolute; top: 0; left: 0; margin: 0; padding: 0;}
+#editorbar {position: absolute; top: 0; left: 0; float: left; width: 100%; min-height: 25px; height: auto; max-height: 10%; display: block;}
+#texteditor { position: absolute; top: 10%; left: 0; width: 80%; min-height: 89%; height: 89%; max-height: 89%; background: #fff; border: solid 1px #ddd; display: none;}
+#cmtexteditor { position: absolute; top: 10%; left: 0; width: 80%; max-width: 80%; min-height: 89%; height: 89%; max-height: 89%; border: solid 1px #ddd; }
+#notelist {position: absolute; top: 10%; left: 80%; width: 20%; min-height: 89%; height: 89%; max-height: 89%; background: url(img/56graph.png) #f9f9fd; border-top: solid 1px #ddd; overflow: scroll; font-size: 13px;}
+#noteeditor {position: relative; width: 100%; min-height: 100%; overflow: hidden; background: url(img/56graph.png) #f9f9fd;}
+#noteeditor_box {z-index: 9; position: absolute; top: 10%; left: 0; width: 100%; height: 89%; display: block; background: #eee; resize: none; overflow: hidden; border-bottom: 1px solid #ddd; border-top: 1px solid #ddd; overflow: auto;}
+#gameMainView {z-index: 250; position: absolute; top: 10%; left: 1%; width: 98%; height: 89%; display: block; background: #fff; resize: none; overflow: hidden; border: 1px solid #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: auto;}
+.notelistBox {border: 1px solid #ddd; margin: 2px; background: url(img/56line.png) #f9f9fd; box-shadow: 0 0 3px #333; width: 95%;}
+#note_input_box {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; padding: 10px; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); height: 170px; font-family: sans-serif; font-size: 13px;}
+#input_note_title { width: 250px; margin: 0;}
+#input_note_text { width: 250px; min-height: 100px; margin: 0;}
+#note_input_box span{float: left; width: 50px; margin: 0;}
+.closeBoxButton {position: absolute; color: white; background: #c00; top: 1px; right: 1px; width: 24px; max-width: 24px; min-width: 24px; font-size: 10px; font-weight: bold; padding: 0;}
+.note{z-index: 10; position: absolute; top: 5px; left: 5px; width: 150px; min-height: 100px; height: auto; background: url(img/56line.png) #f9f9fd; background-position: 0px -2px; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); overflow: hidden;}
+.note_overlay {position: absolute; top: 0px; left: 0px; width: 150px; min-height: 130px; height: auto; background: transparent; }
+.note_menu_button {position: absolute; top: 0px; right: 5px; color: white; font-weight: bold; font-size: 16px; cursor: pointer;}
+.eximport {z-index: 30; position: absolute; top: 55px; left: 55px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 20px;}
+.connectionBox {z-index: 20; position: absolute; top: 5px; left: 5px; background: #ddd; box-shadow: -1px -1px 2px rgba(100,100,100,0.5), -1px 1px 2px rgba(100,100,100,0.5), 1px -1px 2px rgba(100,100,100,0.5), 3px 3px 6px rgba(100,100,100,0.5); font-size: 13px; padding: 10px;}
+.note_bar {position: relative; padding: 1px; background: #063; width: 98%; height: 15px; color: white;}
+.note_uid {position: absolute; top: 2px; left: 2px; font-size: 12px; font-family: sans-serif;}
+.note_title {width: 145px; height: 15px; padding: 2px; border: 0; background: transparent}
+.note_text {width: 145px; height: 60px; padding: 2px; border: 0; background: transparent; resize: none;}
+.connection{width: 150px; background: transparent; font-size: 13px; font-family: sans-serif;}
+.note_menu{z-index: 15; position: absolute; right: 0px; top: 0px; width: auto; max-width: 150px; display: none; text-align: right; border: 1px #999 solid; background: #ddd; margin: 0; box-shadow: -1px -1px 3px #999, 1px -1px 3px #999, -1px 1px 3px #999, 3px 3px 5px #999;}
+.note_menu_button:hover .note_menu{display: block;}
+.menu_element{font-weight: bold; color: #333; font-size: 13px; font-family: sans-serif; white-space: pre;}
+.menu_element:hover {font-weight: bold; color: #fff; font-size: 13px; font-family: sans-serif; background: #063; }
+.addConnectionBox {position: absolute; top: 0; left: 0; display: none;}
+.arrow {z-index: 1;}
+.con_start {position: absolute; right: 0; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px;}
+.list_start {position: absolute; right: 3%; background: #0b0; color: white; font-weight: bold; padding: 0 5px 0 5px; margin-right: 0px;}
+#help {z-index: 100; position: absolute; top: 5px; left: 5px; width: 370px; max-width: 370px; max-height: 98%; background: #eee; box-shadow: -1px -1px 3px #999, -1px 1px 3px #999, 1px -1px 3px #999, 3px 3px 10px #999; display: none; padding: 10px; overflow: auto; overflow-y: scroll;}
+#help h1 {background: #fc0; color: #fff; margin: 10px 0 5px 0; padding: 2px 5px 3px 5px;
+font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
+#help h1:hover {background: #fd6; color: #000; box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000;}
+#help h2 {color: #063; margin: 0 0 5px 0; font-size: 14px; width: 335px;}
+#help div div {display: none;}
+#help div:hover div {display: block;}
+#help .divHelp div {display: block;}
+#help .divHelp h1 {color: #000;}
+.offZoom {font-size: 50%;}
+#noteeditor.offZoom .note {font-size: 7.5px;}
+#noteeditor.offZoom .note .note_title{font-size: 7.5px;}
+#noteeditor.offZoom .note .note_text{font-size: 7.5px;}
+#noteeditor.offZoom .note .connection {font-size: 7.5px;}
+#noteeditor.offZoom .note .connection span{font-size: 7.5px;}
+#noteeditor.offZoom .note .note_menu .menu_element{font-size: 7.5px;}
+#zoom {margin: 0; margin-left: 5px;}
+.dpbutton {float: left; height: 22px; vertical-align: top;}
+.dpbutton span {float: left; display: inline-block;}
+#cmtexteditor .CodeMirror {height: 100%;}
+#dropboxSpanButtons {float: left;}
+.separator {float: left; margin: 0 1px 2px 3px; width: 1px; font-weight: bold; font-size: 22px; min-height: 22px; max-height: 22px; background: #eee; display: inline-block; line-height: 0.75; overflow: hidden;}
+#editorMainBar {position: absolute; float: right; bottom: 90%; right: 0;}
+.mini{position: relative; top: -4px; left: -17px; font-size: 10px; color: white;}
+
+</style>
+>>>>>>> origin/master
  </head>
  <body>
  <div id="editor">
   <div id="editorbar">
+<<<<<<< HEAD
   <button onclick="editor.saveCodeAndGame();" style="float: left;">save code and game</button>
   <button onclick="editor.loadCodeAndGame();" style="float: left;">load code and game</button>
   <button onclick="editor.testGame();" style="float: left;">test game</button>
@@ -1362,6 +3352,156 @@ document.body.appendChild(game_cvs);
     <br>
   </div>
 </div><div>
+=======
+  <button onclick="editor.showPreferences();" style="float: left; margin-left: 1px;" title="project preferences" class="fa fa-gear"><span>preferences</span></button>
+  <span class="separator"></span>
+  <span id="saveLoadButtons">
+    <button onclick="editor.saveCodeAndGame();" style="float: left;" class="fa fa-arrow-circle-o-down"><span>save project</span></button>
+    <button onclick="editor.loadCodeAndGame();" style="float: left;" class="fa fa-arrow-circle-o-up"><span>load project</span></button>
+  </span>
+  <span id="exImportButtons">
+    <button onclick="editor.importEditor();" style="float: left;" class="fa fa-upload"><span>import</span></button>
+    <button onclick="editor.exportEditor();" style="float: left;" class="fa fa-download"><span>export</span></button>
+  </span>
+    <button id="dropboxSpanButtons" style="display: none; float: left;" onclick="editor.dropboxLogin();" class="fa fa-dropbox"><span>&nbsp;login&nbsp;</span></button>
+    <!--span id="dropboxButtons" style="display: none; float: left;"-->
+      <button id="dropboxWriteButton" style="display: none; float: left;" class="fa fa-dropbox"><span>&nbsp;upload&nbsp;</span></button>
+      <button id="dropboxReadButton" style="display: none; float: left;" class="fa fa-dropbox"><span>&nbsp;download&nbsp;</span></button>
+      <input id="dropboxName" type="text" style="display: none; float: left; max-height: 22px;" placeholder="editor is the file name" />
+    <!--/span-->
+  
+  <span class="separator"></span>
+  <button onclick="editor.buildGame();" style="float: left;" class="fa fa-wrench"><span>build</span></button>
+  <!--span class="separator"></span-->
+  <button onclick="editor.testGame();" style="float: left;" class="fa fa-flask"><span>test game</span></button>
+  <button onclick="editor.stopTest();" style="float: left;" class="fa fa-times"><span>stop test</span></button>
+  <span class="separator"></span>
+  <button onclick="editor.zoom();" style="float: left;" class="fa fa-search-minus"><span>zoom</span></button>
+  <span class="separator"></span>
+  <button onclick="editor.addNote();" style="float: left;" class="fa fa-plus-square-o"><span>add note</span></button>
+  <span class="separator"></span>
+  </div>
+  <div id="editorMainBar">
+  <button onclick="editor.toggleEditor('code');editor.setActive(this);" name="oct" style="float: left;" class="bcode fa fa-code"><span>code</span></button>
+  <button onclick="editor.toggleEditor('notes');editor.setActive(this);" name="oct" style="float: left;" class="bnote fa fa-edit"><span>notes</span></button>
+  <button onclick="editor.help();" style="float: left;" class="bhelp fa fa-question-circle"><span>help</span></button>
+  <!--button onclick="install();" style="float: left;">install</button-->
+  <!--br style="clear: both;"-->
+  </div>
+  <textarea id="texteditor"></textarea>
+  <div id="cmtexteditor"></div>
+  <div id="notelist"></div>
+  <div id="noteeditor_box" style="display: block;">
+   <div id="noteeditor">
+   </div>
+  </div>
+ </div>
+<div id="help">
+<div style="margin-top: 20px;" onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>What is the 'Drafter' good for?</h1>
+  <div>
+ <h2>'Drafter' is a 'Twine' like story editor</h2>
+ With 'Drafter' you can create interactive story games.<br>
+ Interactive story games are text based (mini?) adventures.<br>
+ Also you may use this tool for game prototyping.<br>
+ 'Drafter' is HTML5 and javascript based. <br>
+ Because of this 'Drafter' is fully progammable.<br>
+ You can edit and program the editor and the game-engine.<br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+<h1>How to use the editor</h1>
+  <div>
+ <h2>'Drafter' is a two ways editor</h2>
+ The first view is the note editor.<br>
+ With the 'add note' button you insert a new note to the game.<br>
+ <br>
+ If you want to use the script editor,<br>
+ use the 'toggle' button.<br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+<h1>Where to start?</h1>
+  <div>
+ <h2>First you should create a mini story.</h2>
+  First you should create a mini story with the<br>
+  visual note editor. Try the tutorial example or<br>
+  create your own story. Keep it simple.  <br>
+    <br>
+  If you want to script, take a look the game engine<br>
+  source in the script editor. You should know some<br>
+  javascript or learn it.<br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+<h1>The tutorial example.</h1>
+  <div>
+ <h2>Now let's start and write a super simple mini story.</h2>
+  This story should have a start, an end and some credits.<br>
+  <br>
+  First add a note.<br>
+  Open the notes menu - '*' in the upper right.<br>
+  Choose 'edit note' option.<br>
+  The edit note box opens.<br>
+  Add the title: <br><i>This is the start note</i><br>
+  and the text: <br><i>Here the story starts.<br>
+  It is a very short story.<br>
+  How it will end is all your choice.</i><br>
+  <br>
+  So you add and edit your frist note to the story.<br>
+  You may save now the code and the game.<br>
+  If you would close or reload the browser,<br>
+  you can restore your current work.<br>
+  But let's add a second note instead.<br>
+  Title: <br><i>The end is near.</i><br>
+  Text: <br><i>And now the end is near my friend.<br>
+  Very near...<br>
+  Famous last words.</i><br>
+  Here is the third one.<br><br>
+  Title: <br><i>Credits</i><br>
+  Text: <br><i>Editor, game and game engine made by<br>
+  Malte Kosian<br>
+  You can contact me @maltekosian<br>
+  via twitter, facebook, google or at linkedin<br>
+  &copy; 2014-05-31</i><br>
+  <br>Now you should save.<br>
+  Notes needs connections.<br>
+  To add a connection choose the 'add connection'<br>
+  from a note's menu.<br>
+  The connection box opens.<br>
+  A connection has a text. The text is shown as <br>
+  a choosable option like a html link.<br>
+  This story game needs following connctions:<br>
+  From start to end with the text:<br>
+  <i>Go to the end</i><br>
+  From start to credits with the text:<br>
+  <i>Credits</i><br>
+  From credits to start with the text:<br>
+  <i>Back to the start</i><br>
+  From credits to end with the text:<br>
+  <i>Forward to the end</i><br>
+  From end to credits with the text:<br>
+  <i>Credits</i><br>
+  <br>Save the game again.<br>
+  Also export the story to store it on your harddrive.<br>
+  Run a test by pushing the 'test game' button.<br>
+  You can stop the test run with the 'stop test' button.<br>
+  <br>
+  That's it.<br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+<h1>How the editor look like:</h1>
+  <div>
+ <h2>The views of the finished tutorial example in editor.</h2>
+  The tutorial example will look like this in the note editor:<br>
+    <img src="img/Screenshot note.png" style="width: 345px;"/><br>
+    <br>
+  The script editor will show this:<br>
+    <img src="img/Screenshot script.png" style="width: 345px;"/><br>
+    <br>
+  And that's how a test run looks like:<br>
+    <img src="img/Screenshot game.png" style="width: 345px;"/><br>
+    <br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+>>>>>>> origin/master
  <h1>the note editor</h1>
  <div>
  <h2>With the 'add note' button you insert a new note to the game.</h2>
@@ -1371,7 +3511,11 @@ document.body.appendChild(game_cvs);
  right corner). Choose the option 'edit note'.<br>
  The note box opens in the upper left corner.<br>
  </div>
+<<<<<<< HEAD
 </div><div>
+=======
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+>>>>>>> origin/master
  <h1>the script editor</h1>
  <div>
  <h2>Here you can change the code of the game engine.</h2>
@@ -1383,23 +3527,38 @@ document.body.appendChild(game_cvs);
  <a href="http://www.w3schools.com/js/DEFAULT.asp">w3schools</a> - JavaScript Tutorial, try it yourself examples in every chapter.<br>
  Tip: search engines are your friend.<br>
  </div>
+<<<<<<< HEAD
 </div><div>
+=======
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+>>>>>>> origin/master
 <h1>What is a note?</h1>
   <div>
  <h2>A note is single text.</h2>
  It is like a tweet in twitter.<br>
  But it has connections (links) to other notes.<br>
+<<<<<<< HEAD
  A note has a title, a text and connections. <br> 
  A  note is named 'Passage' in 'twine' - a connection, too.<br>
   </div>
 </div><div>
+=======
+ A note has a title, a text and connections. <br>
+ A  note is named 'Passage' in 'twine' - a connection, too.<br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+>>>>>>> origin/master
  <h1>toggle button</h1>
   <div>
  <h2>Toggle between the two editor modes</h2>
  source script editor to do the programming,<br>
  note editor for the game creation.<br>
   </div>
+<<<<<<< HEAD
 </div><div>
+=======
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+>>>>>>> origin/master
  <h1>add note button</h1>
   <div>
  <h2>creates a new note</h2>
@@ -1408,8 +3567,13 @@ document.body.appendChild(game_cvs);
  shows it on the noteeditor screen <br>
  and the note ist on the right of the script editor<br>
   </div>
+<<<<<<< HEAD
   </div><div>
 <h1>Choice between save/load and ex-&import</h1>
+=======
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>Choice between save/load and ex-&import</h1>
+>>>>>>> origin/master
   <div>
  <h2>What should you use?</h2>
  save and load are storing in the browser.<br>
@@ -1420,6 +3584,7 @@ document.body.appendChild(game_cvs);
  <br>
  If you want to pubilish you game, use the 'build'-button.<br>
   </div>
+<<<<<<< HEAD
   </div><div>
 <h1>The build button</h1>
   <div>
@@ -1436,3 +3601,80 @@ document.body.appendChild(game_cvs);
 
  </body>
 </html>
+=======
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The build button</h1>
+  <div>
+ <h2>Building the final version of your game.</h2>
+ If you tested you game and code carefully, click the<br>
+ 'build'-button to download the final version of your<br>
+ game.<br>
+ It is a single webpage file with all data and source<br>
+ will you need to publish the game in the internet.<br>
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The install button</h1>
+  <div>
+ <h2>Firefox users can install the editor.</h2>
+ Users of the Firefox Browser can install this editor<br>
+ directly to the computer.<br>
+ You can find the install button in the preferences<br>
+ dialog box.<br>
+ After a long golden day I've finished the 'native' node-webkit based<br>
+Application of hogventure's Draftercraft for <br>
+<a href="http://hogventure.com/download/HDCwin.exe" target="_blank">Windows in a 32bit version,</a><br>
+<a href="http://hogventure.com/download/HDCosx.dmg" target="_blank">mac OSX 10.7+ 64bit version, </a><br>
+<a href="http://hogventure.com/download/HDClinux32.zip" target="_blank">Linux32</a> and 
+<a href="http://hogventure.com/download/HDClinux64.zip" target="_blank">Linux64</a>.<br>
+If node-webkit isn't able to run on newer distributions such as<br>Ubuntu 13.04+,
+Fedora 18+, Arch, Gentoo, derivatives of the above or so,<br>
+you might follow this link for help.<br>
+<a href="https://github.com/rogerwang/node-webkit/wiki/The-solution-of-lacking-libudev.so.0" target="_blank">https://github.com/rogerwang/node-webkit/wiki/The-solution-of-lacking-libudev.so.0</a><br>
+Although I hope, you won't need this link, because I added the script 'hdc' to start the app.<br>
+You may link this to the desktop. Have fun and create great games.<br>
+ <br>  
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The Preferences dialog</h1>
+  <div>
+ <h2>What preferences can you use?</h2>
+ <ul>
+ <li><b>install</b> in firefox and do not save, just close</li>
+  <li><b>extensions</b> do not save, just close</li>
+  <li><b>how to store</b> <ul>
+  <li>in the browser local store</li>
+  <li>on your computer</li>
+  <li>with dropbox, if you have a dropbox account</li>
+  </ul></li>
+  <li><b>source codes</b> in in the code editor and to use in builds</li>
+  <li><b>game title</b> in firefox and do not save, just close</li>
+ </ul>
+ <img src="img/Screenshot pref.png" style="width: 345px;"/>
+ <br>The media extension is the only avaiable and <br>
+ working one.<br>
+ Other will come.<br>
+ <br>  
+  </div>
+</div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
+ <h1>The extensions</h1>
+  <div>
+ <h2>Currently the extensions are experimental</h2>
+ You activate the usage of extensions in the preferences<br>
+ dialoy box.<br>
+ <img src="img/Screenshot mediaext.png" style="width: 345px;"/><br>
+ The media extension is the only avaiable and <br>
+ working one.<br>
+ Other will come.<br><br>
+ <br>  
+  </div>
+</div>
+<!--end-->
+<button onclick="getElement('help').style.display = 'none';" class="closeBoxButton" style="top: 1px;">X</button>
+</div>
+<!-- UserVoice JavaScript SDK (only needed once on a page) -->
+
+<!-- A tab to launch the Classic Widget -->
+
+  </body>
+</html>
+>>>>>>> origin/master

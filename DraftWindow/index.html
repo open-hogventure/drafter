@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Frameless Window</title>
+<!--link rel="stylesheet" type="text/css" href="style.css" />
+<script src="titlebar.js"></script-->
+<script src="DraftWindow.js"></script>
+<link rel="stylesheet" href="mini-fnt.css">
+</head>
+<body style="background: #333; -webkit-app-region: drag;">
+<div style="width: 100%; text-align: center; font-family: sans-serif; font-size: 15px; font-weight: bold; color: white; height: 25px;"><div id="mac-button-group">
+<button id="mac-close"><span class="icon-cancel-circled"></span></button>
+<button id="mac-mini"><span class="icon-minus-circled"></span></button>
+<button id="mac-maxi"><span class="icon-plus-circled"></span></button>
+</div>
+<img id="icon_logo" src="icon_logo24.png" style="float:left; width: 20px; height: 20px;"/>
+<span sytle="-webkit-user-select: none; -webkit-app-region: drag;">Hogventure Draftercraft</span>
+<div style="float: right;" id="window-button-group">
+  <button id="mini-window-button"><span class="icon-minus" style="position: relative; top: 5px;"></span></button>
+  <button id="maxi-window-button"><span class="icon-doc-landscape"><span></button>
+  <button id="close-window-button"><span class="icon-cancel"></span></button>
+</div>
+<button id="mac-fullsize" class="icon-resize-full"></button>
+<button id="mac-window-debug" class="windows" onclick="dev();"><span class="icon-eye"></span></button>
+
+</div>
+<iframe src="https://hogventure.com/draft" style="width: 100%; height: 100%; -webkit-app-region: no-drag;" nwdisable nwfaketop></iframe>
+</body>
+</html>

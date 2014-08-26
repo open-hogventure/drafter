@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <script>
+(
+  function(_win) {
+    var werdnaEngine  = {};
+    werdnaEngine.ctx = null;
+    werdnaEngine.canvas = null;
+    werdnaEngine.game = null;
+    werdnaEngine.direction = 0;
+    /**
+    @property world
+    */
+    werdnaEngine.world = {
+      map: null,
+      view: null,
+      cubes: []
+    };
+    /**
+    @property camera
+    */
+    werdnaEngine.camera = {
+      x: 0,
+      y: 0,
+      z: 400,
+      rx: 0,
+      ry: 0,
+      rz: 0,
+      depth: 250,
+      screen: null,
+      width: null,
+      height: null,
+      offsetX: null,
+      offsetY: null
+    };
+    //werdnaEngine.key = {};
+    //werdnaEngine.key.keys = [];
+
+    /**
+    */
+    werdnaEngine.mouse = {};
+    werdnaEngine.mouse.isDown = false;
+    werdnaEngine.mouse.x = 0;
+    werdnaEngine.mouse.y = 0;
+    werdnaEngine.mouse.z = 0;
+
+    werdnaEngine.gameStart = function(_view) {
+      if (_view == null) {
+        werdnaEngine.world.view = [[0,0,0],[0,0,0],[0,0,0]];
+        werdnaEngine.world.cubes.push( new Cube(-200,0,-250) );
+        werdnaEngine.world.cubes.push( new Cube(0,0,-250) );
+        werdnaEngine.world.cubes.push( new Cube(200,0,-250) );
+        //
+        werdnaEngine.world.cubes.push( new Cube(-200,0,-50) );
+        werdnaEngine.world.cubes.push( new Cube(0,0,-50) );
+        werdnaEngine.world.cubes.push( new Cube(200,0,-50) );
+        //
+        werdnaEngine.world.cubes.push( new Cube(-200,0,150) );
+        werdnaEngine.world.cubes.push( new Cube(0,0,150) );
+        werdnaEngine.world.cubes.push( new Cube(200,0,150) );
+        for (var j = 0; j < werdnaEngine.world.cubes.length; j++) {
+
+          for (var i=0; i<werdnaEngine.world.cubes[j].raster.length; i++){
+            var side = werdnaEngine.world.cubes[j].raster[i];
+            side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+            side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+            side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+            side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+            werdnaEngine.world.cubes[j].raster[i] = side;
+          }
+          for(var i=0; i<werdnaEngine.world.cubes[j].sides.length; i++){
+            var side = werdnaEngine.world.cubes[j].sides[i];
+            side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+            side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+            side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+            side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+            //side.p5 = werdnaEngine.world.cubes[j].vertices[side.p5];
+            werdnaEngine.world.cubes[j].sides[i] = side;
+          }
+        }
+      } else {
+        console.log('new view ->');
+        console.log(_view);
+        werdnaEngine.world.view = _view;
+      }
+
+
+      werdnaEngine.camera.screen.clearRect(0, 0, werdnaEngine.camera.width, werdnaEngine.camera.height);
+      werdnaEngine.camera.screen.strokeStyle = "red";
+
+      werdnaEngine.camera.ry = -(werdnaEngine.mouse.x/werdnaEngine.camera.width - 0.5)*Math.PI*2;
+      werdnaEngine.camera.rx = (werdnaEngine.mouse.y/werdnaEngine.camera.height)*Math.PI/2;
+
+      werdnaEngine.camera.y = -Math.sin(werdnaEngine.camera.rx)*300;
+      ryRadius = Math.cos(werdnaEngine.camera.rx)*300;
+
+      werdnaEngine.camera.x = Math.sin(werdnaEngine.camera.ry)*ryRadius;
+      werdnaEngine.camera.z = -Math.cos(werdnaEngine.camera.ry)*ryRadius;
+
+      werdnaEngine.camera.screen.strokeStyle = "#fff";
+      //werdnaEngine.camera.screen.fillStyle = 'rgba(0,0,0,0.5)';
+      werdnaEngine.render(werdnaEngine.world, werdnaEngine.camera);
+    };
+
+    werdnaEngine.render = function (world, camera) {
+      camera.screen.fillStyle = '#000';
+      camera.screen.fillRect(0, 0, camera.width, camera.height);
+      var toStroke = [];
+      var toFill = [];
+      for (var j = 0; j < world.cubes.length; j++) {
+        for(var i=0; i<world.cubes[j].vertices.length; i++){
+          var vertex = world.cubes[j].vertices[i];
+
+          var dx = vertex.x - camera.x;
+          var dy = vertex.y - camera.y;
+          var dz = vertex.z - camera.z;
+
+          var d1x = Math.cos(camera.ry)*dx + Math.sin(camera.ry)*dz;
+          var d1y = dy;
+          var d1z = Math.cos(camera.ry)*dz - Math.sin(camera.ry)*dx;
+
+          var d2x = d1x;
+          var d2y = Math.cos(camera.rx)*d1y - Math.sin(camera.rx)*d1z;
+          var d2z = Math.cos(camera.rx)*d1z + Math.sin(camera.rx)*d1y;
+
+          var d3x = Math.cos(camera.rz)*d2x + Math.sin(camera.rz)*d2y;
+          var d3y = Math.cos(camera.rz)*d2y - Math.sin(camera.rz)*d2x;
+          var d3z = d2z;
+
+          var scale = camera.depth / d3z;
+          vertex.posX = scale * d3x + camera.offsetX;
+          vertex.posY = scale * d3y + camera.offsetY;
+          vertex.posZ = scale;
+        }
+        /*
+        for(var i=0; i<world.cubes[j].lines.length; i++){
+          var line = world.cubes[j].lines[i];
+          //if(line.p1.posZ > 0 && line.p2.posZ > 0){
+            toStroke.push({
+              posX1: line.p1.posX,
+              posY1: line.p1.posY,
+              posX2: line.p2.posX,
+              posY2: line.p2.posY,
+              posZ: (line.p1.posZ + line.p2.posZ)/2
+            });
+          //}
+        }*/
+        for(var i=0; i<world.cubes[j].raster.length; i++){
+          var side = world.cubes[j].raster[i];
+          if(!(i==2 && world.view[(j-(j%3))/3][j%3] != 6) ){
+            toStroke.push({
+              posX1: side.p1.posX,
+              posY1: side.p1.posY,
+              posX2: side.p2.posX,
+              posY2: side.p2.posY,
+              posX3: side.p3.posX,
+              posY3: side.p3.posY,
+              posX4: side.p4.posX,
+              posY4: side.p4.posY,
+              posZ: (side.p1.posZ + side.p2.posZ)/2
+            });
+          }
+        }
+
+        if (world.view[(j-(j%3))/3][j%3] >= 1) {
+          for(var i=0; i<world.cubes[j].sides.length; i++){
+            var side = world.cubes[j].sides[i];
+            if(!(i==2 && j%3==0) &&
+              !((i==2 || i==0) && world.view[(j-(j%3))/3][j%3-1] >= 1) &&
+              !(i==4 && world.view[(j-(j%3))/3][j%3] != 2) &&
+              !(i==5 && world.view[(j-(j%3))/3][j%3] != 3)
+            ) {
+              toFill.push({
+                posX1: side.p1.posX,
+                posY1: side.p1.posY,
+                posX2: side.p2.posX,
+                posY2: side.p2.posY,
+                posX3: side.p3.posX,
+                posY3: side.p3.posY,
+                posX4: side.p4.posX,
+                posY4: side.p4.posY,
+                posZ: (side.p1.posZ + side.p2.posZ)/2
+              });
+            }
+          }
+        }
+      }
+      toStroke.sort(function(a, b){
+        return a.posZ - b.posZ;
+      });
+      /*toFill.sort(function(a, b){
+        return Math.abs(a.posX1-a.posX2) + Math.abs(b.posX1-b.posX2);
+      });*/
+      camera.screen.lineWidth = 1;
+      for(var i=0; i<toStroke.length; i++){
+        camera.screen.beginPath();
+        camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
+        camera.screen.lineTo(toStroke[i].posX2, toStroke[i].posY2);
+        camera.screen.lineTo(toStroke[i].posX3, toStroke[i].posY3);
+        camera.screen.lineTo(toStroke[i].posX4, toStroke[i].posY4);
+        camera.screen.lineTo(toStroke[i].posX1, toStroke[i].posY1);
+        camera.screen.stroke();
+      }
+      camera.screen.fillStyle = '#000';
+      camera.screen.lineWidth = 2;
+      for(var i=0; i < toFill.length; i++){
+        camera.screen.beginPath();
+        camera.screen.moveTo(toFill[i].posX1, toFill[i].posY1);
+        camera.screen.lineTo(toFill[i].posX2, toFill[i].posY2);
+        camera.screen.lineTo(toFill[i].posX3, toFill[i].posY3);
+        camera.screen.lineTo(toFill[i].posX4, toFill[i].posY4);
+        camera.screen.lineTo(toFill[i].posX1, toFill[i].posY1);
+        camera.screen.fill();
+        camera.screen.stroke();
+      }
+
+      werdnaEngine.ctx.fillStyle = '#000';
+      werdnaEngine.ctx.lineWidth = 1;
+      var ii = 0;
+      var jj = 0;
+      switch (werdnaEngine.direction) {
+        case 1:
+          ii = werdnaEngine.dungeon.length-1;
+          jj = 0;
+        break;
+        case 2:
+          ii = werdnaEngine.dungeon.length-1;
+          jj = werdnaEngine.dungeon.length-1;
+        break;
+        case 3:
+          jj = werdnaEngine.dungeon.length-1;
+          ii = 0;
+        break;
+        default:
+        break;
+      }
+      //if (werdnaEngine.inArray(werdnaEngine.player.map,werdnaEngine.level)) {
+      //
+        console.log(ii,jj,werdnaEngine.direction % 2);
+        if (werdnaEngine.direction % 2 == 0) {
+          for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+            werdnaEngine.ctx.fillStyle = '#000';
+            werdnaEngine.ctx.strokeStyle = '#fff';
+            for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+              werdnaEngine.ctx.fillStyle = '#000';
+              werdnaEngine.ctx.strokeRect(
+                  werdnaEngine.canvas.width-15-Math.abs(jj-j)*10,
+                  5+Math.abs(ii-i)*10, 8, 8);
+              var value = werdnaEngine.dungeon[i][j];
+              if (value == 2) {
+                werdnaEngine.ctx.fillStyle = '#bbb';
+              } else if ( value == 1) {
+                werdnaEngine.ctx.fillStyle = '#fff';
+              }
+              werdnaEngine.ctx.fillRect(
+                        werdnaEngine.canvas.width-15-Math.abs(jj-j)*10,
+                        5+Math.abs(ii-i)*10, 8, 8);
+            }
+          }
+          werdnaEngine.ctx.fillStyle = '#f00';
+          werdnaEngine.ctx.fillRect(
+              werdnaEngine.canvas.width-15-Math.abs(ii-werdnaEngine.player.x)*10,
+              5+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);
+        } else if(werdnaEngine.direction == 1) {
+          for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+            werdnaEngine.ctx.fillStyle = '#000';
+            werdnaEngine.ctx.strokeStyle = '#fff';
+            for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+              werdnaEngine.ctx.fillStyle = '#000';
+              werdnaEngine.ctx.strokeRect(
+                          werdnaEngine.canvas.width-15-Math.abs(ii-i)*10,
+                          5+Math.abs(jj-j)*10, 8, 8);
+              var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
+              if (value == 2) {
+                werdnaEngine.ctx.fillStyle = '#bbb';
+              } else if ( value == 1) {
+                werdnaEngine.ctx.fillStyle = '#fff';
+              }
+              werdnaEngine.ctx.fillRect(
+                        werdnaEngine.canvas.width-15-Math.abs(i)*10,
+                        5+Math.abs(jj-j)*10, 8, 8);
+            }
+          }
+          werdnaEngine.ctx.fillStyle = '#90f';
+          werdnaEngine.ctx.fillRect(
+              werdnaEngine.canvas.width-15-Math.abs( werdnaEngine.dungeon[0].length-1-werdnaEngine.player.y)*10,
+              5+Math.abs(werdnaEngine.player.x)*10, 8, 8);
+        } else {
+          for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+            werdnaEngine.ctx.fillStyle = '#000';
+            werdnaEngine.ctx.strokeStyle = '#fff';
+            for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+              werdnaEngine.ctx.fillStyle = '#000';
+              werdnaEngine.ctx.strokeRect(
+                          werdnaEngine.canvas.width-15-Math.abs(ii-i)*10,
+                          5+Math.abs(jj-j)*10, 8, 8);
+              var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
+              if (value == 2) {
+                werdnaEngine.ctx.fillStyle = '#bbb';
+              } else if ( value == 1) {
+                werdnaEngine.ctx.fillStyle = '#fff';
+              }
+              werdnaEngine.ctx.fillRect(
+                        werdnaEngine.canvas.width-15-Math.abs(ii-i)*10,
+                        5+Math.abs(j)*10, 8, 8);
+            }
+          }
+          werdnaEngine.ctx.fillStyle = '#f09';
+          werdnaEngine.ctx.fillRect(
+              werdnaEngine.canvas.width-15-Math.abs(werdnaEngine.player.y)*10,
+              5+Math.abs(werdnaEngine.dungeon.length - 1 - werdnaEngine.player.x)*10, 8, 8);
+        }
+      //
+      //}
+    };
+    /**
+    @method inArray
+    @since 2014-07-18
+    @param _array
+    @param _value
+    @return {boolean} true if the value is member of the array
+    */
+    werdnaEngine.inArray = function(_array, _value) {
+      for (var i = 0; i < _array.length; i++) {
+        if (_array[i] == _value) {
+          return true;
+        }
+      }
+      return false;
+    };
+    /**
+    Wizardy like game engine
+    */
+    werdnaEngine.init = function() {
+      console.log('init');
+      werdnaEngine.canvas = createElement('canvas');
+      werdnaEngine.canvas.width = 600;
+      werdnaEngine.canvas.height = 300;
+      werdnaEngine.canvas.style.width = '600px';
+      werdnaEngine.canvas.style.height = '300px';
+      werdnaEngine.canvas.style.position = 'absolute';
+      werdnaEngine.canvas.style.top = '11.2%';
+      werdnaEngine.canvas.style.left = '3%';
+      werdnaEngine.canvas.style.zIndex = '10000';//top of all
+      werdnaEngine.canvas.style.background = 'black';
+      werdnaEngine.canvas.style.position = 'absolute';
+
+      werdnaEngine.ctx = werdnaEngine.canvas.getContext('2d');
+      //werdnaEngine
+      document.body.appendChild(werdnaEngine.canvas);
+
+      werdnaEngine.canvas.addEventListener('click', werdnaEngine.clicker, true);
+      /*werdnaEngine.game = typeof Game != 'undefined' ? new Game() : {};
+      //if  we operate in the editor mode json variable is not set
+
+      if(typeof json == 'undefined') {
+        var json = JSON.stringify({game: editor.game});
+        werdnaEngine.game.load(json['game']);
+      } else {
+        werdnaEngine.game.load(json['game']);
+      }*/
+      //just a generic test method
+      werdnaEngine.dungeon = werdnaEngine.dungeonGenerator();
+      console.log(werdnaEngine.canvas);
+      window.addEventListener("keydown", werdnaEngine.keyDown, false);
+      window.addEventListener("keyup", werdnaEngine.keyUp, false);
+
+      werdnaEngine.camera.screen = werdnaEngine.ctx;
+      werdnaEngine.camera.width = werdnaEngine.canvas.width;
+      werdnaEngine.camera.height = werdnaEngine.canvas.height;
+      werdnaEngine.camera.offsetX = werdnaEngine.canvas.width/2;
+      werdnaEngine.camera.offsetY = werdnaEngine.canvas.height/2;
+
+      werdnaEngine.gameStart(null);
+      werdnaEngine.startAnimation();
+    };
+    /**
+    @property dungeon
+    */
+    werdnaEngine.dungeon = null;
+    /**
+    @property dungeonFields
+    */
+    werdnaEngine.dungeonFields = [['101','000','010'], ['100','001','100'], ['010','000','101'], ['001','100','001'], ['000','010','010'], ['010','010','000'], ['000','110','000'], ['000','011','000'],
+    ['101','000','010'], ['100','001','100'], ['010','000','101'], ['001','100','001'], ['000','010','011'], ['110','010','000'], ['001','110','000'], ['000','011','001']];//, ['100','000','001'], ['001','000','100'], ['000','010','000']];
+    /**
+    just a generic test method
+    @method dungeonGenerator
+    */
+    werdnaEngine.dungeonGenerator = function() {
+      var fields = [[1,1,1,1,1,1,1,1,1,1,1],[1], [1], [1], [1], [1], [1], [1], [1], [1], [1,1,1,1,1,1,1,1,1,1,1]];
+      var old = [-1,-1,-1];
+      var sizeX = 3;
+      var sizeY = 3;
+      for ( var i = 0; i < sizeX; i++) {
+        var o = -1;
+        var block = null;
+        var b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+
+        for ( var j = 0; j < sizeY; j++) {
+          var b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+          while (b == old[j] || o == b) {
+            b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+          }
+          block = werdnaEngine.dungeonFields[b];
+          fields[1+3*i].push(parseInt(block[0][0]));
+          fields[1+3*i].push(parseInt(block[0][1]));
+          fields[1+3*i].push(parseInt(block[0][2]));
+
+          fields[1+3*i+1].push(parseInt(block[1][0]));
+          fields[1+3*i+1].push(parseInt(block[1][1]));
+          fields[1+3*i+1].push(parseInt(block[1][2]));
+
+          fields[1+3*i+2].push(parseInt(block[2][0]));
+          fields[1+3*i+2].push(parseInt(block[2][1]));
+          fields[1+3*i+2].push(parseInt(block[2][2]));
+          o = b;
+          o[j] = b;
+        }
+        fields[1+3*i].push(1);
+        fields[1+3*i+1].push(1);
+        fields[1+3*i+2].push(1);
+      }
+      //console.log(fields);
+      var rnd = 1+ Math.floor(Math.random()*9);
+      var rnd2 = 1+ Math.floor(Math.random()*9);
+      var rndOld2 = rnd2;
+      var rndOld = rnd;
+      var count2 = 0;
+      while (count2 < 3) {
+        rndOld = rnd;
+        rndOld2 = rnd2;
+
+        while (rnd == rndOld && rnd2 == rndOld2) {
+          rnd = 1+ Math.floor(Math.random()*9);
+          rnd2 = 1+ Math.floor(Math.random()*9);
+        }
+        if (fields[rnd][rnd2] == 1) {
+          count2++;
+          fields[rnd][rnd2] = 2;
+        }
+      }
+      console.log(fields);
+
+      return fields;
+    };
+    /**
+
+    */
+    werdnaEngine.player = {
+      x: null,
+      y: null,
+      health: 0,
+      power: 0,
+      magic: 0,
+      status: 0,//problems solved
+      positive: 0,
+      negative: 0,
+      map: [],//can see the level map
+      relations: []
+    };
+
+    werdnaEngine.clicked = false;
+    /**
+    on click event what to do?
+    */
+    werdnaEngine.clicked = false;
+    /**
+    on click event what to do?
+    */
+    werdnaEngine.clicker = function(eve) {
+      console.log('x:'+eve.pageX+', y:'+eve.pageY);
+      var data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)), 
+                  y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
+      while (werdnaEngine.dungeon[data.y+1][data.x] >= 1) {
+        data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)), 
+                y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
+      }
+      data.start = werdnaEngine.dungeon[data.y][data.x];
+      if (data.start == 0) {
+        werdnaEngine.clicked = true;
+        werdnaEngine.setView(data);
+      }
+    };
+
+    werdnaEngine.setView = function(data) {
+      werdnaEngine.player.x = data.x;
+      werdnaEngine.player.y = data.y + 1;
+
+      var view = [[
+        werdnaEngine.dungeon[data.y-1][data.x-1],
+        werdnaEngine.dungeon[data.y-1][data.x],
+        werdnaEngine.dungeon[data.y-1][data.x+1]],[
+        werdnaEngine.dungeon[data.y][data.x-1],
+        werdnaEngine.dungeon[data.y][data.x],
+        werdnaEngine.dungeon[data.y][data.x+1]],[
+        werdnaEngine.dungeon[data.y+1][data.x-1],
+        werdnaEngine.dungeon[data.y+1][data.x],
+        werdnaEngine.dungeon[data.y+1][data.x+1]
+      ]];
+      werdnaEngine.gameStart(view);      
+    };
+    /**
+    */
+    werdnaEngine.keyDown = function(e){
+
+      var key = e.keyCode || e.which;
+      console.log('key -> '+key);
+      /*if(key in werdnaEngine.key.keys){
+        werdnaEngine.key.keys[key] = 1;
+        e.preventDefault();
+        return false;
+      }else{
+        return true;
+      }	*/
+    };
+    /**
+    */
+    werdnaEngine.keyUp = function(e){
+      var key = e.keyCode || e.which;
+      console.log('key -> '+key);
+      var data = {
+        x: werdnaEngine.player.x,
+        y: werdnaEngine.player.y,
+        start: null,
+        direction: werdnaEngine.direction
+      };
+      switch (key) {
+        case 37:
+        //left
+        //data.x = data.x + 1;
+        werdnaEngine.dungeon = werdnaEngine.rotateView(true);
+        var oldx = werdnaEngine.player.x;
+        var oldy = werdnaEngine.player.y;
+        data.x = oldy;//left
+        data.y = werdnaEngine.dungeon.length - 1 - oldx;
+        data.direction++;
+        break;
+        case 38:
+        //up
+        data.y = data.y - 1;
+        break;
+        case 39:
+        //right
+        //data.x = data.x - 1;
+        werdnaEngine.dungeon = werdnaEngine.rotateView(false);
+        var oldx = werdnaEngine.player.x;
+        var oldy = werdnaEngine.player.y;
+        data.y = oldx;//right
+        data.x = werdnaEngine.dungeon.length - 1 - oldy;
+        data.direction--;
+        break;
+        case 40:
+        //down
+        data.y = data.y + 1;
+        break;
+        default:
+        break;
+      }
+
+      data.start = werdnaEngine.dungeon[data.y][data.x];
+      for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+        var t = '';
+        for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+          t = t + werdnaEngine.dungeon[i][j];
+        }
+        console.log(t);
+      }
+
+      if (data.start == 0) {
+        if (data.direction < 0) {
+          data.direction = 3;
+        }
+        werdnaEngine.direction = Math.abs(data.direction % 4);
+        werdnaEngine.player.x = data.x;
+        werdnaEngine.player.y = data.y;
+        var map = [[
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-1] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+1] : -1],[
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-1] : -1 ,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+1] : -1],[
+          werdnaEngine.dungeon[data.y][data.x-1],
+          werdnaEngine.dungeon[data.y][data.x],
+          werdnaEngine.dungeon[data.y][data.x+1]]];
+        /*
+        for (var i = 0; i < map.length; i++) {
+          var t = '';
+          for (var j = 0; j < map[i].length; j++) {
+            t = t + map[i][j];
+          }
+          console.log(t);
+        }*/
+        werdnaEngine.gameStart(map);
+      }
+    };
+    /**
+
+    */
+    werdnaEngine.rotateView = function(dirLeft) {
+      /*if (dirLeft) {
+        werdnaEngine.mouse.x += werdnaEngine.canvas.width/4;
+      } else {
+        werdnaEngine.mouse.x -= werdnaEngine.canvas.width/4;
+      }*/
+      var copyDungeon = [];
+      if (!dirLeft) {
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          copyDungeon[i] = [];
+          for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+            copyDungeon[i][j] = werdnaEngine.dungeon[werdnaEngine.dungeon[i].length - j - 1][i];
+          }
+        }
+      } else {
+        //copyDungeon = werdnaEngine.dungeon;
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+            if (i == 0) {
+              copyDungeon[j] = [];
+            }
+            copyDungeon[j][i] = werdnaEngine.dungeon[i][werdnaEngine.dungeon[i].length - j - 1];
+          }
+        }
+      }
+      return copyDungeon;
+    };
+    /**
+
+    */
+    werdnaEngine.startAnimation = function(){
+
+      var requestFrame = (function(){
+        return window.requestAnimationFrame	||
+        window.webkitRequestAnimationFrame	||
+        window.mozRequestAnimationFrame		||
+        window.oRequestAnimationFrame		||
+        window.msRequestAnimationFrame		||
+        function(callback){
+          window.setTimeout(callback, 1000 / 60);
+        };
+      })();
+
+      var lastFrameTime = +new Date();
+      var frameRequested = function(t){
+        //if(werdnaEngine.event.onEnterFrame){
+        //	werdnaEngine.event.onEnterFrame(t-lastFrameTime);
+        //}
+        requestFrame(frameRequested);
+        lastFrameTime = t;
+      };
+      requestFrame(frameRequested);
+
+    };
+
+    /**
+    really self removing
+    */
+    werdnaEngine.exit = function() {
+      document.body.removeChild(werdnaEngine.canvas);
+      document.body.removeChild(getElement('editor_extension'));
+    };
+    //
+    _win.werdnaEngine = werdnaEngine;
+
+  }//no semicolon here!
+)(window)
+
+function createElement(_t) {
+  return document.createElement(_t);
+}
+
+function getElement(_t) {
+  return document.getElementById(_t);
+}
+//a Wizardy I like game engine
+
+/**
+@class Cube
+@since 2014-07-15
+*/
+function Cube(_px, _py, _pz) {
+
+  this.posX = _px;
+  this.posY = _py;
+  this.posZ = _pz;
+  this.vertices = [
+    {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+    {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+    {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},
+    {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},
+    {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+    {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+    {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},
+    {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},
+    {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+    {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+    {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+    {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+    {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+    {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+    {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+    {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+    {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+    {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+  ];
+  this.lines = [
+    {p1: 0, p2: 1},
+    {p1: 1, p2: 2},
+    {p1: 2, p2: 3},
+    {p1: 3, p2: 0},
+    //
+    {p1: 4, p2: 5},
+    {p1: 5, p2: 6},
+    {p1: 6, p2: 7},
+    {p1: 7, p2: 4},
+    //
+    {p1: 0, p2: 4},
+    {p1: 1, p2: 5},
+    {p1: 2, p2: 6},
+    {p1: 3, p2: 7}
+  ];
+  this.sides = [
+    //{p1:0,p2:1,p3:5,p4:4},
+    //{p1:4,p2:5,p3:6,p4:7},
+    {p1:7,p2:6,p3:2,p4:3},
+    {p1:0,p2:4,p3:7,p4:3},
+    {p1:5,p2:1,p3:2,p4:6},
+    {p1:0,p2:1,p3:2,p4:3},
+    {p1:8,p2:9,p3:10,p4:11},//door
+    {p1:12,p2:13,p3:10,p4:11}//map text note
+  ];
+  this.raster = [
+    {p1:0,p2:1,p3:5,p4:4},
+    {p1:7,p2:6,p3:2,p4:3},
+    {p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+  ];
+  this.map = null;
+  /**
+  @method
+  */
+  this.setPosition = function(posX, posY, posZ) {
+    this.posX = posX;
+    this.posY = posY;
+    this.posZ = posZ;
+  };
+}
+  </script>
+  <script>
+window.addEventListener("load", werdnaEngine.init, true);
+  </script>
+  <style>
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			html, body{
+				position: relative;
+			}
+		</style>
+ </head>
+ <body>
+ </body>
+</html>

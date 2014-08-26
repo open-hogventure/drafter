@@ -1,0 +1,1495 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+  <title>Document</title>
+
+ <script id="werdnaengine">
+(
+  function(_win) {
+    var werdnaEngine  = {};
+    werdnaEngine.ctx = null;
+    werdnaEngine.canvas = null;
+    werdnaEngine.game = null;
+    werdnaEngine.direction = 0;
+    /**
+    @property world
+    */
+    werdnaEngine.world = {
+      map: null,
+      view: null,
+      cubes: []
+    };
+    /**
+    @property camera
+    */
+    werdnaEngine.camera = {
+      x: 0,
+      y: 0,
+      z: 400,
+      rx: 0,
+      ry: 0,
+      rz: 0,
+      depth: 250,
+      cam: null,//internal offscreen canvas
+      screen: null,
+      width: null,
+      height: null,
+      offsetX: null,
+      offsetY: null
+    };
+    //werdnaEngine.key = {};
+    //werdnaEngine.key.keys = [];
+
+    /**
+    */
+    werdnaEngine.mouse = {};
+    werdnaEngine.mouse.isDown = false;
+    werdnaEngine.mouse.x = 0;
+    werdnaEngine.mouse.y = 0;
+    werdnaEngine.mouse.z = 0;
+    //if true, allowed to walk into blocks
+    werdnaEngine.editMode = false;
+
+    werdnaEngine.prepareView = function(_view) {
+      console.log(_view);
+      if (_view == null) {
+        werdnaEngine.world.view = [[0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],
+               [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0]];
+        _view = werdnaEngine.world.view;
+      }
+      werdnaEngine.world.cubes = [];
+      console.log(werdnaEngine.world.cubes);
+      var model = null;
+      for (var i = 0; i < _view.length; i++) {
+        for (var j = 0; j < _view[i].length; j++) {
+          switch (_view[i][j]) {
+            case 0: model = new Tile(-800+200*j,0,-450+200*i);
+            break;
+            case 1: model = new TileCeiling(-800+200*j,0,-450+200*i);
+            break;
+            case 2: model = new TileMessage(-800+200*j,0,-450+200*i);
+            break;
+            //
+            case 10: model = new Block(-800+200*j,0,-450+200*i);
+            break;
+            case 11: model = new BlockDoor(-800+200*j,0,-450+200*i);
+            break;
+            case 12: model = new BlockMessage(-800+200*j,0,-450+200*i);
+            break;
+            //
+            case 20: model = new Cube(-800+200*j,0,-450+200*i);
+            break;
+            case 21: model = new CubeDoor(-800+200*j,0,-450+200*i);
+            break;
+            case 22: model = new CubeMessage(-800+200*j,0,-450+200*i);
+            break;
+            default:
+              model = new Tile(-800+200*j,0,-450+200*i);
+            break;
+          }
+          werdnaEngine.world.cubes.push( model );
+        }
+      }
+        
+      for (var j = 0; j < werdnaEngine.world.cubes.length; j++) {
+        /*for (var i=0; i<werdnaEngine.world.cubes[j].raster.length; i++){
+          var side = werdnaEngine.world.cubes[j].raster[i];
+          //replace this ->
+          side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+          side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+          side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+          side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+          //this will replace the code above
+          //for (var k = 0; k < side.p.length; k++) {
+          //  side.p[k] = werdnaEngine.world.cubes[j].vertices[side.p[k]];
+          //}
+          werdnaEngine.world.cubes[j].raster[i] = side;
+        }*/
+        for(var i=0; i<werdnaEngine.world.cubes[j].sides.length; i++){
+          var side = werdnaEngine.world.cubes[j].sides[i];
+          //replace this ->
+          /*side.p1 = werdnaEngine.world.cubes[j].vertices[side.p1];
+          side.p2 = werdnaEngine.world.cubes[j].vertices[side.p2];
+          side.p3 = werdnaEngine.world.cubes[j].vertices[side.p3];
+          side.p4 = werdnaEngine.world.cubes[j].vertices[side.p4];
+          this will replace the code above*/
+          for (var k = 0; k < side.p.length; k++) {
+            side.p[k] = werdnaEngine.world.cubes[j].vertices[side.p[k]];
+          }
+          werdnaEngine.world.cubes[j].sides[i] = side;
+        }
+      }
+		  //console.log(werdnaEngine.world.view.length,werdnaEngine.world.view[0].length);
+      //console.log('new view ->',_view);
+      werdnaEngine.world.view = _view;
+      console.log('new view ->',werdnaEngine.world.view);
+      
+      werdnaEngine.camera.screen.clearRect(0, 0, werdnaEngine.camera.width, werdnaEngine.camera.height);
+      werdnaEngine.camera.screen.strokeStyle = "#000";
+
+      werdnaEngine.camera.ry = -(werdnaEngine.mouse.x/werdnaEngine.camera.width - 0.5)*Math.PI*2;
+      werdnaEngine.camera.rx = (werdnaEngine.mouse.y/werdnaEngine.camera.height )*Math.PI/2;
+
+      werdnaEngine.camera.y = -Math.sin(werdnaEngine.camera.rx)*500;
+      ryRadius = Math.cos(werdnaEngine.camera.rx)*500;
+
+      werdnaEngine.camera.x = Math.sin(werdnaEngine.camera.ry)*ryRadius;
+      werdnaEngine.camera.z = -Math.cos(werdnaEngine.camera.ry)*ryRadius;
+
+      werdnaEngine.camera.screen.strokeStyle = "#000";
+      //werdnaEngine.camera.screen.fillStyle = 'rgba(0,0,0,0.5)';
+      werdnaEngine.render(werdnaEngine.world, werdnaEngine.camera);
+    };
+
+    werdnaEngine.render = function (world, camera) {
+	    camera.screen.fillStyle = '#ccc';
+      camera.screen.fillRect(0, camera.height/2, camera.width, camera.height/2);
+	    camera.screen.fillStyle = '#000';
+      camera.screen.fillRect(0, 0, camera.width, camera.height/2 + 22);
+	    camera.screen.fillStyle = '#ccc';
+      var toStroke = [];
+      var toFill = [];
+	    console.log('world.cubes->'+world.cubes.length,world.cubes);
+      
+      for (var j = 0; j < world.cubes.length; j++) {
+        //console.log('>>>'+((j-(j%9))/9),j%9);
+        for(var i = 0; i < world.cubes[j].vertices.length; i++){
+          var vertex = world.cubes[j].vertices[i];
+
+          var dx = vertex.x - camera.x;
+          var dy = vertex.y - camera.y;
+          var dz = vertex.z - camera.z;
+
+          var d1x = Math.cos(camera.ry)*dx + Math.sin(camera.ry)*dz;
+          var d1y = dy;
+          var d1z = Math.cos(camera.ry)*dz - Math.sin(camera.ry)*dx;
+
+          var d2x = d1x;
+          var d2y = Math.cos(camera.rx)*d1y - Math.sin(camera.rx)*d1z;
+          var d2z = Math.cos(camera.rx)*d1z + Math.sin(camera.rx)*d1y;
+
+          var d3x = Math.cos(camera.rz)*d2x + Math.sin(camera.rz)*d2y;
+          var d3y = Math.cos(camera.rz)*d2y - Math.sin(camera.rz)*d2x;
+          var d3z = d2z;
+
+          var scale = camera.depth / d3z;
+          vertex.posX = scale * d3x + camera.offsetX;
+          vertex.posY = scale * d3y + camera.offsetY;
+          vertex.posZ = scale;
+        }
+        /*if (world.view[(j-(j%9))/9][j%9] >= 0 && world.view[(j-(j%9))/9][j%9] <= 9) {
+          for(var i = 0; i < world.cubes[j].sides.length; i++){
+            var side = world.cubes[j].sides[i];
+            //console.log('stroke side->',side);              
+            if(world.view[(j-(j%9))/9][j%9] < 10 &&
+              !(i==2 && world.view[(j-(j%9))/9][j%9] != 6) )
+            {
+              toStroke.push({
+                posX1: side.p[0].posX,
+                posY1: side.p[0].posY,
+                posX2: side.p[1].posX,
+                posY2: side.p[1].posY,
+                posX3: side.p[2].posX,
+                posY3: side.p[2].posY,
+                posX4: side.p[3].posX,
+                posY4: side.p[3].posY,
+                posZ: (side.p[1].posZ + side.p[2].posZ + side.p[3].posZ + side.p[0].posZ)/4,
+                posX: (side.p[1].posX + side.p[2].posX + side.p[3].posX + side.p[0].posX) / 4,
+                posY: (side.p[1].posY + side.p[2].posY + side.p[3].posY + side.p[0].posY) / 4
+              });    
+            }
+          }
+        }*/
+        if (world.view[(j-(j%9))/9][j%9] >= 0) {
+          for(var i=0; i<world.cubes[j].sides.length; i++){
+            var side = world.cubes[j].sides[i];
+            console.log('toFill ->',world.cubes[j]);
+            if (world.view[(j-(j%9))/9][j%9] < 10) {
+              cl = '#ccc';
+              lw = 1.0;
+            } else {
+              cl = '#eee';
+              lw = 1.15;
+            }
+            if(!(i==1 && j%9==0) //&&
+               //!((i==1) && world.view[(j-(j%9))/9][j%9-1] >= 10) //&&
+               /* !(i==3 && world.view[(j-(j%9))/9][j%9] != 2) &&
+               !(i==4 && world.view[(j-(j%9))/9][j%9] != 3)*/
+            ) {
+              console.log(side.p);
+              var posX = (side.p[0].posX + side.p[1].posX + side.p[2].posX + side.p[3].posX) / 4;
+              //console.log('stroke posX->'+posX);
+              if ((posX + 25 > 0 && posX <= camera.width + 25) || i == 2) {
+                toFill.push({
+                  posX1: side.p[0].posX,
+                  posY1: side.p[0].posY,
+                  posX2: side.p[1].posX,
+                  posY2: side.p[1].posY,
+                  posX3: side.p[2].posX,
+                  posY3: side.p[2].posY,
+                  posX4: side.p[3].posX,
+                  posY4: side.p[3].posY,
+                  posZ: (side.p[1].posZ + side.p[2].posZ + side.p[3].posZ + side.p[0].posZ)/4,
+                  posX: (side.p[1].posX + side.p[2].posX + side.p[3].posX + side.p[0].posX) / 4,
+                  posY: (side.p[1].posY + side.p[2].posY + side.p[3].posY + side.p[0].posY) / 4,
+                  fillStyle: cl,
+                  lineWidth: lw
+                });
+              }
+            }
+          }
+        }
+      }
+      //console.log(toStroke);
+      /*toStroke.sort(function(a, b){
+        return a.posZ - b.posZ;
+      });*/
+	    /*toFill.sort(function(a, b){
+        return Math.abs((werdnaEngine.width/2)-b.posX) - Math.abs((werdnaEngine.width/2)-a.posX);
+      });*/
+      toFill.sort(function(a, b){
+        return a.posZ - b.posZ;
+      });
+      /*
+      camera.screen.lineWidth = 1;
+      for(var i=0; i<toStroke.length; i++){
+        camera.screen.beginPath();
+        camera.screen.moveTo(toStroke[i].posX1, toStroke[i].posY1);
+        camera.screen.lineTo(toStroke[i].posX2, toStroke[i].posY2);
+        camera.screen.lineTo(toStroke[i].posX3, toStroke[i].posY3);
+        camera.screen.lineTo(toStroke[i].posX4, toStroke[i].posY4);
+        camera.screen.lineTo(toStroke[i].posX1, toStroke[i].posY1);
+        camera.screen.fill();
+        camera.screen.stroke();
+      }
+      camera.screen.fillStyle = '#eee';*/
+      camera.screen.lineWidth = 1.15;
+      for(var i=0; i < toFill.length; i++){
+        camera.screen.fillStyle = toFill[i].fillStyle;
+        camera.screen.beginPath();
+        camera.screen.moveTo(toFill[i].posX1, toFill[i].posY1);
+        camera.screen.lineTo(toFill[i].posX2, toFill[i].posY2);
+        camera.screen.lineTo(toFill[i].posX3, toFill[i].posY3);
+        camera.screen.lineTo(toFill[i].posX4, toFill[i].posY4);
+        camera.screen.lineTo(toFill[i].posX1, toFill[i].posY1);
+        camera.screen.fill();
+        camera.screen.stroke();
+      }
+
+      if (werdnaEngine.editMode) {
+        treborEditor.renderMap();
+      }
+      
+      werdnaEngine.ctx.drawImage(camera.cam, -40, -27, 680, 340);
+    };
+    /**
+    @method inArray
+    @since 2014-07-18
+    @param _array
+    @param _value
+    @return {boolean} true if the value is member of the array
+    */
+    werdnaEngine.inArray = function(_array, _value) {
+      for (var i = 0; i < _array.length; i++) {
+        if (_array[i] == _value) {
+          return true;
+        }
+      }
+      return false;
+    };
+    /**
+    Wizardy like game engine
+    */
+    werdnaEngine.init = function() {
+      console.log('init');
+      werdnaEngine.canvas = getElement('canvas');
+      werdnaEngine.canvas.width = 600;
+      werdnaEngine.canvas.height = 300;
+      werdnaEngine.canvas.style.width = '600px';
+      werdnaEngine.canvas.style.height = '300px';
+      werdnaEngine.canvas.style.position = 'relative';
+      werdnaEngine.canvas.style.top = '0px';
+      werdnaEngine.canvas.style.left = '0px';
+      werdnaEngine.canvas.style.zIndex = '10000';//top of all
+      werdnaEngine.canvas.style.background = 'black';
+      werdnaEngine.canvas.style.position = 'relative';
+
+      werdnaEngine.ctx = werdnaEngine.canvas.getContext('2d');
+      //werdnaEngine
+      //document.body.appendChild(werdnaEngine.canvas);
+
+      werdnaEngine.canvas.addEventListener('click', werdnaEngine.clicker, true);
+      /*werdnaEngine.game = typeof Game != 'undefined' ? new Game() : {};
+      //if  we operate in the editor mode json variable is not set
+
+      if(typeof json == 'undefined') {
+        var json = JSON.stringify({game: editor.game});
+        werdnaEngine.game.load(json['game']);
+      } else {
+        werdnaEngine.game.load(json['game']);
+      }*/
+      //just a generic test method
+      //werdnaEngine.dungeon = werdnaEngine.dungeonGenerator();
+      console.log(werdnaEngine.canvas);
+      window.addEventListener("keydown", werdnaEngine.keyDown, false);
+      window.addEventListener("keyup", werdnaEngine.keyUp, false);
+      werdnaEngine.camera.cam = createElement('canvas');
+      werdnaEngine.camera.cam.width = werdnaEngine.canvas.width;
+      werdnaEngine.camera.cam.height = werdnaEngine.canvas.height;
+      werdnaEngine.camera.screen = werdnaEngine.camera.cam.getContext('2d');
+      werdnaEngine.camera.width = werdnaEngine.canvas.width;
+      werdnaEngine.camera.height = werdnaEngine.canvas.height;
+      werdnaEngine.camera.offsetX = werdnaEngine.canvas.width/2;
+      werdnaEngine.camera.offsetY = werdnaEngine.canvas.height/2;
+
+      werdnaEngine.prepareView(null);
+      //werdnaEngine.startAnimation();
+    };
+    /**
+    @property dungeon
+    */
+    werdnaEngine.dungeon = null;
+    /**
+    @property dungeonFields
+    */
+    werdnaEngine.dungeonFields = [['101','000','010'], ['100','001','100'], ['010','000','101'], ['001','100','001'], ['000','010','010'], ['010','010','000'], ['000','110','000'], ['000','011','000'],
+    ['101','000','010'], ['100','001','100'], ['010','000','101'], ['001','100','001'], ['000','010','011'], ['110','010','000'], ['001','110','000'], ['000','011','001']];//, ['100','000','001'], ['001','000','100'], ['000','010','000']];
+    /**
+    just a generic test method
+    @method dungeonGenerator
+    */
+    werdnaEngine.dungeonGenerator = function() {
+      var fields = [[1,1,1,1,1,1,1,1,1,1,1],[1], [1], [1], [1], [1], [1], [1], [1], [1], [1,1,1,1,1,1,1,1,1,1,1]];
+      var old = [-1,-1,-1];
+      var sizeX = 3;
+      var sizeY = 3;
+      for ( var i = 0; i < sizeX; i++) {
+        var o = -1;
+        var block = null;
+        var b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+
+        for ( var j = 0; j < sizeY; j++) {
+          var b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+          while (b == old[j] || o == b) {
+            b = Math.floor(Math.random()*werdnaEngine.dungeonFields.length);
+          }
+          block = werdnaEngine.dungeonFields[b];
+          fields[1+3*i].push(parseInt(block[0][0]));
+          fields[1+3*i].push(parseInt(block[0][1]));
+          fields[1+3*i].push(parseInt(block[0][2]));
+
+          fields[1+3*i+1].push(parseInt(block[1][0]));
+          fields[1+3*i+1].push(parseInt(block[1][1]));
+          fields[1+3*i+1].push(parseInt(block[1][2]));
+
+          fields[1+3*i+2].push(parseInt(block[2][0]));
+          fields[1+3*i+2].push(parseInt(block[2][1]));
+          fields[1+3*i+2].push(parseInt(block[2][2]));
+          o = b;
+          o[j] = b;
+        }
+        fields[1+3*i].push(1);
+        fields[1+3*i+1].push(1);
+        fields[1+3*i+2].push(1);
+      }
+      //console.log(fields);
+      var rnd = 1+ Math.floor(Math.random()*9);
+      var rnd2 = 1+ Math.floor(Math.random()*9);
+      var rndOld2 = rnd2;
+      var rndOld = rnd;
+      var count2 = 0;
+      while (count2 < 3) {
+        rndOld = rnd;
+        rndOld2 = rnd2;
+
+        while (rnd == rndOld && rnd2 == rndOld2) {
+          rnd = 1+ Math.floor(Math.random()*9);
+          rnd2 = 1+ Math.floor(Math.random()*9);
+        }
+        if (fields[rnd][rnd2] == 1) {
+          count2++;
+          fields[rnd][rnd2] = 2;
+        }
+      }
+      console.log(fields);
+
+      return fields;
+    };
+    /**
+
+    */
+    werdnaEngine.player = {
+      x: null,
+      y: null,
+      health: 0,
+      power: 0,
+      magic: 0,
+      status: 0,//problems solved
+      positive: 0,
+      negative: 0,
+      map: [],//can see the level map
+      relations: []
+    };
+
+    werdnaEngine.clicked = false;
+    /**
+    on click event what to do?
+    */
+    werdnaEngine.clicker = function(eve) {
+      if (!werdnaEngine.clicked) {
+        console.log('x:'+eve.pageX+', y:'+eve.pageY);
+        var data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)),
+                    y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
+        while (werdnaEngine.dungeon[data.y+1][data.x] >= 1) {
+          data = {x: (1+Math.floor(Math.random()*werdnaEngine.dungeon[0].length)),
+                  y:(1+Math.floor(Math.random()*werdnaEngine.dungeon.length)), start: null};
+        }
+        data.start = werdnaEngine.dungeon[data.y][data.x];
+        if (data.start == 0) {
+          werdnaEngine.clicked = true;
+          werdnaEngine.setView(data);
+        }
+      } else {
+        //pick the right object or tile
+        //tile moves
+        //object invokes onselect method
+        //handles if selectedable and might perfom some action
+      }
+    };
+
+    werdnaEngine.setView = function(data) {
+      werdnaEngine.player.x = data.x;
+      werdnaEngine.player.y = data.y + 1;
+
+      var view = [[
+		    werdnaEngine.dungeon[data.y-2][data.x-2],
+        werdnaEngine.dungeon[data.y-2][data.x-1],
+        werdnaEngine.dungeon[data.y-2][data.x],
+        werdnaEngine.dungeon[data.y-2][data.x+1],
+		    werdnaEngine.dungeon[data.y-2][data.x+2]],[
+		    werdnaEngine.dungeon[data.y-1][data.x-2],
+        werdnaEngine.dungeon[data.y-1][data.x-1],
+        werdnaEngine.dungeon[data.y-1][data.x],
+        werdnaEngine.dungeon[data.y-1][data.x+1],
+		    werdnaEngine.dungeon[data.y-1][data.x+2]],[
+        werdnaEngine.dungeon[data.y][data.x-2],
+		    werdnaEngine.dungeon[data.y][data.x-1],
+        werdnaEngine.dungeon[data.y][data.x],
+        werdnaEngine.dungeon[data.y][data.x+1],
+		    werdnaEngine.dungeon[data.y][data.x+2]],[
+		    werdnaEngine.dungeon[data.y+1][data.x-2],
+        werdnaEngine.dungeon[data.y+1][data.x-1],
+        werdnaEngine.dungeon[data.y+1][data.x],
+        werdnaEngine.dungeon[data.y+1][data.x+1],
+		    werdnaEngine.dungeon[data.y+1][data.x+2]],[
+		    werdnaEngine.dungeon[data.y+2][data.x-2],
+        werdnaEngine.dungeon[data.y+2][data.x-1],
+        werdnaEngine.dungeon[data.y+2][data.x],
+        werdnaEngine.dungeon[data.y+2][data.x+1],
+		    werdnaEngine.dungeon[data.y+2][data.x+2]
+      ]];
+      werdnaEngine.prepareView(view);
+    };
+
+    werdnaEngine.dungeonUndefinedCallback = null;
+
+    /**
+    */
+    werdnaEngine.keyDown = function(e){
+
+      var key = e.keyCode || e.which;
+      console.log('key -> '+key);
+      /*if(key in werdnaEngine.key.keys){
+        werdnaEngine.key.keys[key] = 1;
+        e.preventDefault();
+        return false;
+      }else{
+        return true;
+      }	*/
+    };
+    /**
+    */
+    werdnaEngine.keyUp = function(e){
+      var key = e.keyCode || e.which;
+      console.log('key -> '+key);
+      var data = {
+        x: werdnaEngine.player.x,
+        y: werdnaEngine.player.y,
+        start: null,
+        direction: werdnaEngine.direction
+      };
+      switch (key) {
+        case 37:
+        //left
+        //data.x = data.x + 1;
+        werdnaEngine.dungeon = werdnaEngine.rotateView(true);
+        var oldx = werdnaEngine.player.x;
+        var oldy = werdnaEngine.player.y;
+        data.x = oldy;//left
+        data.y = werdnaEngine.dungeon.length - 1 - oldx;
+        data.direction++;
+        break;
+        case 38:
+        //up
+        data.y = data.y - 1;
+        break;
+        case 39:
+        //right
+        //data.x = data.x - 1;
+        werdnaEngine.dungeon = werdnaEngine.rotateView(false);
+        var oldx = werdnaEngine.player.x;
+        var oldy = werdnaEngine.player.y;
+        data.y = oldx;//right
+        data.x = werdnaEngine.dungeon.length - 1 - oldy;
+        data.direction--;
+        break;
+        case 40:
+        //down
+        data.y = data.y + 1;
+        break;
+        default:
+        break;
+      }
+      if (typeof werdnaEngine.dungeon[data.y] == 'undefined') {
+        console.log(data.y, data.x);
+        //rotateView must be modified to use dungeonUndefinedCallback for asymetric maps
+        if (werdnaEngine.dungeonUndefinedCallback != null) {
+          data = werdnaEngine.dungeonUndefinedCallback(data);
+        } else {
+          return;
+        }
+      }
+      data.start = werdnaEngine.dungeon[data.y][data.x];
+      /*for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+        var t = i+' -> ';
+        for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+          t = t + werdnaEngine.dungeon[i][j];
+        }
+        console.log(t);
+      }*/
+
+      if (data.start == 0 || werdnaEngine.editMode) {
+        if (data.direction < 0) {
+          data.direction = 3;
+        }
+        werdnaEngine.direction = Math.abs(data.direction % 4);
+        werdnaEngine.player.x = data.x;
+        werdnaEngine.player.y = data.y;
+        var map = [
+		    [
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-3] : -1,
+		      typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x-1] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+1] : -1,
+		      typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y-4] != 'undefined' ? werdnaEngine.dungeon[data.y-4][data.x+4] : -1 
+		    ],[
+		      typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-3] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x-1] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+1] : -1,
+		      typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y-3] != 'undefined' ? werdnaEngine.dungeon[data.y-3][data.x+4] : -1
+		    ],[
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-4] : -1,
+		      typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-3] : -1,
+		      typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x-1] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+1] : -1,
+		      typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y-2] != 'undefined' ? werdnaEngine.dungeon[data.y-2][data.x+4] : -1
+		    ],[
+		      typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-3] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x-1] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+1] : -1,
+          typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+2] : -1,
+		      typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+3] : -1,
+		      typeof werdnaEngine.dungeon[data.y-1] != 'undefined' ? werdnaEngine.dungeon[data.y-1][data.x+4] : -1
+		    ],[
+		      typeof werdnaEngine.dungeon[data.y][data.x-2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-4] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x-2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-3] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x-2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-2] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x-1]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x-1] : -1,
+          werdnaEngine.dungeon[data.y][data.x],
+          typeof werdnaEngine.dungeon[data.y][data.x+1]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+1] : -1,
+		      typeof werdnaEngine.dungeon[data.y][data.x+2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+2] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x+2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+3] : -1,
+          typeof werdnaEngine.dungeon[data.y][data.x+2]!= 'undefined' ? werdnaEngine.dungeon[data.y][data.x+4] : -1
+		    ]];
+
+        /*for (var i = 0; i < map.length; i++) {
+          var t = '';
+          for (var j = 0; j < map[i].length; j++) {
+            t = t + map[i][j];
+          }
+          console.log(t);
+        }*/
+        werdnaEngine.prepareView(map);
+      }
+    };
+    /**
+    @method rotateView
+    @since 2014-07-17
+    @param {boolean} dirLeft indicates to turn left or right(false)
+    @return {Array} the rotated dungeon map
+    */
+    werdnaEngine.rotateView = function(dirLeft) {
+      var copyDungeon = [];
+      if (!dirLeft) {
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          copyDungeon[i] = [];
+          for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+            copyDungeon[i][j] = werdnaEngine.dungeon[werdnaEngine.dungeon[i].length - j - 1][i];
+          }
+        }
+      } else {
+        //copyDungeon = werdnaEngine.dungeon;
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          for (var j = 0; j < werdnaEngine.dungeon[i].length; j++) {
+            if (i == 0) {
+              copyDungeon[j] = [];
+            }
+            copyDungeon[j][i] = werdnaEngine.dungeon[i][werdnaEngine.dungeon[i].length - j - 1];
+          }
+        }
+      }
+      return copyDungeon;
+    };
+    /**
+
+    */
+    werdnaEngine.startAnimation = function(){
+
+      var requestFrame = (function(){
+        return window.requestAnimationFrame	||
+        window.webkitRequestAnimationFrame	||
+        window.mozRequestAnimationFrame		||
+        window.oRequestAnimationFrame		||
+        window.msRequestAnimationFrame		||
+        function(callback){
+          window.setTimeout(callback, 1000 / 60);
+        };
+      })();
+
+      var lastFrameTime = +new Date();
+      var frameRequested = function(t){
+        //if(werdnaEngine.event.onEnterFrame){
+        //	werdnaEngine.event.onEnterFrame(t-lastFrameTime);
+        //}
+        requestFrame(frameRequested);
+        lastFrameTime = t;
+      };
+      requestFrame(frameRequested);
+
+    };
+
+    /**
+    really self removing
+    */
+    werdnaEngine.exit = function() {
+      document.body.removeChild(werdnaEngine.canvas);
+      document.body.removeChild(getElement('editor_extension'));
+    };
+    //
+    _win.werdnaEngine = werdnaEngine;
+
+  }//no semicolon here!
+)(window);
+
+function createElement(_t) {
+  return document.createElement(_t);
+}
+
+function getElement(_t) {
+  return document.getElementById(_t);
+}
+//a Wizardy I like game engine
+//for a little Adventure RPG named "S'Laughter House"
+  /**
+  @class Tile
+  @since 2014-08-23
+  */
+  function Tile(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [ {p:[0,1,5,4]} ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},
+      //{p1:7,p2:6,p3:2,p4:3},
+      //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+    ];
+  }
+  /**
+  @class TileMessage
+  @since 2014-08-23
+  */
+  function TileMessage(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,1,5,4]},{p:[14,15,16,17]}];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},//the bottom
+      //{p1:7,p2:6,p3:2,p4:3}//top ceiling
+      {p1:14,p2:15,p3:16,p4:17}//the possible pitfall
+    ];
+  }
+  /**
+  @class TileCeiling
+  @since 2014-08-23
+  */
+  function TileCeiling(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 100 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [ {p:[0,1,5,4]},{p:[7,6,2,3]} ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},//the bottom
+      {p1:7,p2:6,p3:2,p4:3}//top ceiling
+      //{p1:14,p2:15,p3:16,p4:17}//the possible pitfall
+    ];
+  }
+  /**
+  @class Block
+  @since 2014-08-23
+  */
+  function Block(_px, _py, _pz) {
+
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:50+ this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ} //window2
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]},{p:[12,13,14,15]}
+                 ];
+    this.raster = [ {p1:0,p2:1,p3:5,p4:4} ];
+  }
+  /**
+  @class BlockDoor
+  @since 2014-08-23
+  */
+  function BlockDoor(_px, _py, _pz) {
+
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},
+      {x:50 + this.posX,  y:50 + this.posY,  z: 100 + this.posZ},
+      {x:-50 + this.posX, y:50 + this.posY,  z: 100 + this.posZ},
+      {x:50 + this.posX, y:100 + this.posY, z: 50 + this.posZ},
+      {x:50 + this.posX,  y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]}//door
+                 ];
+    this.raster = [ {p1:0,p2:1,p3:5,p4:4} ];
+  }
+  /**
+  @class BlockMessage
+  @since 2014-08-23
+  */
+  function BlockMessage(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-100 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-100 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-100 + this.posY, z: -100 + this.posZ},//7
+      {x:-75 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:75 + this.posY,  z: 101 + this.posZ},
+      {x:-75 + this.posX, y:75 + this.posY,  z: 101 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[10,11,8,9]}//map text note
+                  ];
+    
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},
+      //{p1:7,p2:6,p3:2,p4:3},
+      //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+    ];
+  }
+  /**
+  @class Cube
+  @since 2014-07-15
+  */
+  function Cube(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-235 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
+      {x:75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ}, //window2
+      {x:75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-50 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:50+ this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:50 + this.posY, z: 101 + this.posZ} //window2
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [ {p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]},//window1
+                  {p:[12,13,14,15]},//window1
+                  {p:[16,17,18,19]}, //window2
+                  {p:[20,21,22,23]} //window2
+                 ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4},
+      //{p1:7,p2:6,p3:2,p4:3},
+      //{p1:14,p2:15,p3:16,p4:17}//,the possible pitfall
+    ];
+    this.map = null;
+    /**
+    @method
+    */
+    this.setPosition = function(posX, posY, posZ) {
+      this.posX = posX;
+      this.posY = posY;
+      this.posZ = posZ;
+    };
+  }
+  /**
+  @class CubeDoor
+  @since 2014-08-23
+  */
+  function CubeDoor(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-235 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
+      {x:50 + this.posX,  y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:99 + this.posY,  z: 101 + this.posZ},
+      {x:-50 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:50 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},//door
+      {x:75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},
+      
+      {x:-50 + this.posX, y:100 + this.posY, z: -50 + this.posZ},
+      {x:-50 + this.posX,  y:100 + this.posY, z: 50 + this.posZ}
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[8,9,10,11]},//door
+                  {p:[12,13,14,15]},//window1
+                  {p:[16,17,18,19]} //window2
+                  ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4}
+    ];
+  }
+  /**
+  @class CubeMessage
+  @since 2014-08-23
+  */
+  function CubeMessage(_px, _py, _pz) {
+    this.posX = _px;
+    this.posY = _py;
+    this.posZ = _pz;
+    this.vertices = [
+      {x:100 + this.posX,  y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: 100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: 100 + this.posZ},//2
+      {x:100 + this.posX,  y:-235 + this.posY, z: 100 + this.posZ},//3
+      {x:100 + this.posX,  y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:100 + this.posY,  z: -100 + this.posZ},
+      {x:-100 + this.posX, y:-235 + this.posY, z: -100 + this.posZ},//6
+      {x:100 + this.posX,  y:-235 + this.posY, z: -100 + this.posZ},//7
+      {x:-75 + this.posX, y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-50 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:75 + this.posY,  z: 101 + this.posZ},
+      {x:-75 + this.posX, y:75 + this.posY,  z: 101 + this.posZ},//message
+      {x:75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ},//window1
+      {x:-75 + this.posX,  y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-125 + this.posY,  z: 101 + this.posZ},
+      {x:-15 + this.posX, y:-205 + this.posY, z: 101 + this.posZ},
+      {x:-75 + this.posX,  y:-205 + this.posY, z: 101 + this.posZ} //window2      
+    ];
+    this.lines = [
+      {p1: 0, p2: 1},
+      {p1: 1, p2: 2},
+      {p1: 2, p2: 3},
+      {p1: 3, p2: 0},
+      //
+      {p1: 4, p2: 5},
+      {p1: 5, p2: 6},
+      {p1: 6, p2: 7},
+      {p1: 7, p2: 4},
+      //
+      {p1: 0, p2: 4},
+      {p1: 1, p2: 5},
+      {p1: 2, p2: 6},
+      {p1: 3, p2: 7}
+    ];
+    this.sides = [{p:[0,4,7,3]},{p:[5,1,2,6]},{p:[0,1,2,3]},
+                  {p:[12,13,14,15]},//window1
+                  {p:[16,17,18,19]},//window2
+                  {p:[10,11,8,9]}//map text note
+                  ];
+    this.raster = [
+      {p1:0,p2:1,p3:5,p4:4}
+    ];
+  }
+//window.addEventListener("load", werdnaEngine.init, true);
+  </script>
+  <script id="treboreditor">
+  (
+  //Light And Tragic Of The Night Heron
+  function(_win) {
+    //treborEditor -> Robert Woodhead
+    //wrednaEngine -> Andrew C. Greenberg
+    /**
+		@class treborEditor
+		@since
+		*/
+    var treborEditor = {};
+    treborEditor.sizeX = 9;
+    treborEditor.sizeY = 9;
+    treborEditor.map = [];
+    treborEditor.tileTypes = [];
+    treborEditor.canvas = null;
+    treborEditor.ctx = null;
+		/**
+		@method
+		@since
+		@param
+		@return
+		*/
+    treborEditor.createMap = function() {
+      for (var i = 0; i < treborEditor.sizeX; i++) {
+        treborEditor.map[i] = [];
+        for (var j = 0; j < treborEditor.sizeY; j++) {
+          treborEditor.map[i][j] = 0;
+        }
+      }
+      werdnaEngine.dungeon = treborEditor.map;
+      werdnaEngine.init();
+      werdnaEngine.clicked = true;
+      werdnaEngine.editMode = true;
+      werdnaEngine.player.x = 3;
+      werdnaEngine.player.y = 3;
+      werdnaEngine.setView({x: 4, y: 3, start: 0});
+      werdnaEngine.dungeonUndefinedCallback = treborEditor.dungeonUndefinedCallback;
+	    werdnaEngine.keyUp({keyCode:0, which:0});
+    };
+    /**
+    @method setEditMode
+    @since 2014-08-21
+    */
+    treborEditor.setEditMode = function() {
+      werdnaEngine.editMode = !werdnaEngine.editMode;
+      console.log('treborEditor.setEditMode',werdnaEngine.editMode);
+      werdnaEngine.editMode ? getElement('setEditMode').innerHTML = 'test' : getElement('setEditMode').innerHTML = 'edit';
+    };
+    /**
+		@method dungeonUndefinedCallback
+		@since 2014-08-21
+		@param data
+		@return {Object} data
+		*/
+    treborEditor.dungeonUndefinedCallback = function(data) {
+      var value = window.confirm('Make the map bigger?');
+      if (!value) {
+        return data;
+      }
+      data.y = data.y + 1;
+      var row = [];
+      treborEditor.sizeX ++;
+      treborEditor.sizeY ++;
+      for (var i = 0; i < treborEditor.sizeX; i++) {
+        row[i] = 0;
+        if (i < treborEditor.sizeX - 1) werdnaEngine.dungeon[i].push(0);
+      }
+      werdnaEngine.dungeon.push(row);
+      treborEditor.map = werdnaEngine.dungeon;
+      return data;
+    };
+		/**
+		@method loadMap
+		@since 2014-08-16
+		*/
+    treborEditor.loadMap = function() {
+      treborEditor.map[werdnaEngine.player.x][werdnaEngine.player.y] = 0;
+      werdnaEngine.dungeon = treborEditor.map;
+	  };
+		/**
+		@method resetType
+		@since 2014-08-21
+		*/
+    treborEditor.resetType = function() {
+      treborEditor.map = werdnaEngine.dungeon;
+      treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = 0;
+      //werdnaEngine.setModel(werdnaEngine.player.y,werdnaEngine.player.x, 0);
+      werdnaEngine.dungeon = treborEditor.map;
+      werdnaEngine.keyUp({keyCode:0,which:0});
+    };
+    /**
+		@method applyType
+		@since 2014-08-21
+		*/
+    treborEditor.applyType = function(value) {
+      //copy the dungeon into the map
+      //because it might be rotated meanwhile
+      treborEditor.map = werdnaEngine.dungeon;
+      treborEditor.map[werdnaEngine.player.y][werdnaEngine.player.x] = parseInt(value);
+      //werdnaEngine.setModel(werdnaEngine.player.y,werdnaEngine.player.x, value);
+      console.log('applyType -> '+value);
+      getElement('applyType').value = null;
+      getElement('applyType').blur();
+      //copy the map back to the dungeon
+      werdnaEngine.dungeon = treborEditor.map;
+      werdnaEngine.keyUp({keyCode:0,which:0});
+    };
+    /***/
+    treborEditor.renderMap = function() {
+      if (treborEditor.mapCanvas == null) {
+        treborEditor.mapCanvas = getElement('cmap');
+        treborEditor.mapCanvas.width = 250;
+        treborEditor.mapCanvas.height = 250;
+        treborEditor.ctx = treborEditor.mapCanvas.getContext('2d');
+      }
+      treborEditor.ctx.fillStyle = '#000';
+      treborEditor.ctx.fillRect(0,0,treborEditor.mapCanvas.width,treborEditor.mapCanvas.height);
+      treborEditor.ctx.fillStyle = '#eee';
+      treborEditor.ctx.lineWidth = 1;
+      var ii = 0;
+      var jj = 0;
+      switch (werdnaEngine.direction) {
+        case 1:
+          ii = werdnaEngine.dungeon.length-1;
+          jj = 0;
+        break;
+        case 2:
+          ii = werdnaEngine.dungeon.length-1;
+          jj = werdnaEngine.dungeon[0].length-1;
+        break;
+        case 3:
+          jj = werdnaEngine.dungeon[0].length-1;
+          ii = 0;
+        break;
+        default:
+        break;
+      }
+      console.log('--> '+ii,jj,werdnaEngine.direction % 2);
+
+      if (werdnaEngine.direction % 2 == 0) {
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          treborEditor.ctx.fillStyle = '#000';
+          treborEditor.ctx.strokeStyle = '#fff';
+          for (var j = 0; j < werdnaEngine.dungeon[0].length; j++) {
+            treborEditor.ctx.fillStyle = '#000';
+            treborEditor.ctx.strokeRect(
+                treborEditor.mapCanvas.width-10-Math.abs(jj-j)*10,
+                0+Math.abs(ii-i)*10, 8, 8);
+            var value = werdnaEngine.dungeon[i][j];
+            if (value == 2) {
+              treborEditor.ctx.fillStyle = '#ccc';
+            } else if ( value == 1) {
+              treborEditor.ctx.fillStyle = '#fff';
+            } else if (value > 0) {
+              treborEditor.ctx.fillStyle = '#999';
+            }
+            treborEditor.ctx.fillRect(
+                      treborEditor.mapCanvas.width-10-Math.abs(jj-j)*10,
+                      0+Math.abs(ii-i)*10, 8, 8);
+          }
+        }
+        werdnaEngine.direction == 0 ? treborEditor.ctx.fillStyle = '#f00' : treborEditor.ctx.fillStyle = '#9f0';
+        treborEditor.ctx.fillRect(
+            treborEditor.mapCanvas.width-10-Math.abs(ii-werdnaEngine.player.x)*10,
+            0+Math.abs(jj-werdnaEngine.player.y)*10, 8, 8);
+      } else if(werdnaEngine.direction == 1) {
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          treborEditor.ctx.fillStyle = '#000';
+          treborEditor.ctx.strokeStyle = '#fff';
+          for (var j = 0; j < werdnaEngine.dungeon[0].length; j++) {
+            treborEditor.ctx.fillStyle = '#000';
+            treborEditor.ctx.strokeRect(
+                        treborEditor.mapCanvas.width-10-Math.abs(ii-i)*10,
+                        0+Math.abs(jj-j)*10, 8, 8);
+            var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
+            if (value == 2) {
+              treborEditor.ctx.fillStyle = '#ccc';
+            } else if ( value == 1) {
+              treborEditor.ctx.fillStyle = '#fff';
+            } else if (value > 0) {
+              treborEditor.ctx.fillStyle = '#999';
+            }
+            treborEditor.ctx.fillRect(
+                      treborEditor.mapCanvas.width-10-Math.abs(i)*10,
+                      0+Math.abs(jj-j)*10, 8, 8);
+          }
+        }
+        treborEditor.ctx.fillStyle = '#f90';
+        treborEditor.ctx.fillRect(
+            treborEditor.mapCanvas.width-10-Math.abs( werdnaEngine.dungeon[0].length-1-werdnaEngine.player.y)*10,
+            0+Math.abs(werdnaEngine.player.x)*10, 8, 8);
+      } else {
+        for (var i = 0; i < werdnaEngine.dungeon.length; i++) {
+          treborEditor.ctx.fillStyle = '#000';
+          treborEditor.ctx.strokeStyle = '#fff';
+          for (var j = 0; j < werdnaEngine.dungeon[0].length; j++) {
+            treborEditor.ctx.fillStyle = '#000';
+            treborEditor.ctx.strokeRect(
+                        treborEditor.mapCanvas.width-10-Math.abs(ii-i)*10,
+                        0+Math.abs(jj-j)*10, 8, 8);
+            var value = werdnaEngine.dungeon[Math.abs(ii-i)][Math.abs(jj-j)];
+            if (value == 2) {
+              treborEditor.ctx.fillStyle = '#ccc';
+            } else if ( value == 1) {
+              treborEditor.ctx.fillStyle = '#fff';
+            } else if (value > 0) {
+              treborEditor.ctx.fillStyle = '#999';
+            }
+            treborEditor.ctx.fillRect(
+                      treborEditor.mapCanvas.width-10-Math.abs(ii-i)*10,
+                      0+Math.abs(j)*10, 8, 8);
+          }
+        }
+        treborEditor.ctx.fillStyle = '#ff0';
+        treborEditor.ctx.fillRect(
+            treborEditor.mapCanvas.width-10-Math.abs(werdnaEngine.player.y)*10,
+            0+Math.abs(werdnaEngine.dungeon.length - 1 - werdnaEngine.player.x)*10, 8, 8);
+      }
+    }
+  	/**
+		@method init
+		@since 2014-08-16
+		*/
+		treborEditor.init = function() {
+			//set the two primary tile types
+			//empty tile and small cube
+			treborEditor.createMap();
+		}
+		//
+		_win.treborEditor = treborEditor;
+  })(window);
+  </script>
+  <script>
+  window.addEventListener("load", treborEditor.init, true);
+  </script>
+  <style>
+  *{margin: 0;padding: 0;}
+  body{ width: 100%; min-height: 400px; background: #333;}
+  body, div, button, span, p, br, select, option {
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+  }
+  #trebor {margin:0; position: relative; width: 99%;}
+  #treborbar {margin: 0; min-width: 99%;width: 99%; min-height: 25px;}
+  select,button {max-height: 22px; min-height: 22px; padding: 2px 5px 1px 5px; color: #fff; background: #555; margin: 0px; outline: 0px; border: 0px; margin-left: 1px; cursor: pointer; margin-bottom: 2px; float: left;}
+  select:active, select:focus {outline: 0;}
+  option {margin: 0; padding: 0 5px 0 5px; color: white; background: #666;}
+  option:hover, option:active, option:focus{background: #eee; color: black;}
+  button:hover {box-shadow: 0 0 3px #fff, -1px -1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff,1px 1px 1px #fff; color: #000; background: #eee;}
+  #canvas {float: left;}
+  #cmap {float: left; margin-left: 10px; width: 200px; height: 200px; background: #000;}
+	</style>
+ </head>
+ <body>
+  <div id="treborbar">
+  <button id="resetType" onclick="treborEditor.resetType();">remove</button>
+  <select id="applyType" name="applyType" onchange="treborEditor.applyType(this.value);">
+  <option value="-1">blank</option>
+  <option value="0">tile</option>
+  <option value="1">tile with ceiling</option>
+  <option value="2">tile message</option>
+  <option value="10">block</option>
+  <option value="11">block door</option>
+  <option value="12">block message</option>
+  <option value="20">cube</option>
+  <option value="21">cube door</option>
+  <option value="22">cube message</option>
+  <!--option value="30">house</option>
+  <option value="31">house door</option>
+  <option value="32">house message</option>
+  <option value="40">tower</option>
+  <option value="41">tower door</option>
+  <option value="42">high tower</option-->
+  </select>
+  <button id="setEditMode" onclick="treborEditor.setEditMode();">test</button>
+  </div>
+  <div id="trebor">
+  <canvas id="canvas"></canvas><canvas id="cmap"></canvas><br style="clear: both;">
+  </div>
+ </body>
+</html>

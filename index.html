@@ -991,8 +991,12 @@ var Base64 = {
             console.log('p_editor_source - test');
             var script = createElement('script');
             script.setAttribute('id','editor_extension');
-            script.appendChild(createTextNode('var json  = '+JSON.stringify(edi)+';\n\n'+code + 
-                  '\n'+getElement('background_image').innerHTML));
+            script.appendChild(createTextNode('var json  = '+JSON.stringify(edi)+';\n\n'+code));
+            //if has extensions
+            //for (var i = 0; i < extensions.length; i++) {
+            //get the code of extensions[i]  
+            //}
+            //+ '\n'+getElement('background_image').innerHTML));
             document.body.appendChild(script);
           } else {
             console.log('func - test');
@@ -1002,8 +1006,8 @@ var Base64 = {
           }
           //
         } catch(e) {
-          console.log(e,'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +
-                  +'\n'+getElement('background_image').innerHTML);
+          console.log(e,'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code);
+          //                   +'\n'+getElement('background_image').innerHTML);
         }
       };
       /**

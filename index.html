@@ -340,7 +340,7 @@ function Game() {
   returns the keys, defined by the default language
   @method getKeys
   @since 2914-07-31
-  @return {Array} keys 
+  @return {Array} keys
   */
   getKeys : function () {
     var d_lan = this.getLanguage(this.defaultLanguage);
@@ -367,7 +367,7 @@ function Game() {
    for (var i = 0; i < this.mediaLanguages.length; i++) {
     if (this.mediaLanguages[i].getMedia(_k) == null) {
      this.mediaLanguages[i].setMedia(_k, _v, true);
-    } 
+    }
    }
   },
   /**
@@ -951,7 +951,7 @@ var Base64 = {
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         editor.game.load(JSON.parse(data));
-        editor.uidcounter =  JSON.parse(_win.localStorage.getItem('uidcounter'));
+        editor.uidcounter = JSON.parse(_win.localStorage.getItem('uidcounter'));
         try {
           editor.preferences =  JSON.parse(_win.localStorage.getItem('preferences'));
         } catch (ex) {
@@ -986,24 +986,36 @@ var Base64 = {
           cache = null;
           //
           if (editor.getPreference('p_editor_source') != null &&
-              editor.getPreference('p_editor_source') ) 
+              editor.getPreference('p_editor_source') )
           {
             console.log('p_editor_source - test');
             var script = createElement('script');
-            script.setAttribute('id','editor_extension');
-            script.appendChild(createTextNode('var json  = '+JSON.stringify(edi)+';\n\n'+code + 
-                  '\n'+getElement('background_image').innerHTML));
+            script.setAttribute('id','editor_extension_test');
+            script.appendChild(createTextNode('var json  = '+JSON.stringify(edi)+';\n\n'+code));
+                  //+'\n'+getElement('background_image').innerHTML));
             document.body.appendChild(script);
           } else {
-            console.log('func - test');
-            editor.func = 
-              new Function('window,document', 'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +'\n'+getElement('background_image').innerHTML);
-            editor.func(window, document);
+            console.log('func - test');/*
+            editor.func =
+              new Function('window,document', 'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code);//'\n'+getElement('background_image').innerHTML);
+            editor.func(window, document);*/
+            var script = createElement('script');
+            script.setAttribute('id','editor_test');
+            script.appendChild(createTextNode('var json  = '+JSON.stringify(edi)+';\n\n'+code));
+                  //+'\n'+getElement('background_image').innerHTML));
+            document.body.appendChild(script);
+            /*
+            adding all loaded extensions to the test is not needed but to the build!
+            for (var i = 0; i < extensions.length; i++) {
+              if (getElement('editor_tes_'+extensions[i].name) != null) {
+                document.body.removeChild(getElement('editor_test_'+extensions[i].name));
+              }
+            }*/
           }
           //
         } catch(e) {
-          console.log(e,'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code +
-                  +'\n'+getElement('background_image').innerHTML);
+          console.log(e,'var json  = JSON.parse('+JSON.stringify(JSON.stringify(edi))+');\n \n'+code);
+                 // +'\n'+getElement('background_image').innerHTML);
         }
       };
       /**
@@ -1014,6 +1026,24 @@ var Base64 = {
         if (editor.func != null) {
           document.body.removeChild(document.body.childNodes[document.body.childNodes.length-1]);
           editor.func = null;
+        } else {
+          if (getElement('editor_test') != null) {
+            document.body.removeChild(getElement('editor_test'));
+          }
+          if (getElement('editor_extension_test') != null) {
+            document.body.removeChild(getElement('editor_extension_test'));
+          }
+          try {
+            getElement('gameMainView').style.display = 'none';
+            getElement('gameMainView').innerHTML = '';
+          } catch (ex) {
+          }
+          /*
+          for (var i = 0; i < extensions.length; i++) {
+            if (getElement('editor_test_'+extensions[i].name) != null) {
+              document.body.removeChild(getElement('editor_test_'+extensions[i].name));
+            }
+          }*/
         }
       };
       /**
@@ -1056,7 +1086,7 @@ var Base64 = {
         }
         catch (ex) {
           //might be null - exspected exception - no handle needed
-        }        
+        }
         editor.game = new Game();
         editor.game.mediamanager.addLanguage(editor.game.mediamanager.defaultLanguage);
         ele = getElement('noteeditor').addEventListener('mousedown', editor.mousedown, false);
@@ -1282,7 +1312,7 @@ var Base64 = {
         child.appendChild(createElement('br'));
 
         child.appendChild(createElement('hr'));
-        
+
         child2 = createElement('div');
         child2.setAttribute('id', 'extensionBox');
         child2.appendChild(createTextNode('Select one of these Extensions:'));
@@ -1295,7 +1325,7 @@ var Base64 = {
           child3.setAttribute('id','ext_'+i);
           child3.setAttribute('type','checkbox');
           child3.setAttribute('value', editor.extensionsList[i].name);
-          child3.setAttribute('onchange', 'editor.loadExtension(this);');          
+          child3.setAttribute('onchange', 'editor.loadExtension(this);');
           select.appendChild(child3);
           select.appendChild(createTextNode(' '+editor.extensionsList[i].description));
           select.appendChild(createElement('br'));
@@ -1346,7 +1376,7 @@ var Base64 = {
         child2.setAttribute('type','text');
         child2.setAttribute('title', 'only letters, digits, spaces');
         child2.setAttribute('placeholder','project title only letters, digits, spaces');
-        var filename = editor.getPreference('p_projectTitle') != null ? 
+        var filename = editor.getPreference('p_projectTitle') != null ?
                                           editor.getPreference('p_projectTitle').value : '';
         //child2.value = filename;
         child2.setAttribute('value', filename);
@@ -1459,7 +1489,7 @@ var Base64 = {
         }
       };
       /**
-      array off objects with the 
+      array off objects with the
       name, path, description of the extension
       @property extensionsList
       @since 2014-07-11
@@ -1509,7 +1539,7 @@ var Base64 = {
             script = createElement('script');
             script.setAttribute('id', value.replace(/ /g, '_'));
             script.setAttribute('type','text/javascript');
-            try {  
+            try {
             editor.makeRequest(extension.path, function() {
               if (editor.http_request.readyState == 4) {
                 if (editor.http_request.status == 200) {
@@ -2607,11 +2637,11 @@ var Base64 = {
           window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
           return;
         }
-        
+
         editor.dropboxClient = new Dropbox.Client({ key: 'YOUR-APP-KEY-HERE' });
         editor.dropboxClient.authenticate({interactive: true},function (error, client) {
           if (error) {
-            alert('Error: ' + error); 
+            alert('Error: ' + error);
           } else {
             getElement('dropboxWriteButton').addEventListener('click', function() {
               if (client.isAuthenticated()) {
@@ -2619,13 +2649,13 @@ var Base64 = {
               } else {
                 alert('something went wrong.');
                 /*var popup = window.open('https://dropbox.com/login', '_blank', 'width=640, height=480, scrollbars=yes');
-                popup.focus();*/  
+                popup.focus();*/
               }
             }, false);
             getElement('dropboxReadButton').addEventListener('click', function() {
               if (client.isAuthenticated()) {
                 editor.dropboxRead();
-              } else {                  
+              } else {
                 alert('something went wrong.');
                 /*var popup = window.open('https://dropbox.com/login', '_blank', 'width=640, height=480, scrollbars=yes');
                 popup.focus();*/
@@ -2863,7 +2893,7 @@ font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
       <button id="dropboxReadButton" style="display: none; float: left;" class="fa fa-dropbox"><span>&nbsp;download&nbsp;</span></button>
       <input id="dropboxName" type="text" style="display: none; float: left; max-height: 22px;" placeholder="editor is the file name" />
     <!--/span-->
-  
+
   <span class="separator"></span>
   <button onclick="editor.buildGame();" style="float: left;" class="fa fa-wrench"><span>build</span></button>
   <!--span class="separator"></span-->
@@ -3075,7 +3105,7 @@ font-size: 15px; width: 335px; text-transform:capitalize; cursor: pointer; }
 Application of hogventure's Draftercraft for <br>
 <a href="http://hogventure.com/download/HDCwin.exe" target="_blank">Windows in a 32bit version,</a><br>
 <a href="http://hogventure.com/download/HDCosx.dmg" target="_blank">mac OSX 10.7+ 64bit version, </a><br>
-<a href="http://hogventure.com/download/HDClinux32.zip" target="_blank">Linux32</a> and 
+<a href="http://hogventure.com/download/HDClinux32.zip" target="_blank">Linux32</a> and
 <a href="http://hogventure.com/download/HDClinux64.zip" target="_blank">Linux64</a>.<br>
 If node-webkit isn't able to run on newer distributions such as<br>Ubuntu 13.04+,
 Fedora 18+, Arch, Gentoo, derivatives of the above or so,<br>
@@ -3083,7 +3113,7 @@ you might follow this link for help.<br>
 <a href="https://github.com/rogerwang/node-webkit/wiki/The-solution-of-lacking-libudev.so.0" target="_blank">https://github.com/rogerwang/node-webkit/wiki/The-solution-of-lacking-libudev.so.0</a><br>
 Although I hope, you won't need this link, because I added the script 'hdc' to start the app.<br>
 You may link this to the desktop. Have fun and create great games.<br>
- <br>  
+ <br>
   </div>
 </div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
  <h1>The Preferences dialog</h1>
@@ -3104,7 +3134,7 @@ You may link this to the desktop. Have fun and create great games.<br>
  <br>The media extension is the only avaiable and <br>
  working one.<br>
  Other will come.<br>
- <br>  
+ <br>
   </div>
 </div><div onclick="this.className = this.className != 'divHelp' ? 'divHelp' : '';">
  <h1>The extensions</h1>
@@ -3116,7 +3146,7 @@ You may link this to the desktop. Have fun and create great games.<br>
  The media extension is the only avaiable and <br>
  working one.<br>
  Other will come.<br><br>
- <br>  
+ <br>
   </div>
 </div>
 <!--end-->

@@ -501,6 +501,14 @@ function Game() {
   requestAnimationFrame(gameCanvasEngine.drawUpdate);
   },
   /**
+  a game-engine should have a stop method
+  @method stop
+  @since 2014-08-28
+  */
+  stop : function() {
+    document.body.removeChild(document.getElementById('gameMainView'));
+  },
+  /**
   @property renderNote
   @since 2014-06-06
   */
@@ -663,6 +671,14 @@ var gameEngine = {
   }
   console.log(this.game.notes.length);
   this.renderNote(this.game.startNote);
+ },
+ /**
+ a game-engine should have a stop method
+ @method stop
+ @since 2014-08-28
+ */
+ stop : function() {
+   document.body.removeChild(document.getElementById('gameMainView'));
  },
  /**
  @method renderNote
@@ -1039,8 +1055,11 @@ var Base64 = {
             document.body.removeChild(getElement('editor_extension_test'));
           }
           try {
-            getElement('gameMainView').style.display = 'none';
-            getElement('gameMainView').innerHTML = '';
+            if (window.gameCanvasEngine) {
+              gameCanvasEngine.stop();
+            } else {
+              gameEngine.stop();
+            }
           } catch (ex) {
           }
           /*

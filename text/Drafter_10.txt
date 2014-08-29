@@ -1,0 +1,55 @@
+ stats of
+ collected -> red, yellow, blue, green, cyan, orange
+ quests solved
+ move by implode or vanish or match
+ 
+ [(in 3d)use of the werdnaengine]
+ 
+ feed back of personal momentary state change
+ feed back of personal genral state 
+ feed back of location state
+ feed back of system state -> weather, day&night, political, ...
+
+ quests: find key for door
+ solve issue(s) as key for door -> knote moments
+ mini games
+
+ examples:
+ find key for door ->
+   door is locked: find the key (although: why don't you talk to 
+   the door? There might someone behind who locked the door.)
+
+ solve issue(s) as key for door -> 
+  You need money to buy butter. There is a locked chest with 
+  money inside. Find the key for the chest will give you the
+  money to buy the butter (to turn around the key in the ...).
+  Safe needs a combination to unlock.
+  Find (the right) numbers.
+
+ mini games ->
+  hidden objects - pizza pieces -> back the cold pizza, 
+  the door will be unlocked because of the smell of the warm
+  pizza.
+  choice of main character of the mine game is a self
+  reference and changes the status of apperance of the player's 
+  character
+
+ dialog trees (depending on states)
+
+     0
+    / \
+   /\ s\
+  /\/ s/\
+ 0 -  0  +
+
+ 0 zero result - start over from 0 or leave
+ - negative outcome -> needs a loop if key is knote key 
+ + positive outcome -> key collected
+ / \ unblock decision paths
+ s blocked by a status
+
+  * who what 
+  show choices 
+  [who what link] -> return to *
+
+  better? * [who what link] -> return to *

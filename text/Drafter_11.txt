@@ -1,0 +1,14 @@
+self-inheritence of the web
+
+HTML on the desktop:
+
+
+.hta
+http://technet.microsoft.com/en-us/library/ee692768.aspx
+
+xul & xulRunner
+
+now a days:
+node-builder chromium apps
+
+do some examples and history here

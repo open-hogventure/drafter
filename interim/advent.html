@@ -7,9 +7,9 @@
   <meta name="Keywords" content="">
   <meta name="Description" content="">
   <title>Hidden Object & Adventure Editor</title>
-  <script type="text/javascript" src="js/base64.js"></script>
+  <script type="text/javascript" src="../js/base64.js"></script>
   <!--s cript type="text/javascript" src="js/itemstorage.js"></sc ript-->
-  <script type="text/javascript" src="js/painter.js"></script>
+  <script type="text/javascript" src="../js/painter.js"></script>
   <script type="text/javascript" id="datamodel_source">
 //the basic datamodel
 /**
@@ -677,7 +677,7 @@ function Game() {
   */
   function setImage(_uid, _mode) {
     if (_mode != 'normal') {
-      switch (mode) {
+      switch (_mode) {
         case 'painter':
           currentScene.background = _uid;
         break;

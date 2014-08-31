@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>dialog editor</title>
+  <script type="text/javascript" src="../js/base64.js"></script>
+  <script type="text/javascript" src="../js/painter.js"></script>
+  <script id="DataModel">
+ //the basic datamodel
+/**
+@class Note
+@param _uid
+@since 2014-05-17
+*/
+function Note (_uid) {
+ /***/
+ this.uid = _uid;
+ /***/
+ this.text = null;
+ /***/
+ this.ex = 0;
+ /***/
+ this.ey = 0;
+ /***/
+ this.title = null;
+ /***/
+ this.connections = [];
+ /***/
+ this.load = function(data) {
+  //console.log(data);
+  for (var key in data) {
+    if (key != 'connections' && key != null) {
+    //console.log(key);
+    if (typeof data[key] == 'Array') {
+      //console.log('array'+ key+', '+data[key]);
+      for (var i = 0; i < data[key]; i++) {
+        if (typeof data[key][i].INSTANCE != 'undefined') {
+          var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key][i]['uid']+');');
+          var obj = func();
+          obj.load(data[key][i]);
+          this[key][i] = obj;
+        } else {
+          this[key][i] = data[key][i];
+        }
+      } 
+    } else {
+      if (typeof data[key].INSTANCE != 'undefined') {
+        //console.log(data[key].INSTANCE +'+'+ data[key]);
+        var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key]['uid']+');');
+        var obj = func();
+        obj.load(data[key][i]);
+        this[key][i] = obj;
+      } else if (data[key] != null) {
+        //console.log(key +'-'+ (typeof data[key]));
+        this[key] = data[key];
+      }
+    }
+   }
+  }
+  //this.uid = data['uid'];
+  this.connections = [];
+  for (var i = 0; i < data['connections'].length;i++) {
+   var connection = new Connection(data['connections'][i]['uid']);
+   connection.load(data['connections'][i]);
+   this.connections.push(connection);
+  }
+};
+ /**
+ */
+ this.setEditorPos = function(x,y) {
+  this.ex = x;
+  this.ey = y;
+ }
+};
+/**
+@class Connection
+@param _uid
+@since 2014-05-17
+*/
+function Connection (_uid) {
+ /***/
+ this.uid = _uid;
+ /***/
+ this.text = null;
+ /***/
+ this.to_uid = null;
+ /***/
+ this.from_uid = null;
+ /***/
+ this.load = function(data) {
+  for (var key in data) {
+   //garanties that primitive values are loaded
+   //a good replacement here
+   this[key] = data[key];
+  }
+ };
+};
+/**
+@class MediaLanguage
+@param _lan
+@since 2014-05-18
+*/
+function MediaLanguage(_lan) {
+ /**
+ @attribute language
+ */
+ this.language = _lan;
+ /**
+ @property medias
+ */
+ this.medias = [];
+ /**
+ @method load
+ @param data
+ @since 2014-05-29
+ */
+ this.load = function(data) {
+  this.language = data['language'];
+  this.medias = [];
+  for (var i = 0; i < data['medias'].length; i++) {
+   this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});
+  }
+ };
+ /**
+ _t64 indicates if the value has to be base64_encoded or not
+ @method setMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ */
+ this.setMedia = function(_k, _v, _t64) {
+  console.log('setMedia'+_k);
+  if (this.hasMedia(_k)) {
+   this.getMedia(_k).value = _t64 ? Base64.encode(_v): _v;
+  } else {
+   this.addMedia(_k, _v, _t64);
+  }
+ };
+ /**
+ use this to get Images, Audios, Videos and other
+ media that should stay bas64 encoded
+ var myMediaValue = [..].getMedia('key').value;
+ @method getMedia
+ @since 2014-05-15
+ @param _k the key
+ @return the complete media Object
+ */
+ this.getMedia = function(_k) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return this.medias[i];
+   }
+  }
+  return null;
+ };
+ /**
+ Don't use this method for images, audios or videos,
+ because those have to stay base64_encoded
+ @method getTextMedia
+ @since 2014-05-15
+ @param _k the key
+ @return the media value - always base64 decoded
+ */
+ this.getTextMedia = function(_k) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    //console.log('getMedia->'+Base64.decode(this.medias[i].value));
+    return Base64.decode(this.medias[i].value);
+   }
+  }
+  return null;
+ };
+ /**
+ @method hasMedia
+ @since 2014-05-15
+ @param _k the key
+ @return {boolean} true if the media with the key exists
+ */
+ this.hasMedia = function(_k, _v) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return true;
+   }
+  }
+  return false;
+ };
+ /**
+ @method deleteMedia
+ @since 2014-05-16
+ @param _k the key
+ */
+ this.deleteMedia = function(_k, _v) {
+  for (var i = 0; i < this.medias.length; i++) {
+   if (this.medias[i].key == _k) {
+    return this.medias.splice(i, 1);
+   }
+  }
+ };
+ /**
+ @method addMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ */
+ this.addMedia = function(_k, _v, _t64) {
+  this.medias.push(this.createMedia(_k, _v, _t64));
+ };
+ /**
+ @method createMedia
+ @since 2014-05-15
+ @param _k the key
+ @param _v the value
+ @param {boolean} _t64 to be 64 encoded
+ @return the media Object
+ */
+ this.createMedia = function(_k, _v, _t64) {
+  _v = _t64 ? Base64.encode(_v): _v;
+  return { key : _k, value : _v };
+ };
+};
+/**
+The Game class
+@class Game
+@since 2014-05-17
+*/
+function Game() {
+ /**
+ the major data type array
+ @parameter notes
+ @since 2014-05-17
+ */
+ this.notes = [];
+ /**
+ @parameter startNote
+ @since 2014-05-29
+ */
+ this.startNote = null;
+ /**
+ @method load
+ @since 2014-05-17
+ */
+ this.load = function(data) {
+   if (data == null) {
+    data = window.localStorage.getItem('game_data');
+    data = JSON.parse(data);
+    if (data == null) {
+     //avoid a cannot read property exception
+     //
+     return;
+    }
+   }
+   console.log('game-load');
+   //console.log(data);
+   for (var key in data) {
+    //console.log(key, data[key]);
+    if (key != null && data[key] != null && 
+        key != 'mediamanager' && 
+        key != 'startNote' && 
+        key != 'notes') 
+    {
+     if (typeof data[key] == 'Array') {
+      //console.log('array'+ key+', '+data[key]);
+      for (var i = 0; i < data[key]; i++) {
+        if (typeof data[key][i].INSTANCE != 'undefined') {
+          var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key][i]['uid']+');');
+          var obj = func();
+          obj.load(data[key][i]);
+          this[key][i] = obj;
+        } else {
+          this[key][i] = data[key][i];
+        }
+      } 
+     } else {
+      if (typeof data[key].INSTANCE != 'undefined') {
+        //console.log(data[key].INSTANCE +'+'+ data[key]);
+        var func = new Function('return new '+data[key][i].INSTANCE+'('+data[key]['uid']+');');
+        var obj = func();
+        obj.load(data[key][i]);
+        this[key][i] = obj;
+      } else if (data[key] != null) {
+        //console.log(key +'-'+ (typeof data[key]));
+        this[key] = data[key];
+      }
+     }
+    }
+   }
+   this.mediamanager.load(data['mediamanager']);
+   this.startNote = data['startNote'];
+   this.notes = [];
+   for (var i = 0; i < data['notes'].length;i++) {
+    var note = new Note(data['notes'][i]['uid']);
+    note.load(data['notes'][i]);
+    this.notes.push(note);
+   }
+ };
+ /**
+ @method save
+ @since 2014-05-17
+ */
+ this.save = function() {
+  var data = JSON.stringify(this);
+  console.log('save data:');
+  console.log(data);
+  console.log(':save data');
+  return data;
+  //window.localStorage.setItem('game_data', data);
+ };
+ /**
+ @class mediamanager
+ @since 2014-05-18
+ */
+ this.mediamanager = {
+  /**
+  @property defaultLananguage
+  @default 'en'
+  */
+  defaultLanguage : 'en',
+  /**
+  @property currentLanguage
+  @default 'en'
+  */
+  currentLanguage : 'en',
+  /**
+  @property {array} languages
+  */
+  languages : [],
+  /**
+  @property {array} mediaLanguages
+  */
+  mediaLanguages : [],
+  /**
+  @method setCurrentLanguage
+  */
+  setCurrentLanguage : function(_lan) {
+   this.currentLanguage = _lan;
+   if (!this.hasLanguage(_lan)) {
+    this.addLanguage(_lan);
+   }
+  },
+  /**
+  @method addLanguage
+  */
+  addLanguage : function(_lan) {
+   this.mediaLanguages.push( new MediaLanguage(_lan) );
+   this.languages.push(_lan);
+  },
+  /**
+  @method hasLanguage
+  */
+  hasLanguage : function(_lan) {
+   for (var i = 0; i < this.languages.length; i++) {
+    if (this.languages[i] == _lan) {
+     return true;
+    }
+   }
+   return false;
+  },
+  /**
+  @method getLanguage
+  @since 2014-07-31
+  @param _lan a language key like 'en','de',...
+  @return {MediaLanguage} a mediaLanguage or null
+  */
+  getLanguage : function(_lan) {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    if (this.mediaLanguages[i].language == _lan) {
+     return this.mediaLanguages[i];
+    }
+   }
+   return null;
+  },
+  /**
+  @method getCurrentLanguage
+  */
+  getCurrentLanguage : function() {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    if (this.mediaLanguages[i].language == this.currentLanguage) {
+     return this.mediaLanguages[i];
+    }
+   }
+   this.currentLanguage = this.defaultLanguage;
+   var language = new MediaLanguage(this.currentLanguage);
+   this.mediaLanguages.push( language );
+   this.languages.push(this.currentLanguage);
+   return language;
+  },
+  /**
+  returns the keys, defined by the default language
+  @method getKeys
+  @since 2914-07-31
+  @return {Array} keys 
+  */
+  getKeys : function () {
+    var d_lan = this.getLanguage(this.defaultLanguage);
+    var keys = [];
+    for (var i = 0; i < d_lan.medias.length; i++) {
+      //console.log(d_lan.getMedia(d_lan.medias[i].key).value.substr(0, 20));
+      if (!(d_lan.getMedia(d_lan.medias[i].key).value.indexOf('data:') == 0 &&
+          d_lan.getMedia(d_lan.medias[i].key).value.indexOf('base64') > 0))
+      {
+        keys.push(d_lan.medias[i].key);
+      }
+    }
+    return keys;
+  },
+  /**
+  use getTextMedia too get the decoded media value
+  @method setTextMedia
+  @since 2014-05-17
+  @param _k the key
+  @param _v the value
+  */
+  setTextMedia : function(_k, _v) {
+   //type64=true|false would regulate de/encoding or not
+   this.getCurrentLanguage().setMedia(_k, _v, true);
+  },
+  /**
+  push through for MediaLanguage.setMedia
+  the media will not be base64 encoded
+  use getMedia too get the media
+  use for Images and other natually base64 encoded media
+  @method setMedia
+  @since 2014-05-29
+  @param _k the key
+  @param _v the value - already base64 encoded
+  */
+  setMedia : function(_k, _v) {
+   //type64=true|false would regulate de/encoding or not
+   this.getCurrentLanguage().setMedia(_k, _v, false);
+  },
+  deleteMedia : function(_k) {
+   for (var i = 0; i < this.mediaLanguages.length; i++) {
+    this.mediaLanguages[i].deleteMedia(_k);
+   }
+  },
+  getMedia : function(_k) {
+   return this.getCurrentLanguage().getMedia(_k);
+  },
+  getTextMedia : function(_k) {
+   return this.getCurrentLanguage().getTextMedia(_k);
+  },
+  /**
+  @method load
+  @param data
+  @since 2014-05-29
+  */
+  load : function(data) {
+   this.defaultLanguage = 'en',
+   this.currentLanguage = data['currentLanguage'];
+   this.languages = data['languages'];
+   this.mediaLanguages = [];
+   for (var i = 0; i < data['mediaLanguages'].length; i++) {
+    var lan = new MediaLanguage(data['mediaLanguages'][i]['uid']);
+    lan.load(data['mediaLanguages'][i]);
+    this.mediaLanguages.push(lan);
+   }
+  }
+ }
+}
+/**
+@property game
+@since 2014-05-28
+*/
+//var game = new Game();
+
+  </script>
+  <script>
+  /**
+  @class StatusObject
+  @since 2014-08-31
+  */
+  function StatusObject () {
+    /**
+    @property
+    @since 2014-08-31
+    @default {int} 0
+    */
+    this.status = 0;
+    /**
+    @method addStatus
+    @since 2014-08-31
+    @param {int} _value must be an exponent of 2
+    */
+    this.addStatus = function(_value) {
+      if (_value >= 2 && _value % 2 != 0) {
+        return;
+      }
+      if (!this.hasStatus(_value)) {
+        this.status += _value;
+      }
+    };
+    /**
+    proof if the given int value(exponent of 2)
+    is member of the status 
+    @method hasStatus
+    @since 2014-08-31
+    @param {int} _value must be an exponent of 2
+    */
+    this.hasStatus = function(_value) {
+      if (_value >= 2 && _value % 2 != 0) {
+        //this is not a valid value
+        return false;
+      }
+      var i = Math.floor(this.status / _value);
+      if (i >= 1) {
+        //example value shall be 8
+        if (i % 2 == 0) {
+        //..|32|16 + 7 = false -> 23
+          return false;
+        } else {
+          //..|32|16+8(+4)+2+1 = true -> 27
+          //and >=8 && <16
+          return true;
+        }
+      } 
+      return false;
+    }; 
+  }   
+
+/**
+a figure 
+possible playable?
+@class Person parent is Note
+@since 2014-08-31
+@param {String} _uid the unique identifier
+*/
+function Person (_uid) {
+  StatusObject.call(this);
+  Note.call(this);
+  this.INSTANCE = 'Person'; 
+  
+  this.uid = _uid;
+  /**
+  a person needs a name
+  possible overwrite of note.title
+  */
+  this.name = null;
+  /**
+  not the image or sprite reference
+  this is an icon image (64x64 or so)
+  */
+  this.iconImage = null;
+  /**
+  status is coded as an exponent of 2
+  */
+  this.status = 0;
+}
+
+Person.prototype = new Note();
+Person.prototype = new StatusObject();
+
+/**
+The DialogLine follows the Who What Where(to) model
+The needed link is the Note.connection
+@class DialogLine parent is Note
+@since 2014-08-31
+@param {String} _uid the unique identifier
+*/
+function DialogLine (_uid) {
+  StatusObject.call(this);
+  Note.call(this);
+  this.INSTANCE = 'DialogLine'; 
+  
+  this.uid = _uid;
+  /**
+  the uid of a person
+  the speaking person
+  possible overwrite of note.title
+  */
+  this.who = null;
+  /**
+  the what to say
+  overwrite of note.text
+  */
+  this.text = null;
+  /**
+  this game, figure, dialog must have status conditions
+  */
+}
+
+DialogLine.prototype = new Note();
+DialogLine.prototype = new StatusObject();
+
+/**
+@class Dialog
+@since 2014-08-31
+@param {String} _uid
+*/
+function Dialog (_uid) {
+  StatusObject.call(this);
+  Note.call(this);
+  this.INSTANCE = 'Dialog'; 
+  
+  this.uid = _uid;
+  /**
+  the collection of DialogLines' references
+  */
+  this.lines = [];
+  /**
+  possible start DialogLines' references
+  normaly only one
+  */
+  this.startLines = [];
+  /**
+  the where to end DialogLines' references
+  */
+  this.endLines = [];
+  /**
+  status is coded as an exponent of 2
+
+  */
+  this.status = 0;
+};
+
+Dialog.prototype = new Note();
+Dialog.prototype = new StatusObject();
+
+/**
+
+*/
+function DialogGame () {
+  StatusObject.call(this);
+  Game.call(this);
+  this.INSTANCE = 'DialogGame'; 
+  /**
+  each dialog (tree) is a (possible) knote
+  */
+  this.dialogs = [];
+  /**
+  the characters of this game
+  */
+  this.figures = [];
+
+  this.status = 0;
+};
+
+DialogGame.prototype = new Game();
+DialogGame.prototype = new StatusObject();
+  </script>
+ </head>
+ <body>
+  dialog editor
+ </body>
+</html>

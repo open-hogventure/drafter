@@ -25,3 +25,94 @@ Providing comfort by leaving the comfort zone
   ...
 
   Instead of isolation give consolation.
+  
+  reader needs writer
+needs connection client to service vice versa
+needs offline and online mode 
+needs autor=user authentication
+document must be unique identifyable
+by date-autor combination
+can or must be able to be used anonym instead in reader/consumer/local mode
+  <script>
+  //localStorage
+
+  var app = {};
+  /**a null userid defines reader mode only*/
+  app.userid = null;
+  app.store = localStorage;
+  app.uidcounter = new Array();
+  app.init = function() {
+    vat uc = app.getItem('uidcounter');
+    if (typeof uc != 'undefined' && uc != null)
+    {
+      app.uidcounter = JSOn.parse(atob(uc));
+    }
+    
+  };
+  app.hasUid = function(_u) {
+    for (var i = 0; i < app.uidcounter.length; i++)
+    {
+      if (app.uidcounter[i] == _u)
+      {
+        return true;
+      }
+    }
+    return false;
+  };
+  app.createUid = function() {
+    var abc = 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var uid = '';
+    while (!isNaN(uid) || app.hasUid(uid) || uid.length < 5) {
+      uid = '';
+      for (var i = 0; i < 5; i++)
+      {
+        uid = uid + abc.substr(Math.floor(Math.random() * abc.legth));
+      }
+      if (!isNaN(uid))
+      {
+        uid = '_'+uid;
+      }
+    }
+    app.uidcounter.push(uid);
+    app.setItem('uidcounter',btoa(JSON.stringify(app.uidcounter))); 
+    return uid;
+  }
+  app.removeUid = function(_u) {
+    for (var i = app.uidcounter.length-1; i >= 0; i--)
+    {
+      if (app.uidcounter[i] == _u)
+      {
+        app.uidcounter.splice(i,1);
+      }
+    }
+    app.setItem('uidcounter',btoa(JSON.stringify(app.uidcounter)));  
+  }
+  app.setItem = function(_u, _t) {
+    app.store.setItem(_u,_t);
+  };
+  app.removeItem = function(_u) {
+    app.store.removeItem(_u);
+    app.removeUid(_u);
+  };
+  app.getItem = function(_u) {
+    return app.store.getItem(_u);
+  };
+  app.addDocument = function(_doc) {
+  
+  }
+  app.updateDocument = function(_u,_doc) {
+  
+  }
+  app.getDocument = function(_u) {
+  
+  }
+  app.removeDocument = function(_u) {
+  
+  }
+  app.publishDocument = function(_u) {
+  
+  }
+  app.unpublishDocument = function(_u) {
+  
+  }
+  </script>

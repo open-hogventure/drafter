@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Object Function Parameters</title>
+ </head>
+ <body>
+  <h2>A minimal documentation from source</h2>
+  <script>
+  var o = {    
+    bar: function(_increment) {
+      this.foo += _increment;
+      return this.foo;
+    },
+    foo: 12
+  };
+  
+  Object.getOwnPropertyNames(o).forEach(function(name, index, array) {
+   document.writeln(index+':   '+name + ' -> ' + (!(o[name] && o[name].constructor && 
+            o[name].call && o[name].apply)? o[name]: 'function <b>'+name+'</b>') +'<br>');   
+   if (!!(o[name] && o[name].constructor &&  o[name].call && o[name].apply))
+   {
+    //this is not nice function arguments are only available from inside the function statement and if set
+    //remove all inline comments
+    var args = o[name].toString().replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '');
+    //get the parameters aka arguments names
+    args = args.slice(args.indexOf('(')+1, args.indexOf(')')).match(/([^\s,]+)/g);
+    if(args === null) {
+      //avoid empty array here
+      args = [];
+    }
+    args.forEach(function(n, i, a) {
+      document.writeln('param --> '+i+':  '+n+'<br>');
+    });      
+   }     
+  })
+  </script>
+ </body>
+</html>

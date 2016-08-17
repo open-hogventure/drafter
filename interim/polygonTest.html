@@ -1,0 +1,119 @@
+<!DOCTYPE html >
+<html>
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+ </head>
+
+ <body>
+ <canvas></canvas>
+  <script>
+  function polygon(ctx, x, y, radius, sides, startAngle, anticlockwise) {
+    
+    if (sides < 3) return;
+    var a = (Math.PI * 2)/sides;
+    a = anticlockwise?-a:a;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(startAngle);
+    ctx.moveTo(radius,0);
+    for (var i = 1; i < sides; i++) {
+      
+      ctx.lineTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
+    }
+    ctx.closePath();
+    ctx.restore();
+  }
+  var canvas = document.querySelector('canvas');
+  canvas.width = 600;
+  canvas.height = 600;
+  canvas.style.width = canvas.style.width = canvas.width+'px';
+  var ctx = canvas.getContext('2d');
+  var count = -1/36;
+  var count2 = 2/3+1/18;
+  var update = 0;
+
+  function draw() {
+    ctx.fillStyle='#fff';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.beginPath();
+    polygon(ctx,250,250,200,3,angle,false);
+//polygon(ctx,350,350,50,3,-Math.PI/6,true);    
+    ctx.fillStyle="rgba(255,0,51,0.75)";
+    ctx.fill();
+    ctx.fillStyle="rgba(255,255,51,0.75)";
+    polygon(ctx,250,250,200,3,-2*angle,false);
+    ctx.fill();
+    polygon(ctx,250,250,200,3,angle2,true);    
+    ctx.fillStyle="rgba(255,153,0,0.75)";
+    ctx.fill();
+   
+    ctx.fillStyle="rgba(0,204,255,0.25)";
+    polygon(ctx,250,250,200,3,-Math.PI/2,true);
+    //console.log(sides1,sides);
+    ctx.fill();
+    ctx.beginPath();
+    polygon(ctx,250,250,200,3,-Math.PI/2,true)
+    ctx.strokeStyle="#000";
+    
+    ctx.stroke();    
+    
+    //ctx.strokeRect(350-100,350-100,200,200);
+    var color = ['#000','#f00','#0c0','#00c'];
+    var radius = 200;
+    //
+    for (var i = 1; i <= 3; i++) {
+      ctx.strokeStyle=color[0];
+      ctx.save();
+      ctx.translate(250,250);
+      ctx.rotate(-(Math.PI / 2)); 
+      ctx.beginPath();
+      var a = (Math.PI * 2)/3;   
+      ctx.fillStyle=color[i];  
+      //ctx.fillRect(radius*Math.cos(a*i)-2.5,radius*Math.sin(a*i)-2.5,5,5);
+      ctx.moveTo(radius*Math.cos(a*i),radius*Math.sin(a*i));
+      ctx.lineTo((radius*Math.cos(a*(i-1))+radius*Math.cos(a*(i+1)))/2,
+                 (radius*Math.sin(a*(i+1))+radius*Math.sin(a*(i-1)))/2);
+      ctx.lineTo((radius*Math.cos(a*i)+radius*Math.cos(a*(i+1)))/2,
+                 (radius*Math.sin(a*i)+radius*Math.sin(a*(i+1)))/2);
+      ctx.lineTo((2*(radius*Math.cos(a*i))+radius*Math.cos(a*(i+2))+radius*Math.cos(a*(i)))/4,
+                   (2*(radius*Math.sin(a*i))+radius*Math.sin(a*(i+2))+radius*Math.sin(a*(i)))/4);
+      //ctx.fillRect((2*(radius*Math.cos(a*i))+radius*Math.cos(a*(i+2))+radius*Math.cos(a*(i)))/4-5,
+      //             (2*(radius*Math.sin(a*i))+radius*Math.sin(a*(i+2))+radius*Math.sin(a*(i)))/4-5,10,10);
+      ctx.lineTo((2*(radius*Math.cos(a*i))+radius*Math.cos(a*i)+radius*Math.cos(a*(i+1)))/4,
+                   (2*(radius*Math.sin(a*i))+radius*Math.sin(a*i)+radius*Math.sin(a*(i+1)))/4);
+      ctx.lineTo((radius*Math.cos(a*i)+radius*Math.cos(a*(i-1)))/2,
+                   (radius*Math.sin(a*i)+radius*Math.sin(a*(i-1)))/2);
+      //ctx.closePath();
+      ctx.restore();
+      ctx.stroke();
+    }
+    
+  }
+
+  function updateDraw() {
+    
+    if (update == 0) {
+      //count += 1/36;
+      //count2 -= 1/18;
+      angle =  Math.PI;
+      angle2 = Math.PI / 2;
+      draw();
+      if (count >= 2/3) {count = 0;}
+      if (count2 <= 0) {count2 = 2/3;}
+      update = 1;
+    } else {
+      //update++;
+      if (update > 10) update = 0;
+    }
+    
+    requestAnimationFrame(function() {updateDraw();});
+  }
+
+  updateDraw();
+  </script>
+ </body>
+</html>

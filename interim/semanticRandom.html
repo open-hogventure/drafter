@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+ </head>
+
+ <body>
+  <canvas></canvas><br>
+  <input id="semantic" type="number" min="1000" placeholder="semantic value"/><br>
+  <input id="semiotic" type="number" min="1000" placeholder="semiotic value"/><br>
+  <button onclick="start();">start</button><br>
+  semantics:<div id="semDiv"></div><br>
+  semiotics:<div id="sioDiv"></div><br>
+  <script>
+    
+    /**
+    */
+    var rand = {};
+    /**
+    * semantic tree:
+    * a static or dynamic array of values 
+    * to modify an random number chosen by such a random number
+    * move, remove, add values on 'random' choice base
+    * use fibonaci-numbers here or prime-numbers or a combination of both
+    * or another pattern (user input map numbers)
+    */
+    rand.semantic = [1,2,3,5,7,11,13,17,19,23,29,31,0];
+   
+    rand.currentSem = rand.semantic[0];
+    /**
+    * a semiotic is a static object like this one
+    * establishing a kind of grammar
+    * you mighht implement this in a dynamic way though
+    */
+    rand.semiotic = {
+                    0:function() { 
+                      rand.currentSem = rand.getSemantic();
+                      return 0;},//next value = carry on
+                    1:function() { 
+                      rand.currentSem = rand.semantic[(rand.getSemantic()+1)%rand.semantic.length];                      
+                      return 1; },//skip one forward make size smaller
+                    2:function() {
+                      rand.currentSem = rand.getSemantic();
+                      rand.semantic.splice(Math.floor(rand.next()*rand.semantic.length),1); 
+                      if (rand.semantic.length==0) {
+                        console.log('STOP');
+                        document.querySelector('button').setAttribute('disabled','true');
+                        return 16; 
+                      }
+                      rand.currentSem = rand.getSemantic();
+                      return 2; 
+                      },//remove value = change mode
+                    3:function() { 
+                      rand.semantic.push(Math.ceil(rand.next()*rand.semantic.length)+1);
+                      console.log(rand.semantic.length,'pushed='+rand.semantic[rand.semantic.length-1]);
+                      rand.currentSem = rand.getSemantic();
+                      return 4; },//add new value enlarge size
+                    /**
+                    * 4 is a function                    
+                    * something like question mark or exclamation
+                    * @return 7 or 8
+                    */
+                    4:function(r, r2) {
+                      rand.currentSem = rand.getSemantic();
+                      if (r < r2) { return 7; } 
+                      //else
+                      return 8; },//change color or pattern
+                    5:function() { rand.currentSem = rand.getSemantic(); var i = rand.semiotic[2](); return 15; },//point = change >> color, size, pattern and mode
+                    6:function() { rand.currentSem = rand.getSemantic(); 
+                       document.querySelector('button').removeAttribute('disabled');
+                      var i =  rand.semiotic[2](); return 16;}, //16 is end of life cycle EOL? or change signal
+                    length:7
+                   }; 
+      
+      rand.seed = Date.now()%100000000;
+      rand.seed2 = 134775813;
+      /**
+      * initializes the random seed
+      */
+      rand.init = function(seed, seeed) {
+        if (seed != 'undefined' && seed != null && seed!==false && seed != '' && !Number.isNaN(seed) && seed > 1) rand.seed = seed;
+        if (seeed != 'undefined' && seeed != null && seeed!==false && seeed != '' && !Number.isNaN(seeed) && seeed > 1) {
+          rand.seed2 = seeed;
+        }
+        console.log('seeds', rand.seed, rand.seed2);
+        initialized = true;
+      };
+      /**
+      * chosen sematics and semiotics modify the random seed
+      */
+      rand.modifySeed = function(mod) {
+        var maxi = Math.pow(2,30);
+        //console.log(this.seed,'mod='+mod);
+        rand.seed = (rand.seed + mod) % maxi; 
+        //console.log(this.seed,'mod='+mod);
+      };
+
+      
+      /**
+      * @return a random number between 0 and 1
+      */
+      rand.next = function() { //lower,upper) {
+        var maxi = Math.pow(2,30);
+        rand.seed = (rand.seed2 * (rand.seed + 1)) % maxi;
+        //console.log(this.seed,'num');
+        var num = rand.seed / maxi;
+        //console.log(this.seed,'num='+num);
+        /*if(typeof lower!='undefined') {
+          var range = upper - lower;
+          num *= range;
+          num += lower;
+          num = Math.floor(num);
+        }*/
+        return num;
+      }
+
+      rand.getSemantic = function() {        
+        var sem = Math.floor(rand.next() * rand.semantic.length);
+        sem = rand.semantic[sem];
+        rand.modifySeed(sem);
+        return sem;
+      }
+
+      rand.getSemiotic = function() {        
+        var sio = Math.floor(rand.next() * rand.semiotic.length);
+        //console.log(this.seed,rand.semiotic.length,sio,rand.semiotic, rand.semiotic[sio]);
+        if (sio == 4) {
+          rand.semiotic[sio](sio,Math.ceil(rand.next() * rand.semantic.length));
+        } else {
+          sio = rand.semiotic[sio]();
+        }
+        rand.modifySeed(sio);
+        return sio;
+      }
+
+      function start() {
+        var sem = document.getElementById('semantic').value;
+        var sio = document.getElementById('semiotic').value;
+        if (!Number.isNaN(sem) && sem!==false && !initialized) {
+          //initialize
+          rand.init(sem,sio);
+          initialized = true;
+        }
+        document.querySelector('button').setAttribute('disabled','true');
+        document.getElementById('semiotic').setAttribute('disabled','true');
+        document.getElementById('semantic').setAttribute('disabled','true');
+        document.getElementById('semiotic').value = rand.seed2;
+        document.getElementById('semantic').value = rand.seed;
+        cpattern = rand.getSemantic()%patterns.length;
+        ccolor = rand.getSemantic()%colors.length;
+        size = 100/(rand.getSemantic()+1);     
+        requestAnimationFrame(function() { createPatternLoop(); });
+      }
+
+      function createPatternLoop() {
+        sio = rand.getSemiotic();        
+        sem = rand.currentSem;
+        document.getElementById('semDiv').innerHTML=document.getElementById('semDiv').innerHTML+', '+sem;
+        document.getElementById('sioDiv').innerHTML=document.getElementById('sioDiv').innerHTML+', '+sio;
+        if (sio != 16) {
+          draw(sio,sem);
+          requestAnimationFrame(function() { createPatternLoop(); });
+        }
+      }
+      var canvas = document.querySelector('canvas');
+      canvas.width=400;
+      canvas.height=canvas.width;
+      canvas.style.width=canvas.style.height=canvas.width+'px';
+      var ctx = canvas.getContext('2d');
+
+      function draw(sio,sem) {
+        if (sem=='undefined'||sio=='undefined'||sio==16)return;
+        if (posX == 0) {
+          posX = Math.round(100+200/(rand.getSemantic()+1));
+          posY = Math.round(100+200/(rand.getSemantic()+1));
+        } else {
+          var npx = 0;
+          var npy = 0;
+          var a = rand.next() * 2 * Math.PI;
+          while (npx < 100 || npx > 300 || npy < 100 || npy > 300) {   
+            npx = posX + Math.cos(a)*(size);
+            npy = posY + Math.sin(a)*(size);
+            if (npy == 'Infinity') {
+             npy = Math.round(100+200/(rand.getSemantic()+1));
+            }
+            if (npx == 'Infinity') {
+             npx = Math.round(100+200/(rand.getSemantic()+1));
+            }
+            a = rand.next()* 2 * Math.PI;
+          }
+          //78453 3445680
+          posX = Math.round(npx);
+          posY = Math.round(npy);
+          if (posY == 'Infinity') {
+             posY = Math.round(100+200/(rand.getSemantic()+1));
+          }
+          if (posX == 'Infinity') {
+             posX = Math.round(100+200/(rand.getSemantic()+1));
+          }
+        }        
+        switch (sio) {
+          case 0: //carry on
+          break;          
+          case 1: 
+            //smaller size
+            var nsize = 100;
+            var i = 0;
+            while (nsize > size && i < 5) {
+              nsize = 100/rand.getSemantic();
+              i++;
+            }
+            if (nsize > size) nsize = size -1;
+            size = nsize;
+          break;
+          case 2:
+            //change mode
+            mode = !mode;
+          break;
+          case 4: 
+            //enlarge size
+            var nsize = 0;
+            var i = 0;
+            while (nsize < size && i < 5) {
+              nsize = 100/rand.getSemantic();
+              i++;
+            }
+            if (nsize < size) nsize = size + 1;
+            size = nsize;
+          break;
+          case 7: 
+            //change color
+            ccolor = rand.getSemantic()%colors.length;
+            break;
+          case 8: 
+            //change pattern
+            cpattern += rand.getSemantic()%patterns.length;
+            cpattern = cpattern%patterns.length;
+            break;
+          case 15: 
+            //change pattern, mode, size, color
+            ccolor = rand.getSemantic()%colors.length;
+            cpattern += rand.getSemantic()%patterns.length;
+            cpattern = cpattern%patterns.length;
+            mode = !mode;
+            size = 100/rand.getSemantic();
+            break;
+          default: break;
+        } 
+        ctx.fillStyle = colors[ccolor];
+        if (!mode) ctx.fillStyle = '#fff';
+        console.log('mode='+mode,patterns[cpattern],'x='+posX+'y='+posY);
+        switch (patterns[cpattern]) {
+          //case 'quadrangle':
+          //case 'triangle': 
+          case 'circle': 
+            ctx.beginPath();
+            ctx.arc(posX, posY, size, 0, 2 * Math.PI);            
+          break;
+          
+          case 'triangle':    
+            ctx.beginPath();
+            ctx.ellipse(posX, posY, size, size/((rand.getSemantic()%3)+1), rand.next()*360 * Math.PI/180, 0, 2 * Math.PI);
+            /*
+            var a=rand.next() * 2 * Math.PI;
+            var b=rand.next() * 2 * Math.PI;
+            var c=rand.next() * 2 * Math.PI;
+            ctx.beginPath();
+            ctx.moveTo(posX+size/2 + Math.cos(a)*(size), posY+size/2 + Math.sin(a)*(size));
+            ctx.lineTo(posX+size/2 + Math.cos(a+b)*(size), posY+size/2 + Math.sin(a+b)*(size));
+            ctx.lineTo(posX+size/2 + Math.cos(a+b+c)*(size), posY+size/2 + Math.sin(a+b+c)*(size));
+            ctx.lineTo(posX+size/2 + Math.cos(a)*(size), posY+size/2 + Math.sin(a)*(size));
+            */
+          break;
+          case 'quadrangle': 
+            ctx.beginPath();
+           
+            var a=rand.next() * 2 * Math.PI;
+            var b=rand.next() * 2 * Math.PI;
+            var c=rand.next() * 2 * Math.PI;
+            var d=rand.next() * 2 * Math.PI;
+            ctx.beginPath();
+            ctx.moveTo(posX+size/2 + Math.cos(a)*(size), posY+size/2 + Math.sin(a)*(size));
+            ctx.lineTo(posX+size/2 + Math.cos(a+b)*(size), posY+size/2 + Math.sin(a+b)*(size));
+            ctx.lineTo(posX+size/2 + Math.cos(a+b+c)*(size), posY+size/2 + Math.sin(a+b+c)*(size));
+            ctx.lineTo(posX+size/2 + Math.cos(a+b+c+d)*(size), posY+size/2 + Math.sin(a+b+c+d)*(size));       
+            ctx.lineTo(posX+size/2 + Math.cos(a)*(size), posY+size/2 + Math.sin(a)*(size));
+          break;
+        }
+        ctx.fill();
+      }
+
+      var patterns = ['circle','triangle','quadrangle'];
+      var cpattern = 0;
+      //var patternObj = {};
+      var mode = true;//true = 'fill color' or false= 'fill white|tranparent>>remove'
+      var size = 1;
+      var colors = ['#f00','#ff0','#0f0','#0ff','#00f','#f0f','#000','#900','#990','#090','#099','#009','#909','#999','#f90','#eee'];
+      var ccolor = 0;
+      var posX = 0;
+      var posY = 0;
+      var initialized = false;
+  </script>
+ </body>
+</html>

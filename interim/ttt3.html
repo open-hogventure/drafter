@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html style="width: 100%; height:100%;">
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+ </head>
+
+ <body style="width: 100%; height:100%;">
+  <!--sc ript>
+  var pressed = false;
+  var timer = null;
+  var mx = -1;
+  var my = -1;
+  //drag press longtouch
+   var body = document.body;
+   body.addEventListener('touchstart',function(eve) {
+    mx = eve.touches[0].pageX;
+    my = eve.touches[0].pageY;
+    mousePress(mx,my);
+   },false);
+   body.addEventListener('touchmove',function(eve) {
+    mx = eve.touches[0].pageX;
+    my = eve.touches[0].pageY;
+   },false);
+   body.addEventListener('touchend',function(eve) {
+    if (mx >= 0 && my >= 0) mouseUp(mx,my);
+    mx = -1;
+    my = -1;
+   },false);
+   body.addEventListener('touchcancel',function(eve) {
+    if (mx >= 0 && my >= 0) mouseUp(mx,my);
+    mx = -1;
+    my = -1;
+   },false);
+
+    function mousePress(x,y) {
+      if (!pressed) {
+        pressed = true;
+        if (timer) {
+          clearTimeout(timer);
+          timer = 0;
+        }
+        timer = setTimeout(function() {longPress();}, 1000);
+        console.log("press");
+      }
+    }
+
+    function longPress() {
+       if (timer) {
+          clearTimeout(timer);
+          timer = 0;         
+        }
+        lpress = true;
+        alert('longpress');
+    }
+
+    //if the mouse has been moved clear the timer
+    function mouseUp(x,y) {
+      //clear the timer
+      if (timer) {
+          clearTimeout(timer);
+          timer = 0;           
+      }
+      lpress = false;
+      pressed = false;
+    };
+  </sc ript-->
+
+  <script>
+  //[top,left,bottom,right,floor,ceiling]
+  var _f = [0,0,0,0,1,1];
+  var no = [0,0,0,0,0,0];
+  var nt = [1,0,0,0,0,0];
+  var nb = [0,0,1,0,0,0];
+  var nl = [0,1,0,0,0,0];
+  var nr = [0,0,0,1,0,0];
+  var wt = [1,0,0,0,1,1];
+  var wl = [0,1,0,0,1,1];
+  var wb = [0,0,1,0,1,1];
+  var wr = [0,0,0,1,1,1];
+  var tl = [1,1,0,0,1,1];
+  var tr = [1,0,0,1,1,1];
+  var bl = [0,1,1,0,1,1];
+  var br = [0,0,1,1,1,1];
+  var _h = [0,0,0,0,2,2];
+  var hr = [0,0,0,2,2,2];
+  var hb = [0,0,2,0,0,0];
+  var ht = [2,0,0,0,1,1];
+  //wt = wall top
+  //nr = no floor, but wall on the right
+  //_f = floor with normal ceiling
+  //_h = floor with high ceiling
+  //hb = high bottom wall no floor/ceiling
+  //ht = high (top) wall, floor & normal ceiling
+  //hr&hl like et
+  //serpentine west gallery
+  var tiles = [
+    [tl,wt,wt,wt,tr,no,no,no,no,no,no,no,tl,wt,wt,wt,tr],
+    [wl,_f,_f,_f,wr,no,no,no,no,no,no,no,wl,_f,_f,_f,wr],
+    [wl,_f,_f,_f,wr,hb,hb,hb,hb,hb,hb,hb,wl,_f,_f,_f,wr],
+    [wl,_f,_f,_f,rh,_h,_h,_h,_h,_h,_h,_h,lh,_f,_f,_f,wr],
+    [wl,_f,_f,_f,hr,_h,_h,_h,_h,_h,_h,_h,hl,_f,_f,_f,wr],
+    [wl,_f,_f,_f,hr,_h,_h,_h,_h,_h,_h,_h,hl,_f,_f,_f,wr],
+    [wl,_f,_f,_f,hr,_h,_h,_h,_h,_h,_h,_h,hl,_f,_f,_f,wr],
+    [wl,_f,_f,_f,hr,_h,_h,_h,_h,_h,_h,_h,hl,_f,_f,_f,wr],
+    [wl,_f,_f,_f,hr,_h,_h,_h,_h,_h,_h,_h,hl,_f,_f,_f,wr],
+    [bl,wb,_f,_f,_f,ht,ht,ht,ht,ht,ht,ht,_f,_f,_f,wb,br],
+    [no,nr,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,nl,no],
+    [no,no,bl,wb,wb,_f,_f,_f,_f,_f,_f,_f,wb,wb,br,no,no],
+    [no,no,no,no,nr,_f,_f,_f,_f,_f,_f,_f,nl,no,no,no,no],
+    [no,no,no,no,nr,_f,_f,_f,_f,_f,_f,_f,nl,no,no,no,no],
+    [no,no,no,no,no,bl,wb,wb,db,wb,wb,br,no,no,no,no,no],
+  ];
+  </script>
+ </body>
+</html>

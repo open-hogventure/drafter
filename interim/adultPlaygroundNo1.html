@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+<style>
+  /*perfectfiiting for the canvas, same prime color like canvas*/
+  body {overflow: hidden; margin: 0; background: #ccc;}
+  canvas {background: #ccc;}
+</style> 
+ </head>
+ <body>
+  <canvas></canvas>
+  <script>
+  var canvas = document.querySelector('canvas');
+  var ctx = null;//
+
+  var buffer = document.createElement('canvas');
+  buffer.width = 900;
+  buffer.height = 600;
+  var btx = buffer.getContext('2d');
+  var buffer2 = document.createElement('canvas');
+  buffer2.width = 300;
+  buffer2.height = 300;
+  var btx2 = buffer2.getContext('2d');
+
+  var pressed = false;
+  var mx, px, py, my;
+  var update = false;
+
+  var objects = [];
+
+  var selectedObject = null;
+
+  var positions = [];
+
+  function init() {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    if (w < h) {
+      h = w;
+    } else {
+      w = h;
+    }
+    //we want the canvas to be a square
+    canvas.width = w;
+    canvas.height = h;
+    ctx = canvas.getContext('2d');
+    //add the touch and the mouse event both to the mouse input event tracking methods
+    py = px = my = mx = 0;    
+    //if (touch) {
+      //register touch events
+    //} else {
+      //register mouse events
+      canvas.addEventListener('mousedown', function(event) { 
+        mx = event.pageX / canvas.width;
+        my = event.pageY / canvas.height;
+        mousePressed(mx, my);
+      }, true);
+      canvas.addEventListener('mousemove', function(event) { 
+        mx = event.pageX / canvas.width;
+        my = event.pageY / canvas.height;
+        mouseMoved(mx, my);
+      }, true);
+      canvas.addEventListener('mouseup', function(event) { 
+        mx = event.pageX / canvas.width;
+        my = event.pageY / canvas.height;
+        mouseReleased(mx, my);
+      }, true);
+    //}
+    //create the 6 positions
+    var pos = null;
+    for (var i = 0; i < 3; i++) {
+      for (var j = 0; j < 2; j++) {
+        pos = new GameObject('p_'+i+'-'+j);
+        pos.ox = pos.x = 0.05 + i * 0.3;
+        pos.oy = pos.y = 0.05 + j * 0.3;
+        pos.w = pos.h = 0.295;
+        pos.i = i;
+        pos.j = j;
+        positions.push(pos);
+      }
+    }
+    
+    //create 3 game objects here
+    objects = [];
+    var obj = null;
+    for (var i = 0; i < 3; i++) {
+      obj = new GameObject('o_'+i);
+      //obj.ox = obj.x = 0.05 + i * 0.15;
+      //obj.oy = obj.y = 0.05 + i * 0.15;
+      var rnd = -1;
+      while (rnd == -1) {
+        rnd = Math.floor(Math.random() * positions.length);
+        if (objects.length > 0) {
+          for (var j = 0; j < objects.length; j++) {
+            if (rnd > -1 && objects[j].x == positions[rnd].x && objects[j].y == positions[rnd].y) {
+              rnd = -1;
+            }
+          }
+        }
+      }
+      obj.ox = obj.x = positions[rnd].x;
+      obj.oy = obj.y = positions[rnd].y;
+      obj.i = positions[rnd].i;
+      obj.j = positions[rnd].j;
+      obj.w = obj.h = 0.295;
+      objects.push(obj);
+    }
+    update = true;
+    requestAnimationFrame(function() { updateContext(); });
+  }
+  function updateContext() {
+    if (update) {
+      drawContext();
+      update = false;
+    }
+    requestAnimationFrame(function() { updateContext(); });
+  }
+  function drawContext() {
+    var cw = canvas.width;
+    var ch = canvas.height;
+    ctx.font = '20px sans-serif';
+    ctx.fillStyle = '#ccc';
+    ctx.fillRect(0,0,cw,ch);
+    ctx.fillStyle = '#000';
+    ctx.fillText(objects.length+' objects' ,5, 20);
+    
+    var pos = null;
+    ctx.fillStyle = '#aaa';
+    for (var i = 0; i < positions.length; i++) {
+      pos = positions[i];             
+      ctx.fillRect(pos.x * cw, pos.y * ch, pos.w * cw, 1);        
+      ctx.fillText(pos.id ,pos.x * cw + 5, pos.y * ch + 20);           
+    }
+
+    var obj = null;
+    for (var i = 0; i < objects.length; i++) {
+      obj = objects[i];
+      if (!obj.selected) {
+        ctx.fillStyle = obj.c;
+        ctx.fillRect(obj.x * cw, obj.y * ch, obj.w * cw, obj.h * ch);
+        ctx.fillStyle = '#000';
+        ctx.fillText(obj.id+' '+obj.i+' '+obj.j, obj.x * cw + 5, obj.y * ch + 20);
+        if (obj.img != null) {
+          ctx.drawImage(obj.img, obj.x * cw, obj.y * ch, obj.w * cw, obj.h * ch);
+        }
+      }      
+    }
+    if (selectedObject != null) {
+      obj = selectedObject;
+      ctx.fillStyle = 'rgba(102,102,102,0.5)';
+      ctx.fillRect(obj.x * cw + 10, obj.y * ch + 10, obj.w * cw, obj.h * ch);
+      ctx.fillStyle = obj.c;
+      ctx.fillRect(obj.x * cw, obj.y * ch, obj.w * cw, obj.h * ch);
+      ctx.fillStyle = '#000';
+      ctx.fillText(obj.id+' '+obj.i+' '+obj.j, obj.x * cw + 5, obj.y * ch + 20);
+      if (obj.img != null) {
+        ctx.drawImage(obj.img, obj.x * cw, obj.y * ch, obj.w * cw, obj.h * ch);
+      }
+    }
+  }
+  function mousePressed(x,y) {
+    if (!pressed) {
+      selectedObject = null;
+      var obj = null;
+      for (var i = 0; i < objects.length; i++) {
+        obj = objects[i];
+        if (obj.isPointed(x,y)) {
+          obj.selected = true;
+          selectedObject = obj;
+        } else {
+          obj.selected = false;
+        }
+      }
+      if (selectedObject != null) {
+        px = x - selectedObject.x;
+        py = y - selectedObject.y;
+      }
+      pressed = true;
+      update = true;
+    }
+  }
+  function mouseMoved(x,y) {
+    if (pressed) {          
+      if (selectedObject != null) {
+        //move the object
+        selectedObject.x = x - px;
+        selectedObject.y = y - py;
+      }
+      update = true;
+    }
+  }
+  function mouseReleased(x,y) {
+    if (pressed) {
+      if (selectedObject != null) {
+        //move the object to the final point
+        selectedObject.x = x - px;
+        selectedObject.y = y - py;
+        //match the selected to a raster position
+       
+        
+        var match = null;
+        var pos = null;
+        var obj = null;
+        for (var i = 0; i < positions.length; i++) {
+          pos = positions[i];
+          if (pos.isPointed(selectedObject.x + selectedObject.w /2,
+                            selectedObject.y + selectedObject.h /2) 
+             ) 
+          {
+            match = pos;
+            
+            for (var j = 0; j < objects.length; j++) {
+              obj = objects[j];
+              if (!obj.selected && pos.x == obj.x && pos.y == obj.y) {
+                 match = null;
+              }
+            }
+          }
+        }
+        if (match == null) {
+          selectedObject.x = selectedObject.ox;
+          selectedObject.y = selectedObject.oy;
+        } else {     
+          selectedObject.x = match.x;
+          selectedObject.y = match.y;   
+          selectedObject.ox = selectedObject.x;
+          selectedObject.oy = selectedObject.y;
+          selectedObject.i = match.i;
+          selectedObject.j = match.j; 
+          //get the neighbor object(s) [and the related orientation(horizontal or vertical)]
+          //we use a global buffer canvas instead
+          //empty array no neighbor(s)
+          var neighbors = getNeighbors(selectedObject);
+          console.log('neighbors',neighbors);
+          //draw a line on them with a random color
+          drawLineToNeighbors(selectedObject, neighbors);
+          //get the new images contents
+        }
+        //and release by unselect
+        selectedObject.selected = false;
+        selectedObject = null;
+      }
+      py = px = my = mx = 0;
+      pressed = false;
+      update = true;
+    }
+  }
+  function getNeighbors(so) {
+    var obj = null;
+    var neighbors = [];
+    for (var i = 0; i < objects.length; i++) {
+      obj = objects[i];
+      if (
+          (so.i == obj.i + 1 && so.j == obj.j) ||
+          (so.i == obj.i - 1 && so.j == obj.j) ||
+          (so.i == obj.i && so.j == obj.j + 1) ||
+          (so.i == obj.i && so.j == obj.j - 1)
+         ) 
+      {
+        neighbors.push(obj);
+      }
+    }
+    return neighbors;
+  }
+  function drawLineToNeighbors(so, nes) {
+    var bw = buffer.width;
+    var bh = buffer.height;
+    btx.clearRect(0,0,bw,bh);
+    btx.drawImage(so.img, so.i * bw / 3, so.j * bh/2, bw / 3, bh /2);
+    
+    var imgData = null;
+    var nei = null;
+    for (var i = 0; i < nes.length; i++) {
+      nei = nes[i];
+      btx.drawImage(nei.img, nei.i * bw / 3, nei.j * bh/2, bw / 3, bh /2);
+      btx.fillStyle = 'rgba(' + (102+51*Math.floor(Math.random()*4)) + 
+                            ',' + (102+51*Math.floor(Math.random()*4)) +
+                            ',' + (51*Math.floor(Math.random()*4))+',0.5)';
+      btx.beginPath();
+      var x = Math.floor(Math.random() * bw / 3);
+      var wx = bw / 3 - x;
+      var w = Math.floor(Math.random() * wx);
+
+      var y = Math.floor(Math.random() * bh / 2);
+      var hy = bw / 2 - y;
+      var h = Math.floor(Math.random() * hy);
+      btx.moveTo(so.i * bw / 3 + x, so.j * bh/2 + y);
+      btx.lineTo(so.i * bw / 3 + bw / 3 + w, so.j * bh/2 + bh/2 + h);
+      btx.lineTo(nei.i * bw / 3 + bw / 3 + w, nei.j * bh/2 + bh/2 + h);
+      btx.lineTo(nei.i * bw / 3 + x, nei.j * bh/2 + y);
+      btx.fill();
+      imgData = btx.getImageData(nei.i * bw / 3, nei.j * bh/2, bw / 3, bh/2);
+      btx2.clearRect(0,0,buffer2.width,buffer2.height);
+      btx2.putImageData(imgData,0,0);
+      nei.img.src = buffer2.toDataURL();
+    }
+    imgData = btx.getImageData(so.i * bw / 3, so.j * bh/2, bw / 3, bh/2);
+    btx2.clearRect(0,0,buffer2.width,buffer2.height);
+    btx2.putImageData(imgData,0,0);
+    so.img.src = buffer2.toDataURL();
+  }
+  function GameObject(id) {
+    this.id = id;
+    this.x = 0;
+    this.i = 0;
+    this.j = 0;
+    this.y = 0;
+    this.ox = 0;
+    this.oy = 0;
+    this.w = 0;
+    this.h = 0;
+    this.selected = false;
+    this.c = '#fff';
+    this.img = new Image();
+
+    this.isPointed = function(x, y) {
+      return (this.x <= x && this.y <= y && this.x + this.w >= x && this.y + this.h >= y);
+    };
+  }
+
+  window.onload = function() {
+    setTimeout(init, 100);
+  };
+  </script>
+ </body>
+</html>

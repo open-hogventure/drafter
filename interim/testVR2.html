@@ -1,0 +1,139 @@
+<!DOCTYPE html >
+<html>
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <!--script src="https://aframe.io/releases/0.2.0/aframe.min.js"></script-->
+  <script src="aframe-html-shader.js"></script>
+  <style>
+  #target {
+      width: 512px;
+      height: 512px;
+      position: absolute;
+      background: rgba(255,255,255,0.3);
+      font-family: monospace;
+      font-size: 30px;
+    }
+  #target h2 {
+      font-family: monospace;
+      font-size: 60px;
+      margin: 0px;
+      vertical-align: top;
+      color: black;
+    }
+    #target h1 span {
+      color: red;
+    }
+    #htmlTarget {
+      position: absolute;
+      z-index: 1;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+  </style>
+ </head>
+
+ <body>
+ <div id="htmlTarget" style="z-index: -1;" draggable="false">      
+      <div id="target">
+        <h2>HELLO<span>&star;</span></h2>
+        This is an A-frame HTML component<br>
+        with some text
+        <br>
+        inside and not a <a href="http://google.com">link</a><br>
+        all tough it looks like one, indeed.<br>
+        A-frame is<br>
+        with some text
+        <br>
+        inside and not a <a href="http://google.com">link</a><br>
+        all tough it looks like one, indeed.
+      </div>
+    </div>
+  <a-scene rotation="0 45 0" style="z-index:1">
+  <a-assets>
+    <img id="dark" src="gdx8x6.png">
+    <img id="gray" src="gx8x6.png">
+    <img id="stripe" src="mx8x6.png">
+    <img id="uni" src="proxy.jpg">
+    <audio id="solitaire" src="solitaire.mp3">
+  </a-assets>
+  
+  <!-- Using the asset management system. -->
+  
+ 
+  <!--a-image look-at="#top" src="#uni" width="5" height="5" position="-1.75 0 1.75"></a-image>
+  
+  <a-image id="sound" look-at="#top" src="#uni" width="5" height="5" position="1.75 0 -1.75" translate="0 0 -5" sound="src: solitaire.mp3;" ></a-image>  
+  
+  <a-image look-at="#top" src="#uni" width="5" height="5" position="1.75 0 1.75"></a-image>
+
+  <a-image id="stripe" look-at="#top" src="#stripe" width="5" height="5" position="-1.75 0 -1.75" sound="src: solitaire.mp3;" ></a-image-->
+
+  <a-entity camera look-controls wasd-controls></a-entity>
+  
+  <a-entity id="top" rotation="0 45 0">
+    <a-box look-at="#top" color="#aaa" depth="0.2" height="2" width="2" position="0 -1 0"></a-box>
+    <a-box look-at="#top" color="#ddd" depth="0.2" height="2" width="2" position="0 1 0"></a-box>
+    <a-box look-at="#top" color="#fff" depth="0.2" height="2" width="2" position="3 0 0"></a-box>
+    <a-box look-at="#top" color="#fff" depth="0.2" height="2" width="2" position="-1 0 0"></a-box>
+
+    <a-box look-at="#top" color="#fff" depth="0.2" height="2" width="2" position="3 0 0" translate="0 2 0"></a-box>
+
+    <a-box look-at="#top" color="#aaa" depth="0.2" height="2" width="2" position="0 -1 0" translate="2 0 0"></a-box>
+    <a-box look-at="#top" color="#aaa" depth="0.2" height="2" width="2" position="0 -1 0" translate="2 -2 0"></a-box>
+    <a-box look-at="#top" color="#aaa" depth="0.2" height="2" width="2" position="0 -1 0" translate="0 -2 "></a-box>
+
+   <a-entity id="lettersEntity" geometry="primitive:box;width:1;height:1;depth:0.02" rotation="0 90 0" position="-0.9 0 0" material="shader:html;target:#target;transparent:true;ratio:width;fps:0;" sound="src: solitaire.mp3;"></a-entity>
+
+     <!--a-image look-at="#top" src="#gray" width="5" height="5" position="0 -2.5 0"></a-image>
+    <a-image look-at="#top" src="#dark" width="5" height="5" position="0 2.5 0"></a-image>
+     <a-image look-at="#top" src="#gray" width="5" height="5" position="0 -2.5 0" translate="0 -5 0"></a-image-->
+  </a-entity>
+  
+  
+
+  <a-entity light="color: #fffff4; groundColor: #f4e9ff; intensity: 0.95; type: hemisphere"></a-entity>
+  <!--a-entity light="type: spot; angle: 45, distance: -10; decay: 0.5;"></a-entity-->
+  <a-entity light="type: point; intensity: 0.5; distance: 70; decay: 2.5"
+          position="0 10 10"></a-entity>
+          
+  <a-camera id="player" position="0 0 0" ><a-entity id="cursor" cursor="fuse: true; maxDistance: 3.5; timeout: 50"
+            position="0 -0.5 -0.9" scale="0.1 0.1 0.15"
+            geometry="primitive: ring; "
+            material="color: white; shader: flat; opacity: 0.5">
+  </a-entity></a-camera>
+  
+  
+  <a-sky src="#stripe"></a-sky>
+  <!-- Defining the URL inline. Not recommended but more comfortable for web developers. -->
+  <!--a-image src="tumblr_ni9i41ICA51qfjcnyo1_500.gif"></a-image-->
+</a-scene>
+
+<script>
+  document.querySelector('#lettersEntity').addEventListener('click', function (eve) {    
+    document.querySelector('#lettersEntity').pause();
+    this.setAttribute('material', 'color', 'red');
+    console.log(this, this.id+' was clicked!');
+    this.play();
+  });
+  /*document.querySelector('#stripe').addEventListener('click', function (eve) {    
+    document.querySelector('[sound]').components.sound.pause();
+    this.setAttribute('material', 'color', 'red');
+    console.log(this, this.id+' was clicked!');
+    this.play();
+  });*/
+  document.querySelector('#cursor').addEventListener('mousedown', function (eve) {
+    console.log(eve, this);
+    document.querySelector('#lettersEntity').pause();
+    document.querySelector('#lettersEntity').setAttribute('material', 'color', 'transparent');
+  });
+  var htmlTarget = document.getElementById('htmlTarget');
+  var scene = document.querySelector('a-scene');
+  
+</script>
+ </body>
+</html>
